@@ -1,0 +1,25 @@
+{
+  "name": "@dropchad/indexer",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Ponder indexer for the dropchad factory on Robinhood Chain.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "ponder dev",
+    "start": "ponder start",
+    "codegen": "ponder codegen",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dropchad/chains": "*",
+    "@dropchad/shared": "*",
+    "hono": "^4.13.7",
+    "ponder": "^0.17.10",
+    "viem": "^2.56.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

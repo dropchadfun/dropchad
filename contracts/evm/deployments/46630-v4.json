@@ -1,0 +1,20 @@
+{
+  "admin": "0x4F1E2b8e5F1C0EB9e01f0d420F6Cf324d9de9E8B",
+  "allowedCreator": "0xD736EA24684DC353Bde347fDb349c1c4dD1Ad23d",
+  "allowedTokens": [
+    "0x077aC8FfC52458C6BF08d427c5eB038bE3f06F03",
+    "0x61Cb4e7Be9A366fDa2D4c528b817cc426a039C3C"
+  ],
+  "block": 130766040,
+  "chainId": 46630,
+  "defaultFeeBps": 100,
+  "deployer": "0x4F1E2b8e5F1C0EB9e01f0d420F6Cf324d9de9E8B",
+  "factory": "0xEBb4847C1E79ab6Ca3B2680E4B18365365F8C9E4",
+  "feeRecipient": "0x4F1E2b8e5F1C0EB9e01f0d420F6Cf324d9de9E8B",
+  "implementation": "0xBb01721BFF0F6312488eb2058e56B723c27189D6",
+  "maxFeeAmount": 20000000000000000,
+  "minFeeAmount": 0,
+  "minFeePerReceiver": 10000000000000,
+  "registry": "0x9d11E77ad44b812c286c9579C8Ca1FC58e536735",
+  "timestamp": 1791415061
+}

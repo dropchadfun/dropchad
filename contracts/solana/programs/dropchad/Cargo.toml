@@ -1,0 +1,41 @@
+[package]
+name = "dropchad"
+version = "0.1.0"
+description = "dropchad merkle drops on Solana. docs/SPEC-SOLANA.md is the source of truth."
+edition.workspace = true
+rust-version.workspace = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "dropchad"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+anchor-lang = { version = "1.1.2", features = ["init-if-needed"] }
+anchor-spl = "1.1.2"
+# keccak: the sol_keccak256 syscall on chain, sha3 off chain for the tests. Same crate anchor pulls in.
+solana-keccak-hasher = { version = "3.1.0", features = ["sha3"] }
+# the safe #[account(zero_copy)] derive expands to ::bytemuck::Pod, so the crate must be a direct dependency
+bytemuck = { version = "1.17", features = ["derive", "min_const_generics"] }
+# the instructions sysvar reader and the Ed25519 program id. Already in Cargo.lock
+# through anchor-lang; anchor-lang 1.2 does not re-export them.
+solana-instructions-sysvar = "3.0.1"
+solana-sdk-ids = "3.1.0"
+
+[dev-dependencies]
+# precompiles: LiteSVM runs the Ed25519 signature check only with this on. Tests only.
+litesvm = { version = "0.10.0", features = ["precompiles"] }
+solana-message = "3.0.1"
+solana-transaction = "3.0.2"
+solana-signer = "3.0.0"
+solana-keypair = "3.0.1"
+base64 = "0.22"
+sha3 = "0.10"
+proptest = "1"

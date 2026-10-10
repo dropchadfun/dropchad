@@ -1,0 +1,97 @@
+# dropchad EVM contracts. Rules live in ../../ and ../../.
+
+[profile.default]
+src = "src"
+out = "out"
+test = "test"
+libs = ["lib"]
+
+solc_version = "0.8.26"
+# Robinhood Chain is Arbitrum Nitro. The live ArbOS version is not verified,
+# so TSTORE and MCOPY are not assumed. Paris is safe on every EVM chain we target.
+evm_version = "paris"
+
+optimizer = true
+optimizer_runs = 200
+via_ir = false
+
+bytecode_hash = "none"
+cbor_metadata = false
+
+remappings = [
+    "forge-std/=lib/forge-std/src/",
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+]
+
+# The only filesystem access the scripts need. Nothing else is reachable.
+#   ./deployments   Deploy.s.sol writes <chainid>.json, CreateTestDrop.s.sol reads it back
+#   ./script/input  the test receiver list. Read only, never written
+fs_permissions = [
+    {access = "read-write", path = "./deployments"},
+    {access = "read", path = "./script/input"},
+]
+
+[profile.default.fuzz]
+runs = 1000
+
+[profile.default.invariant]
+runs = 256
+depth = 50
+fail_on_revert = false
+
+[profile.ci]
+verbosity = 3
+
+[profile.ci.fuzz]
+runs = 10000
+
+[profile.ci.invariant]
+runs = 1024
+depth = 100
+fail_on_revert = false
+
+# Every exclusion below is a lint that fires on behaviour the design requires. Each one has a
+# reason. Anything not listed here must be fixed, not silenced. Four remaining findings are
+# suppressed line by line in the source, with the reason written next to the code.
+#   event-fields                   event signatures are fixed field for field by the design and
+#                                  11.2 because the indexer reads them. We cannot add `indexed`
+#   block-timestamp                the whole design is deadline based. to
+#                                  say why: the smallest period is a day, drift is minutes
+#   calls-loop                     claimBatch pays up to 20 recipients in one call
+#   require-revert-in-loop the design requires a bad proof to revert the whole batch
+#   missing-events-access-control  false positive. setCreatorAllowed and setTokenFactoryAllowed
+#                                  both emit. saltUsed is not access control
+#   reentrancy-events              false positive across claimBatch iterations. Inside one claim
+#                                  the order is effects, event, then transfer.
+[lint]
+exclude_lints = [
+    "event-fields",
+    "block-timestamp",
+    "calls-loop",
+    "require-revert-in-loop",
+    "missing-events-access-control",
+    "reentrancy-events",
+]
+ignore = ["test/**/*.sol", "lib/**/*.sol"]
+
+[fmt]
+line_length = 120
+tab_width = 4
+bracket_spacing = false
+int_types = "long"
+number_underscore = "thousands"
+quote_style = "double"
+
+# Only the NAME of the env var lives here, never a URL with a key in it.
+# Mainnet 4663 is listed so the alias exists. It is not used yet.
+[rpc_endpoints]
+robinhood_testnet = "${ROBINHOOD_TESTNET_RPC_URL}"
+robinhood_mainnet = "${ROBINHOOD_MAINNET_RPC_URL}"
+
+# Blockscout, not Etherscan. Confirmed: this explorer needs NO API key, so
+# ROBINHOOD_TESTNET_EXPLORER_API_KEY stays empty and the key field resolves to an empty string.
+# The name is kept because another chain's explorer may ask for one. See ../../.env.example.
+# The README `## Deploy` section uses `--verifier blockscout --verifier-url` explicitly, which
+# does not depend on this table. This table is here so `--chain 46630` also resolves.
+[etherscan]
+robinhood_testnet = {key = "${ROBINHOOD_TESTNET_EXPLORER_API_KEY}", chain = 46630, url = "https://explorer.testnet.chain.robinhood.com/api"}

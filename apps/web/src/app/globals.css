@@ -1,0 +1,593 @@
+/*
+ * dropchad design tokens. sections 2, 3 and 4 are the source of truth.
+ *
+ * Every colour a component uses comes from a `--chad-*` variable, through the Tailwind theme
+ * below. No raw hex in a component. Dark only: light mode is out of scope, so there is no `.dark`
+ * switch and the shadcn semantic names are mapped once, straight onto our tokens.
+ *
+ * Hex values are the working set. They are re-sampled from the final wordmark later, and
+ * that edit happens here and nowhere else.
+ */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+:root {
+  color-scheme: dark;
+
+  /* ---. Colour. One accent, mint. Green and red are for numbers only. --- */
+  --chad-bg: #0a0a0b;
+  --chad-surface: #111114;
+  --chad-surface-2: #18181c;
+  --chad-border: #232329;
+  --chad-text: #f2f2f4;
+  --chad-text-dim: #8b8b95;
+  --chad-text-mute: #5c5c66;
+  --chad-accent: #9fe8b0;
+  /* Hover, 10 percent darker. Pressed, darker again. Obvious that it is clickable. */
+  --chad-accent-hover: #8fd19e;
+  --chad-accent-press: #82be90;
+  --chad-accent-ink: #0a0a0b;
+  /* The hand's own mint. The wordmark and the icon only, never a button. */
+  --chad-brand-mint: #7cf2b0;
+  --chad-up: #35e07e;
+  --chad-down: #e5484d;
+  --chad-pink: #ff4fa3;
+  --chad-pink-ink: #0a0a0b;
+  /* Functional only: a failed transaction or a form error. Never decoration. */
+  --chad-error: #b04a4a;
+
+  /* Tag and badge colours, the profile page only. A working set like the rest. */
+  --chad-tag-chad: #c4bfb6;
+  --chad-tag-kol: #f0a0b8;
+  --chad-tag-dev: #8fc7f5;
+  --chad-tag-streamer: #b79cf2;
+  --chad-tag-musician: #9da8f5;
+  --chad-tag-trader: #e8c77a;
+  --chad-tag-community: #7fd6c8;
+  --chad-tag-memecoin: #f2b27e;
+  --chad-tag-utility: #a9b8d6;
+  --chad-tag-nft: #e39ad8;
+  --chad-badge-project: #5fcf8a;
+  --chad-badge-cto: #f09a4b;
+  --chad-badge-streamer: #6fb1f0;
+
+  /*
+   * Chain tile colours, one per pill, from each chain's own brand kit. The source of every
+   * value is. Not brand accents of ours: they only ever paint a tile
+   * behind that chain's mark.
+   */
+  --brand-robinhood: #ccff00;
+  --brand-solana: #000000;
+  --brand-bnb: #f0b90b;
+  --brand-base: #0052ff;
+  --brand-ethereum: #ffffff;
+  --brand-ton: #30a1f5;
+
+  /* ---. Radius --- */
+  --chad-radius-input: 8px;
+  --chad-radius-card: 12px;
+  --chad-radius-pill: 999px;
+
+  /* --- shadcn semantic names, mapped onto the tokens above. Components use these. --- */
+  --background: var(--chad-bg);
+  --foreground: var(--chad-text);
+  --card: var(--chad-surface);
+  --card-foreground: var(--chad-text);
+  --popover: var(--chad-surface-2);
+  --popover-foreground: var(--chad-text);
+  /* Mint is the one action colour. */
+  --primary: var(--chad-accent);
+  --primary-foreground: var(--chad-accent-ink);
+  --secondary: var(--chad-surface-2);
+  --secondary-foreground: var(--chad-text);
+  --muted: var(--chad-surface-2);
+  --muted-foreground: var(--chad-text-dim);
+  --accent: var(--chad-surface-2);
+  --accent-foreground: var(--chad-text);
+  --destructive: var(--chad-error);
+  --border: var(--chad-border);
+  --input: var(--chad-border);
+  --ring: var(--chad-accent);
+  --radius: var(--chad-radius-card);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* The brand tokens under their own names: `bg-chad-accent`, `text-chad-up`, ... */
+  --color-chad-bg: var(--chad-bg);
+  --color-chad-surface: var(--chad-surface);
+  --color-chad-surface-2: var(--chad-surface-2);
+  --color-chad-border: var(--chad-border);
+  --color-chad-text: var(--chad-text);
+  --color-chad-text-dim: var(--chad-text-dim);
+  --color-chad-text-mute: var(--chad-text-mute);
+  --color-chad-accent: var(--chad-accent);
+  --color-chad-brand-mint: var(--chad-brand-mint);
+  --color-chad-accent-hover: var(--chad-accent-hover);
+  --color-chad-accent-press: var(--chad-accent-press);
+  --color-chad-accent-ink: var(--chad-accent-ink);
+  --color-chad-up: var(--chad-up);
+  --color-chad-down: var(--chad-down);
+  --color-chad-pink: var(--chad-pink);
+  --color-chad-pink-ink: var(--chad-pink-ink);
+  --color-chad-error: var(--chad-error);
+
+  /* Two fonts, loaded by next/font in layout.tsx: Inter for everything, Space
+   * Grotesk for page titles (`type-h1`) and the `font-title` class. */
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-title: var(--font-grotesk), var(--font-sans);
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --font-heading: var(--font-sans);
+
+  /* Radius: 8 inputs and chips, 12 cards, 999 pills. */
+  --radius-sm: var(--chad-radius-input);
+  --radius-md: var(--chad-radius-input);
+  --radius-lg: var(--chad-radius-card);
+  --radius-xl: var(--chad-radius-card);
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-4xl: 32px;
+
+  /* Max content width. */
+  --container-content: 1100px;
+
+  /* Durations and easing. */
+  --ease-enter: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    background: var(--chad-bg);
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    /* every number tabular. Set once here, so no column ever wobbles. */
+    font-variant-numeric: tabular-nums;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  /* One focus ring for everything keyboard reachable. Mint, outside the element. */
+  :focus-visible {
+    outline: 2px solid var(--chad-accent);
+    outline-offset: 2px;
+    border-radius: var(--chad-radius-input);
+  }
+}
+
+/*
+ * The shared surfaces and states. Defined once, used everywhere.
+ * `card` is the one card: surface, hairline border, radius 12. `interactive` is the one hover
+ * and the one press: surface-2 on hover, 1px down on press, 120ms. `tile` is a 28px rounded
+ * square, radius 8, for a chain mark on the rail. `btn-*` are the two buttons. `row` is one line
+ * of a desktop table: hairline under it, surface-2 on hover, no card around it.
+ */
+@layer components {
+  .card {
+    border-radius: var(--chad-radius-card);
+    border: 1px solid var(--chad-border);
+    background: var(--chad-surface);
+  }
+  .interactive {
+    transition:
+      background-color 120ms var(--ease-enter),
+      border-color 120ms var(--ease-enter),
+      color 120ms var(--ease-enter),
+      opacity 120ms var(--ease-enter);
+  }
+  .interactive:hover {
+    background: var(--chad-surface-2);
+  }
+  .interactive:active {
+    transform: translateY(1px);
+  }
+  /*
+   * The hackathon line. `data-state` comes from the inline script
+   * before paint: `closed` hides it; `type` hides the words until the typing starts (they show
+   * after 2s anyway if it never does); `typing` and `still` show them. The cursor never blinks.
+   */
+  /*
+   * The line's words: `small` (12px) on desktop, a bit smaller on phones so
+   * they stay on one line from a 375px screen. The 72px are the row around them (gutters, spacer,
+   * ×, gaps); 29.5 is the 48 letters at 0.6 of the size each, the widest phone mono fonts (SF Mono,
+   * Menlo, Droid Sans Mono), with about 2% room. Under 375px it may wrap.
+   */
+  .hackathon-text {
+    font-size: clamp(10px, calc((100vw - 72px) / 29.5), 12px);
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+  @media (max-width: 374px) {
+    .hackathon-text {
+      white-space: normal;
+    }
+  }
+  .hackathon-line[data-state="closed"] {
+    display: none;
+  }
+  .hackathon-line[data-state="type"] .hackathon-type {
+    visibility: hidden;
+    animation: hackathon-show 0s 2s forwards;
+  }
+  @keyframes hackathon-show {
+    to {
+      visibility: visible;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hackathon-line .hackathon-type {
+      visibility: visible;
+      animation: none;
+    }
+  }
+  .tile {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .row {
+    border-bottom: 1px solid var(--chad-border);
+    transition: background-color 120ms var(--ease-enter);
+  }
+  .row:hover {
+    background: var(--chad-surface-2);
+  }
+  /*
+   * A drop list row. One grid per row; the right columns are fixed so they line
+   * up across rows. Phone: the title block with the pill next to the handle, the amount over
+   * the state, the chevron. Desktop: the title block, the pill in its own `auto` column right
+   * before the amount, padded 16px both sides so it touches nothing, then amount, receivers,
+   * claimed, age, state, chevron. The title block is `minmax(0, 1fr)` and truncates first.
+   */
+  .drop-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 16px;
+    column-gap: 8px;
+    align-items: center;
+  }
+  @media (min-width: 768px) {
+    .drop-row {
+      grid-template-columns: minmax(0, 1fr) auto 128px 88px 80px 72px 84px 16px;
+      column-gap: 12px;
+    }
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: var(--chad-radius-input);
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition:
+      opacity 120ms var(--ease-enter),
+      background-color 120ms var(--ease-enter);
+  }
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .welcome-glow {
+    /* The welcome popup's soft mint glow, the one shadow on the site. */
+    box-shadow: 0 0 48px color-mix(in srgb, var(--chad-accent) 18%, transparent);
+  }
+  #testnet {
+    /* The welcome popup's `/how#testnet`: the title lands below the 48px sticky top bar. */
+    scroll-margin-top: 64px;
+  }
+  .btn-primary {
+    background: var(--chad-accent);
+    color: var(--chad-accent-ink);
+    font-weight: 600;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--chad-accent-hover);
+  }
+  .btn-primary:active:not(:disabled) {
+    background: var(--chad-accent-press);
+  }
+  .btn-secondary {
+    border: 1px solid var(--chad-border);
+    color: var(--chad-text);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--chad-surface-2);
+  }
+  .btn-x {
+    background: var(--chad-text);
+    color: var(--chad-bg);
+  }
+  .btn-x:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+  /*
+   * The tag pill: a small round pill like a discord role. On: a
+   * dark fill, the word lifted towards white and a 1px border at half strength, both from the
+   * tag colour; no dot, no icon. The component sets `--pill` to the tag token. Off, the picker
+   * only: no fill, a hairline border and grey. While the set is locked or three are on, the
+   * other pills are `aria-disabled`: the off look, no hover, no press. 24px high. A pill that is
+   * a button keeps a 34px finger target through `::before`. Type comes from `type-small` on the
+   * element.
+   */
+  .pill {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid var(--chad-border);
+    background: transparent;
+    color: var(--chad-text-dim);
+    font-weight: 500;
+    white-space: nowrap;
+    transition:
+      background-color 120ms var(--ease-enter),
+      border-color 120ms var(--ease-enter),
+      color 120ms var(--ease-enter);
+  }
+  button.pill::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+  }
+  .pill-on {
+    background: var(--chad-surface-2);
+    border-color: color-mix(in srgb, var(--pill) 50%, transparent);
+    color: color-mix(in srgb, var(--pill) 75%, white);
+  }
+  button.pill[aria-disabled="true"] {
+    cursor: default;
+  }
+  /* Off and not tappable, three on or locked: dimmer than an off pill that can be tapped. */
+  button.pill[aria-disabled="true"]:not(.pill-on) {
+    color: var(--chad-text-mute);
+    border-color: color-mix(in srgb, var(--chad-border) 50%, transparent);
+  }
+  button.pill:not(.pill-on, [aria-disabled="true"]):hover {
+    color: var(--chad-text);
+  }
+  button.pill:active:not(:disabled, [aria-disabled="true"]) {
+    transform: translateY(1px);
+  }
+  /*
+   * A badge: earned, so it stays filled. `--pill` is the badge token: 15 percent
+   * fill, the colour as border, icon and label. 22px, radius 8 like the state chip.
+   */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: var(--chad-radius-input);
+    border: 1px solid var(--pill);
+    background: color-mix(in srgb, var(--pill) 15%, transparent);
+    color: var(--pill);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  /* A block that is still loading. Surface-2, pulsing. Static under reduced motion. */
+  .skeleton {
+    background: var(--chad-surface-2);
+    border-radius: var(--chad-radius-input);
+    animation: skeleton 1.4s ease-in-out infinite;
+  }
+  @keyframes skeleton {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton {
+      animation: none;
+    }
+    .interactive:active,
+    .btn:active:not(:disabled) {
+      transform: none;
+    }
+  }
+}
+
+@layer utilities {
+  /*
+   * The type scale, eight steps and nothing else. Small and calm: 13 in a table,
+   * 14 in body, 11 for every label. Only `display` grows on desktop. No `text-[Npx]` in a
+   * component; if a size is missing here, the scale is wrong, not the component.
+   */
+  .type-display {
+    font-size: 36px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (min-width: 768px) {
+    .type-display {
+      font-size: 44px;
+    }
+  }
+  /* The one big number on a card or a stat tile. Number bigger than its label, always. */
+  .type-stat {
+    font-size: 18px;
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (min-width: 768px) {
+    .type-stat {
+      font-size: 22px;
+    }
+  }
+  .type-h1 {
+    font-size: 22px;
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    font-family: var(--font-title);
+  }
+  /*
+   * The `/how` title only `h1-fit`: one line, 22px when it fits,
+   * smaller on a narrow phone, never under 16px. The middle value is the column width (the screen
+   * minus the 16px gutters) over the title's own width at 1px: 20.07, measured in Chrome
+   * 21 leaves about 5% room. 16px fits from a 360px screen; under it, it wraps.
+   */
+  .type-h1-fit {
+    font-size: clamp(16px, calc((100vw - 2rem) / 21), 22px);
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    font-family: var(--font-title);
+    white-space: nowrap;
+  }
+  @media (max-width: 359px) {
+    .type-h1-fit {
+      white-space: normal;
+    }
+  }
+  .type-h2 {
+    font-size: 15px;
+    line-height: 1.3;
+    font-weight: 500;
+  }
+  .type-body {
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  .type-table {
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+  .type-small {
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+  .type-label {
+    font-size: 11px;
+    line-height: 1.3;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+  /*
+   * Grey and uppercase by default, at zero specificity, so `text-chad-accent` or `normal-case`
+   * on the same element wins.
+   */
+  :where(.type-label) {
+    color: var(--chad-text-dim);
+    text-transform: uppercase;
+  }
+  /*
+   * The front page line: the `h2` size with body's weight and line height.
+   * After the type classes, so it wins over `.type-h2` on the same element.
+   */
+  .front-line {
+    font-weight: 400;
+    line-height: 1.5;
+  }
+  /* Every number that can change. */
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+  /* Only the wordmark, the mascot and the rain bags. */
+  .pixel {
+    image-rendering: pixelated;
+  }
+  /* A `soon` chain mark: the same file, greyed by a filter. */
+  .chain-soon {
+    filter: grayscale(1) opacity(0.45);
+  }
+  /* A live chain that is filtered off on the rail. Same file, grey, still tappable. */
+  .chain-off {
+    filter: grayscale(1) opacity(0.55);
+  }
+}
+
+/* ---. Motion, with the reduced motion path for each. --- */
+/* A claim that lands while the drop page is open: one short mint flash on its row. */
+@keyframes fed-flash {
+  from {
+    background-color: color-mix(in srgb, var(--chad-accent) 22%, transparent);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+.fed-flash {
+  animation: fed-flash 400ms var(--ease-exit);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fed-flash {
+    animation: none;
+  }
+}
+/* The top 3 board rows: a thin mint line on the left edge, drawn inside the
+ * row so nothing moves. */
+.board-top {
+  box-shadow: inset 2px 0 0 var(--chad-accent);
+}
+/* Space Grotesk on a run of text: the front page line's first sentence. */
+.font-title {
+  font-family: var(--font-title);
+}
+
+@keyframes live-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.live-dot {
+  animation: live-dot 1.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot {
+    animation: none;
+  }
+}
