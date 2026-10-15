@@ -1,0 +1,120 @@
+# --- secrets, first and loudest ---
+.env
+.env.*
+!.env.example
+# The pattern above has no slash, so it already matches at any depth. Spelled out anyway,
+# because this is the one file that must never be committed.
+apps/api/.env
+*.pem
+*.p12
+*.pfx
+*.der
+
+# any file that even smells like a secret
+*key*
+*Key*
+*KEY*
+*secret*
+*Secret*
+*SECRET*
+*wallet*
+*Wallet*
+*WALLET*
+*keypair*
+*Keypair*
+*KEYPAIR*
+# allow the harmless ones back
+!**/keyboard*
+!**/*.keystore.example
+# Source files the patterns above caught by name, found when the server clone had none
+# of them. Code only, no key material. Windows git ignores case, so `*KEY*` matched `pubkey.ts`.
+# A new file with key, secret or wallet in its name is ignored too: check `git status` for it.
+!apps/api/src/chain/svm/pubkey.ts
+!apps/api/src/chain/svm/keypair.ts
+!apps/api/src/db/migrations/0005_chain_key.sql
+
+# --- node ---
+node_modules/
+.pnp
+.pnp.js
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/versions
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.npm
+.eslintcache
+*.tsbuildinfo
+
+# --- next.js ---
+.next/
+out/
+build/
+dist/
+.vercel
+next-env.d.ts
+
+# --- foundry ---
+contracts/evm/out/
+cache/
+cache_forge/
+artifacts/
+broadcast/
+!broadcast/**/dry-run/
+docs/book/
+# submodules under contracts/evm/lib are tracked as gitlinks, never ignored
+.gas-snapshot
+!contracts/evm/.gas-snapshot
+
+# --- anchor / solana ---
+target/
+.anchor/
+test-ledger/
+**/*.rs.bk
+
+# --- ponder / db ---
+.ponder/
+generated/
+*.sqlite
+*.sqlite3
+*.db
+pgdata/
+
+# --- tests, coverage, logs ---
+coverage/
+.nyc_output/
+lcov.info
+*.log
+logs/
+
+# --- ide ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+
+# --- os ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# --- misc ---
+tmp/
+temp/
+.cache/
+.turbo/
+
+# --- local dev data (PGlite, ponder) ---
+.data/
