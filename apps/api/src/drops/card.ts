@@ -4,7 +4,7 @@
  * six facts and one picture. The facts that are ours — the title, the meme
  * picture, the chad behind it, and how far the relayer got — come from `drops` and `profiles`.
  * The facts that are the chain's come from the indexer, and `GET /api/drops` puts the two next
- * to each other under separate keys rather than blending them.: chain
+ * to each other under separate keys rather than blending them: chain
  * wins, and a reader can always see which number came from where.
  */
 import type { DropRow } from "../db/schema.js";

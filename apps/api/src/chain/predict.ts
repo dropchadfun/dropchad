@@ -2,7 +2,7 @@
  * Predicting the drop address off chain, before it exists.
  *
  * The whole product depends on this: the sender is shown an address and asked to send money to
- * it, and the design says **deploy before funding**, so the address must be right before
+ * it, and the rule is **deploy before funding**, so the address must be right before
  * anything is deployed. We compute it here and the factory computes it too, and the create flow
  * refuses to go on unless the two agree — and then checks the `DropCreated` event on top.
  *

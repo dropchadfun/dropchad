@@ -1,6 +1,6 @@
 /**
- * Solana behind the `ChainAdapter` interface. the design is the rule book; the section numbers
- * are next to each method.
+ * Solana behind the `ChainAdapter` interface. The program is the rule book; this file only
+ * builds its instructions and reads its accounts.
  *
  * What is different from the EVM adapter, and why:
  *
@@ -15,7 +15,7 @@
  *   never spendable and `activate` compares against the difference.
  * - **A batch is N `claim` instructions in one transaction**, sized by the 6.5 fit table, and the
  *   bitmap is read first so an already claimed leaf is never sent.
- * - **Refund, cancel and close exist here.**. The rent comes back to the
+ * - **Refund, cancel and close exist here.** The rent comes back to the
  *   relayer, which is why the admin added the two settle instructions to the allowlist.
  *
  * Token drops since: `create_drop` takes the mint, the
@@ -96,7 +96,7 @@ export function formatUnits(amount: bigint, decimals: number): string {
 }
 
 /**
- * the SOL column. How many `claim` instructions fit in one legacy transaction
+ * The SOL column. How many `claim` instructions fit in one legacy transaction
  * for a tree of this depth. Measured, not derived; the table is the truth and the
  * transaction builder throws `TransactionTooLargeError` if it is ever wrong.
  */
@@ -158,7 +158,7 @@ export function createSvmAdapter(options: SvmAdapterOptions): ChainAdapter {
   }
 
   /**
-   * from the drop's lamports and, on a token drop, its vault (`undefined` on a
+   * Read from the drop's lamports and, on a token drop, its vault (`undefined` on a
    * SOL drop, `null` when the vault is not there yet).
    */
   function statusOf(
@@ -203,7 +203,7 @@ export function createSvmAdapter(options: SvmAdapterOptions): ChainAdapter {
   }
 
   /**
-   * a token drop's mint, vault and token program, `undefined` on a SOL drop. The token
+   * A token drop's mint, vault and token program, `undefined` on a SOL drop. The token
    * program is the mint account's, read now; the program checks all three again.
    */
   async function tokenOf(account: DropAccount): Promise<DropToken | undefined> {
@@ -649,7 +649,7 @@ export function createSvmAdapter(options: SvmAdapterOptions): ChainAdapter {
       return pubkeyToBase58(handle.binder);
     },
 
-    /** a migrated `Config` whose binder is set and not revoked. */
+    /** A migrated `Config` whose binder is set and not revoked. */
     async binderLive() {
       const info = await rpc.getAccountInfo(configPda().address, commitment);
       if (info === null) return false;
@@ -698,7 +698,7 @@ export function createSvmAdapter(options: SvmAdapterOptions): ChainAdapter {
     },
 
     /**
-     * Solana Pay, `amount` in whole coins as the design of that URL scheme wants it. A token
+     * Solana Pay, `amount` in whole coins as that URL scheme wants it. A token
      * drop adds the token part, `spl-token`, to the same drop address.
      */
     fundingInstructions({ drop, amount: exact, fundingDeadline, token }): FundingInstructions {

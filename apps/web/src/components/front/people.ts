@@ -1,6 +1,6 @@
 /**
- * The third tile on the front page: payouts big, the people under it (
- * ). Both are counted per chain and added up over the chains that are on.
+ * The third tile on the front page: payouts big, the people under it.
+ * Both are counted per chain and added up over the chains that are on.
  *
  * People are counted per chain,
  * one X account counts once inside one chain, and the

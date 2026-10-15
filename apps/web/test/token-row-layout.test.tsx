@@ -1,5 +1,5 @@
 /**
- * after the screenshots, six points:
+ * The token drop layout on the phone, six points:
  * 1. the step 2 tiles of `/create` go one per row on the phone, three from `md`;
  * 2. until a token is ok, the unit line says `paste a token first`, never `token`;
  * 3. the token card's copy button looks small, its tap area stays 44px;

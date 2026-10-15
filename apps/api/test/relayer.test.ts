@@ -2,7 +2,7 @@
  * The relayer rules, against a fake chain.
  *
  * These are the tests that matter most in the api. The relayer is the only thing that holds a key,
- * and the design says it holds gas money only and can never move drop funds. Every claim in
+ * and the rule is that it holds gas money only and can never move drop funds. Every claim in
  * that sentence is asserted here:
  *
  * - it exposes seven verbs and nothing else: `claimHandle` since, `refund`

@@ -1,5 +1,5 @@
 /**
- * the web for Robinhood token drops (and
+ * The web for Robinhood token drops (and
  * 12):
  * - the token box on Robinhood only when the api sends Robinhood `tokenFeeTiers`, so it stays
  *   hidden until `DropFactoryV3` is deployed; `ETH` or `token`; a `0x` address, checked with

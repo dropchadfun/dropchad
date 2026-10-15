@@ -8,9 +8,9 @@ import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProo
 import {MerkleHelper} from "./MerkleHelper.sol";
 
 /// @title MerkleVectorTest
-/// @notice The worked example of, hard coded, byte for byte.
+/// @notice The worked example, hard coded, byte for byte.
 /// @dev **Nothing in this file may be recomputed from the code under test.**
-///      Every expected value below is a literal copied from the design. If encoding, hashing,
+///      Every expected value below is a literal copied from the worked example. If encoding, hashing,
 ///      pairing, the salt shape or the clone init code ever change, this file fails immediately
 ///      and tells us the change was not a refactor.
 ///      Every literal was independently reproduced with `cast keccak` before it was written here.
@@ -66,7 +66,7 @@ contract MerkleVectorTest is Test {
         assertEq(commitment, EXPECTED_COMMITMENT, "creatorCommitment drifted from");
     }
 
-    /// @dev  The salt binds chainId, factory, msg.sender, commitment, nonce.
+    /// @dev The salt binds chainId, factory, msg.sender, commitment, nonce.
     function test_Vector_Salt() public pure {
         bytes32 salt = keccak256(abi.encode(CHAIN_ID, FACTORY, RELAYER, EXPECTED_COMMITMENT, NONCE));
         assertEq(salt, EXPECTED_SALT, "salt drifted from");
@@ -86,7 +86,7 @@ contract MerkleVectorTest is Test {
     }
 
     /// @dev This is also the check that OpenZeppelin `Clones` still produces
-    ///      the minimal proxy shape the design assumed.
+    ///      the minimal proxy shape the addresses assume.
     function test_Vector_DropAddress() public pure {
         address drop = Clones.predictDeterministicAddress(IMPLEMENTATION, EXPECTED_SALT, FACTORY);
         assertEq(drop, EXPECTED_DROP, "predicted drop address drifted from");
@@ -141,7 +141,7 @@ contract MerkleVectorTest is Test {
         assertEq(MerkleHelper.rootOf(nodes), EXPECTED_ROOT, "root drifted from");
     }
 
-    /// @dev the design is commutative hashing, so the order the two children are passed in cannot matter.
+    /// @dev The tree uses commutative hashing, so the order the two children are passed in cannot matter.
     function test_Vector_PairingIsCommutative() public pure {
         assertEq(
             MerkleHelper.pairOf(EXPECTED_LEAF_1, EXPECTED_LEAF_0),
@@ -154,7 +154,7 @@ contract MerkleVectorTest is Test {
     // steps 7 and 8. proofs
     // -----------------------------------------------------------------------
 
-    /// @dev The three proofs, exactly as written in the design.
+    /// @dev The three proofs, exactly as written in the worked example.
     function test_Vector_Proofs() public pure {
         bytes32[] memory nodes = _specLeaves();
 

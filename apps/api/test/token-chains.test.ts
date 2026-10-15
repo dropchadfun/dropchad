@@ -32,7 +32,7 @@ interface ChainRow {
   readonly tokenFeeTiers?: readonly { readonly upTo: number; readonly usd: string }[] | null;
 }
 
-/** The tiers without `lamports`, the SOL estimate of, `test/token-live-fix.test.ts`. */
+/** The tiers without `lamports`, the SOL estimate, `test/token-live-fix.test.ts`. */
 const tiersOf = (chain: ChainRow | undefined) =>
   chain?.tokenFeeTiers?.map(({ upTo, usd }) => ({ upTo, usd }));
 

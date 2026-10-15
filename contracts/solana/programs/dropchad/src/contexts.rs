@@ -81,7 +81,7 @@ pub struct MigrateConfig<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
 
-    /// CHECK: the `Config` PDA by seeds., discriminator, length and admin are checked in
+    /// CHECK: the `Config` PDA by seeds. Owner, discriminator, length and admin are checked in
     /// `handlers::migrate_config` before anything is written.
     #[account(mut, seeds = [CONFIG_SEED], bump)]
     pub config: UncheckedAccount<'info>,

@@ -105,7 +105,7 @@ export function TokenBox({
 }
 
 /**
- * The `stable` tab's buttons : one big button per quick
+ * The `stable` tab's buttons: one big button per quick
  * token, the ticker only, no address. A tap puts the exact address in the box, the same as a
  * paste, so the page runs the same check. The picked one is mint. Never a price.
  */

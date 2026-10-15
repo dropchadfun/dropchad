@@ -1,6 +1,5 @@
 /**
- * the `DropFactoryV4` events in the indexer.,
- * every admin action is public, so `MinFeePerReceiverSet` and `MaxFeeAmountSet`
+ * The `DropFactoryV4` events in the indexer. Every admin action is public, so `MinFeePerReceiverSet` and `MaxFeeAmountSet`
  * are stored in `admin_events` like `MinFeeAmountSet`. Every V3 handler serves V4 too, and only
  * when the registry has V4 (`HAS_V4`): Ponder refuses a handler for a contract it was not given.
  */

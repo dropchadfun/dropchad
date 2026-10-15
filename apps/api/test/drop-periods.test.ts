@@ -1,5 +1,5 @@
 /**
- * the default funding window is
+ * The default funding window is
  * 24 hours (was 7 days) and the default claim period 7 days (was 30). Both are set only here, by
  * the api, on every new drop, and both sit inside the factory and program bounds: funding 1 hour
  * to 30 days, claim 1 day to 180 days (`DropFactoryV4.sol`, `constants.rs`). A drop made before

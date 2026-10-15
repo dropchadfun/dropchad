@@ -1,5 +1,5 @@
 /**
- * Top chads.: the board decides who really gives.
+ * Top chads: the board decides who really gives.
  *
  * The indexer hands over one row per final, verified drop with the drop's `creatorCommitment`.
  * A commitment is `keccak256(abi.encode(xUserId, nonce))`, so it is unique
@@ -11,7 +11,7 @@
  * is the same rule seen from the other side: only a drop the relayer made through this api
  * can be tied to a chad, and a stray factory event never buys a rank.
  *
- * **Only handle drops count **. A multisend is
+ * **Only handle drops count**. A multisend is
  * on no board. A handle drop counts **people**: the X ids behind its claimed leaves, never the
  * wallets paid, so one X id is one person on every drop inside one chain; across chains the
  * counts add up. `load.ts` does the

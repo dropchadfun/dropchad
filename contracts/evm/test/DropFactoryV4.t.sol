@@ -239,7 +239,7 @@ contract DropFactoryV4Test is V3TestBase {
         assertEq(_feeOf(10, 0.0001 ether, 0), 0.000_05 ether);
     }
 
-    /// @dev The flat minimum 0.0001, capped at 0.00005: min of max, as written in.
+    /// @dev The flat minimum 0.0001, capped at 0.00005: min of max, as the fee rule says.
     function test_V4F_CapWinsOverTheFlatMinimum() public {
         _setModel(100, 0.0001 ether, 0, 0.000_05 ether);
         assertEq(_feeOf(1, 0.001 ether, 0), 0.000_05 ether);

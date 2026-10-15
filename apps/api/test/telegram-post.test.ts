@@ -34,7 +34,7 @@ const solDrop: TelegramPostFacts = {
 const rows = (text: string) => text.split("\n\n");
 
 describe("the rows", () => {
-  it("a SOL drop: exactly the owner's rows, one empty line between them", () => {
+  it("a SOL drop: exactly the expected rows, one empty line between them", () => {
     expect(buildTelegramPost(solDrop, SITE)).toBe(
       [
         "🤌 NEW DROP",
@@ -120,7 +120,7 @@ describe("a token drop", () => {
     token: { address: BONK, name: "Bonk", symbol: "BONK" },
   };
 
-  it("the amount in the ticker, the token row, the links, in the owner's order", () => {
+  it("the amount in the ticker, the token row, the links, in the set order", () => {
     expect(buildTelegramPost({ ...bonk, title: "gm" }, SITE)).toBe(
       [
         "🤌 NEW DROP",

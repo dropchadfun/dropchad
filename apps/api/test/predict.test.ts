@@ -1,7 +1,7 @@
 /**
  * Address prediction, pinned to the worked example.
  *
- * Those values were reproduced with `cast keccak` when the design was written, and
+ * Those values were reproduced with `cast keccak` when the rules were written, and
  * `contracts/evm/test/MerkleVector.t.sol` pins the Solidity side to the same numbers. This file
  * pins the TypeScript side. If any of the three ever drifts, one of these three suites goes red.
  *
@@ -106,7 +106,7 @@ describe("the unblinded commitment, drops before 21b", () => {
 });
 
 /**
- * the commitment carries a secret 32 byte blind,
+ * The commitment carries a secret 32 byte blind,
  * so a guessed X id and the public nonce are no longer enough to check it.
  */
 describe("the blinded commitment", () => {

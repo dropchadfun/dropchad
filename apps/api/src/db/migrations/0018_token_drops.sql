@@ -2,7 +2,7 @@
 --
 -- The mint goes in the existing `asset` column. These hold what the token check read at create
 -- (the token program, decimals, name and ticker, untrusted text cut to 32 and 10 characters),
--- the vault the chain made, and the fee of: the SOL fee and the account budget in lamports
+-- the vault the chain made, and the fee: the SOL fee and the account budget in lamports
 -- as read back from the `Drop` account, the usd tier and the SOL price it was worked out at.
 -- All NULL on a native drop. A token drop never gets `price_usd`.
 

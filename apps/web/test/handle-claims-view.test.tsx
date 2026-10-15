@@ -135,7 +135,7 @@ describe("a Solana handle drop, claims without a recipient address", () => {
     expect(html).toContain(">#1<");
   });
 
-  // the page never shows the address the money landed on, only the handle or `#1`.
+  // The page never shows the address the money landed on, only the handle or `#1`.
   it("an entry with an address shows its place, never the address", () => {
     const paid: PaidEntry[] = [
       {

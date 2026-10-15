@@ -204,8 +204,8 @@ export function claimLinkFor(detail: DropDetail): string | null {
 }
 
 /**
- * The seconds left for a bind, counted down while the page is open (
- * 12): the api's number at load, minus the whole seconds since, never under zero. So the page asks
+ * The seconds left for a bind, counted down while the page is open:
+ * the api's number at load, minus the whole seconds since, never under zero. So the page asks
  * for a new login before the paste or the confirm screen, never after `claim`.
  */
 export function freshLoginLeft(leftAtLoad: number, loadedAtMs: number, nowMs: number): number {

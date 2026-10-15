@@ -33,7 +33,7 @@ const METAPLEX_PROGRAM = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
 const PUMP_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P";
 
 /**
- * the only mints accepted with a freeze authority: USDC mainnet, USDT mainnet, USDC
+ * The only mints accepted with a freeze authority: USDC mainnet, USDT mainnet, USDC
  * devnet. The same list as the program's `FREEZE_EXCEPTION_MINTS`, `constants.rs`.
  */
 const FREEZE_EXCEPTION_MINTS = new Set([
@@ -233,7 +233,7 @@ function readMetaplex(account: AccountInfo | null, mint: Pubkey): Names | null {
   }
 }
 
-/** the right address (asked for), the pump program's, the right start. */
+/** The right address (asked for), the pump program's, the right start. */
 function isPumpCurve(account: AccountInfo | null): boolean {
   if (account === null || pubkeyToBase58(account.owner) !== PUMP_PROGRAM) return false;
   if (account.data.length < 8) return false;

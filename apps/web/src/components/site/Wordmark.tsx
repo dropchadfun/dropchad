@@ -35,7 +35,7 @@ export function WordmarkText({
 }) {
   const dim = tone === "dim";
   // The viewBox is at 100px: Inter 600 `dropchad` at -0.02em measures 446.6 wide in Chrome,
-  // ascender top at 3, descender bottom at 99., not guessed.
+  // ascender top at 3, descender bottom at 99. Measured, not guessed.
   return (
     <svg
       role="img"
@@ -81,8 +81,8 @@ export function TestnetMark({ className }: { className?: string } = {}) {
 }
 
 /**
- * The hand, the real logo file. `scripts/favicon.py` renders it from
- * `scripts/hand-silhouette.png` at 24, 48 and 72px, the file's own pixels, so each screen density
+ * The hand, the real logo file, rendered from
+ * the hand silhouette at 24, 48 and 72px, the file's own pixels, so each screen density
  * gets its own sharp render instead of a scaled one. Never a traced path. Decorative here: the
  * link already says `dropchad home`. 24px in the 48px bar.
  */

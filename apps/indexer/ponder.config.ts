@@ -2,12 +2,11 @@
  * The Ponder config.
  *
  * Everything here is read from `@dropchad/chains`. No address, no chain id and no start block is
- * written in this file: `packages/chains/src/chains.json` is the one place that knows them, and
- * is what that copies from.
+ * written in this file: `packages/chains/src/chains.json` is the one place that knows them.
  *
- * Two rules from the design are enforced by this config alone:
+ * Two security rules are enforced by this config alone:
  *
- * - **, only our factories.** `DropFactoryV1`, and `DropFactoryV2`, `DropFactoryV3`,
+ * - **Only our factories.** `DropFactoryV1`, and `DropFactoryV2`, `DropFactoryV3`,
  *   `DropFactoryV4` and `DropFactoryV5` once the registry has them, are each pinned to the one address in the registry. An event from any other address is never
  *   fetched, so it can never be stored.
  * - **only clones the factory reports as its own.** `DropV1` to `DropV5` use Ponder's factory
@@ -54,7 +53,7 @@ const env = readIndexerEnv();
  * **Default 64, and that number is a placeholder.** decides the real value. Robinhood Chain is
  * an Arbitrum Orbit L2: soft finality comes from the sequencer, hard finality only when the batch
  * is posted to Ethereum L1, and those are very different waits. 64 L2 blocks is roughly 16
- * seconds here, which is nowhere near L1 finality. Until the design closes, `final` on this chain means
+ * seconds here, which is nowhere near L1 finality. Until that is settled, `final` on this chain means
  * "past the reorg window the sequencer can produce", not "posted to L1".
  *
  * When the registry gets a `finalityDepth` for the chain, that wins over this default.
@@ -244,8 +243,8 @@ export default createConfig({
   blocks: {
     // Drives the seen -> final promotion. It indexes nothing itself.
     // Starts at the head, not at START_BLOCK. From the deploy block it would fetch one block per
-    // interval over the whole history, about 48,000 calls on a fresh backfill (9.6M blocks by
-    // ). Each run promotes every row at or below its cutoff, so the first run at the
+    // interval over the whole history, about 48,000 calls on a fresh backfill (9.6M blocks at
+    // the time). Each run promotes every row at or below its cutoff, so the first run at the
     // head catches up everything the backfill wrote; rows read `seen` only until then.
     Finality: {
       chain: "dropchad",

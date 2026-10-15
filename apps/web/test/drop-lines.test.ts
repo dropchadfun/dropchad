@@ -77,7 +77,7 @@ describe("factsLine, the phone row's grey line", () => {
   });
 });
 
-// the drop page headline is line one of the rows, with a title or
+// The drop page headline is line one of the rows, with a title or
 // without, and the chain and the age are always the line under the sender.
 describe("dropLines, the drop page headline", () => {
   const base = { title: null, chainId: 46630, createdAt: TWO_HOURS_AGO };

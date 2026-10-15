@@ -1,5 +1,5 @@
 /**
- * ** .** Prove a drop really is one of ours before it counts anywhere.
+ * **The clone check.** Prove a drop really is one of ours before it counts anywhere.
  *
  * Three checks, in cost order. The first two need no network call at all.
  *
@@ -11,7 +11,7 @@
  *    Recomputing it from the event's own `salt` proves the factory used the standard clone and
  *    did not point the address at something else.
  * 3. **The deployed code hash matches.** One `eth_getCode` per drop, hashed and compared to the
- *    expected clone runtime code. This is the check the design asks for by name.
+ *    expected clone runtime code. This is the check the security rules ask for by name.
  *
  * Check 3 is read **at the latest block, not at the creation block**, and it is allowed to be
  * skipped. Two reasons, both found by running this against the real chain

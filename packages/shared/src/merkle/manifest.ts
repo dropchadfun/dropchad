@@ -5,7 +5,7 @@
  * `totalEntitlements`, and every `index, recipient, amount, proof`. `manifestHash` is stored in
  * the drop, so anybody can prove the published list is the one the drop was created with.
  *
- * ** the design is closed **: `manifestHash` is `keccak256` of the canonical JSON bytes,
+ * **Decided**: `manifestHash` is `keccak256` of the canonical JSON bytes.
  * An IPFS CID was the other candidate and was not taken: it needs multihash
  * encoding, and it would put the availability of the payout list on a network we do not run.
  *
@@ -26,7 +26,7 @@ export interface ManifestEntry<A extends string = Address> {
 
 /**
  * The same document on both chains. On Solana `drop` and every
- * `recipient` are base58 public keys and `chainId` is the cluster constant of. The key
+ * `recipient` are base58 public keys and `chainId` is the cluster constant. The key
  * order and the hash rule do not change.
  */
 export interface Manifest<A extends string = Address> {
@@ -87,7 +87,7 @@ export function canonicalManifestJson(manifest: Manifest<string>): string {
 /**
  * `keccak256` of the canonical JSON bytes.
  *
- * This is the value written into the drop as `manifestHash`., closed
+ * This is the value written into the drop as `manifestHash`.
  */
 export function keccakManifestHash(manifest: Manifest<string>): Hex {
   return keccak256(toHex(canonicalManifestJson(manifest)));

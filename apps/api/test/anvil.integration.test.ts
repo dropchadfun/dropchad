@@ -201,7 +201,7 @@ describe("create, fund, activate, pay, on a real EVM", () => {
     });
     await publicClient.waitForTransactionReceipt({ hash: allowHash });
 
-    // the fee has to cover the relayer's gas, so the factory charges 1 percent.
+    // The fee has to cover the relayer's gas, so the factory charges 1 percent.
     const feeHash = await deployerWallet.writeContract({
       address: factory,
       abi: dropFactoryV1Abi,
@@ -316,7 +316,7 @@ describe("create, fund, activate, pay, on a real EVM", () => {
       events.subscribe(dropAddress, (event) => seen.push(event));
 
       // What the relayer holds before any of the drop money moves. It must only ever go down,
-      // and only by gas.: gas money only, never drop funds.
+      // and only by gas: gas money only, never drop funds.
       const relayerBefore = await publicClient.getBalance({ address: relayerAccount.address });
 
       // -------------------------------------------------------------------

@@ -75,7 +75,7 @@ export interface AppDeps {
    */
   readonly solanaReader?: SvmReader | undefined;
   /**
-   * The token check of, over the same RPC url as the read side, never a key. Absent when
+   * The token check, over the same RPC url as the read side, never a key. Absent when
    * `SOLANA_DEVNET_RPC_URL` is unset; the route then answers `503 solana_unavailable`.
    */
   readonly tokenChecker?: TokenChecker | undefined;
@@ -90,7 +90,7 @@ export interface AppDeps {
   /** The `fetch` the Kick and Twitch clients use. Absent means the global one. */
   readonly streamFetch?: typeof fetch | undefined;
   /**
-   * The usd feed, the one the worker freezes prices with. The create guard of the design reads it;
+   * The usd feed, the one the worker freezes prices with. The create guard reads it;
    * absent means no price, and `POST /api/drops` answers `503 price_unavailable`.
    */
   readonly prices?: PriceService | undefined;
@@ -123,7 +123,7 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
   api.route("/chains", createChainRoutes());
   api.route("/auth", createAuthRoutes());
   api.route("/auth", createStreamAuthRoutes());
-  // the sender's own multisends, before `/me`.
+  // The sender's own multisends, before `/me`.
   api.route("/me/multisends", createMyMultisendRoutes());
   api.route("/me", createMeRoutes());
   api.route("/drops", createDropRoutes());

@@ -1,6 +1,6 @@
 /**
  * Which factories the indexer follows, and the implementation each one is
- * allowed to clone, all from `@dropchad/chains`.: two factories
+ * allowed to clone, all from `@dropchad/chains`: two factories
  * from handle mode on, each approved for its own implementation only.
  *
  * the registry carries the V2 set on robinhood testnet, so the

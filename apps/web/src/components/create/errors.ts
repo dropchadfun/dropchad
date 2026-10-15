@@ -1,6 +1,6 @@
 /**
  * Plain, honest errors on `/create`. Every code the create and the handle lookup
- * can answer with has a sentence. Moved out of `CreateDrop.tsx` in, so each
+ * can answer with has a sentence. Moved out of `CreateDrop.tsx`, so each
  * sentence is tested.
  */
 import { ApiError } from "@/lib/api";

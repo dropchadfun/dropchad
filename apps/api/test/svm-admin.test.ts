@@ -1,6 +1,5 @@
 /**
- * the Solana admin calls for, `scripts/solana-admin.ts`.
- * adds the two setters. The seven builders are
+ * The Solana admin calls of the admin tool, and the two fee setters. The seven builders are
  * pinned to the IDL and to the real devnet `Config` address; the checks in `src/chain/svm/admin.ts` decide send, nothing to do, or
  * refuse before anything is simulated, and check the read back after a send. The relayer never
  * sends any of these.

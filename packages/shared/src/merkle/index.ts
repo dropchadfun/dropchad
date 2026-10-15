@@ -1,8 +1,8 @@
 /**
  * The dropchad merkle generator.
  *
- * Everything here follows the design and nothing
- * else. If this code and the design disagree, the design wins. The Foundry fixture in
+ * Everything here follows the rules the contracts and the program check, and nothing else.
+ * The Foundry fixture in
  * `contracts/evm/test/MerkleVector.t.sol`, the Rust fixture in
  * `contracts/solana/programs/dropchad/tests/fixture.rs` and the tests next to this folder pin
  * every side to the same numbers.

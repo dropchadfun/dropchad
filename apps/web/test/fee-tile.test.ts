@@ -1,6 +1,5 @@
 /**
- * the fee tile with the new fee. (
- * ): the fee is `min(max(1%, flat minimum, minimum per person × people), max fee)`, a
+ * The fee tile with the new fee: the fee is `min(max(1%, flat minimum, minimum per person × people), max fee)`, a
  * zero max fee is no cap, the same as the api, the program and `DropFactoryV4`. The small line
  * under the number says which part decided it: `1%`, `minimum fee`
  * `0.0003 SOL per person minimum` (`0.00001 ETH` on Robinhood), or `max fee`. A tie is said as the

@@ -12,8 +12,7 @@ import { formatAmount, timeAgo } from "@/lib/format";
 import { dropUnit } from "@/lib/token";
 
 /**
- * The profile's `received` list (
- * ). The wall's rows: the sender's picture with the chain badge, the title, then
+ * The profile's `received` list. The wall's rows: the sender's picture with the chain badge, the title, then
  * `from @sender`, the main tag pill in its column; right, the amount received, then the age.
  * Every row is paid, so no receivers, claimed or state column. No usd, so no `in test coins`.
  * A chain that cannot be read: skeleton rows, never a guess.

@@ -195,7 +195,7 @@ contract DropV5Test is V5TestBase {
     // -----------------------------------------------------------------------
     // initialize refuses a refund address the drop can never pay
     // This test contract stands in for the factory: it clones the implementation itself and
-    // calls `initialize`, so the design holds and only the refund check is under test.
+    // calls `initialize`, so it runs once and only the refund check is under test.
     // -----------------------------------------------------------------------
 
     bytes32 private constant SALT = keccak256("dropchad v5 init test");

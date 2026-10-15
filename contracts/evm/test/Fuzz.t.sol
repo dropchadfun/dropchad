@@ -8,7 +8,7 @@ import {IDropFactoryV1} from "../src/IDropFactoryV1.sol";
 import {MerkleHelper} from "./MerkleHelper.sol";
 
 /// @title FuzzTest
-/// @notice The fuzz rows of.
+/// @notice The fuzz tests.
 /// @dev 1000 runs on the default profile, 10000 on `ci`. See `foundry.toml`.
 ///      Two tests build very large trees in Solidity, so they carry an inline run count. The
 ///      shape they cover is the point, not the number of repetitions.

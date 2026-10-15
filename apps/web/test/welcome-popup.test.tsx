@@ -38,7 +38,7 @@ const broken = {
   },
 };
 
-describe("welcome text, exactly the owner's", () => {
+describe("welcome text, exactly as written", () => {
   it("the title and the three lines", async () => {
     const { WELCOME_TITLE, WELCOME_LINES } = await import("@/lib/welcome");
     expect(WELCOME_TITLE).toBe("welcome chad 🤌");

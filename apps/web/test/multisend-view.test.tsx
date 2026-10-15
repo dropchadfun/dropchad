@@ -236,7 +236,7 @@ describe("MultisendView, sender and stranger", () => {
   });
 });
 
-// the same rule as `/d/`.
+// The same rule as `/d/`.
 describe("MultisendView, waiting for money: the funding card is the sender's only", () => {
   it("the sender: the card, the address, the proof's contract line", () => {
     const html = render(detail("created", 3, 0), receivers(3), true);

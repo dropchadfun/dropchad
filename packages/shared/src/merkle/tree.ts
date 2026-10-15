@@ -1,5 +1,5 @@
 /**
- * The tree, exactly as the design defines it.
+ * The tree, exactly as the contracts and the program check it.
  *
  * - a parent is `keccak256(a ++ b)` with the two children **sorted ascending as 32 byte
  *   big endian values**. Commutative hashing, the OpenZeppelin `MerkleProof` default, so a proof
@@ -51,7 +51,7 @@ export function buildTree(leaves: readonly Hex[]): MerkleTree {
     for (let i = 0; i < current.length; i += 2) {
       const left = current[i] as Hex;
       const right = current[i + 1];
-      // an odd node is promoted unchanged, never paired with itself.
+      // An odd node is promoted unchanged, never paired with itself.
       next.push(right === undefined ? left : sortedHashPair(left, right));
     }
     layers.push(next);

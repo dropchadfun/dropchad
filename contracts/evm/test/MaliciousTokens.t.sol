@@ -20,7 +20,7 @@ import {ReentrantEthReceiver} from "./ReentrantEthReceiver.sol";
 import {RejectingEthReceiver} from "./RejectingEthReceiver.sol";
 
 /// @title MaliciousTokensTest
-/// @notice The badly behaved token and recipient mocks of.
+/// @notice The badly behaved token and recipient mocks.
 /// @dev One test per row of the 15.5 table. Most rows prove a defence works. One row
 ///      deliberately **documents a break** that only the launchpad allowlist can stop.
 contract MaliciousTokensTest is DropTestBase {
@@ -128,7 +128,7 @@ contract MaliciousTokensTest is DropTestBase {
 
     /// @dev **This test documents a break, it does not prove a defence.**
     ///      A rebasing token shrinks after activation. The drop balance stops covering the
-    ///      unclaimed entitlements and the design fails. Nothing inside `DropV1` can prevent that: the
+    ///      unclaimed entitlements and the balance invariant fails. Nothing inside `DropV1` can prevent that: the
     ///      contract never reads a balance to derive an entitlement, so it cannot even notice.
     ///      The only defence is the launchpad allowlist. Pons is ruled out by source
     ///      review. If a launchpad ever ships a rebasing token, the fix is to remove that

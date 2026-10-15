@@ -6,7 +6,7 @@ import {DropV1} from "../src/DropV1.sol";
 import {IDropV1} from "../src/IDropV1.sol";
 
 /// @title BoundariesTest
-/// @notice The deadline boundaries of.
+/// @notice The deadline boundaries, both sides of each.
 /// @dev Every timestamp belongs to exactly one side. There is no gap and no
 ///      overlap, so each boundary is asserted from both directions.
 contract BoundariesTest is DropTestBase {

@@ -1,5 +1,5 @@
 /**
- * Who got fed, by handle.: the drop page names each paid leaf of a
+ * Who got fed, by handle: the drop page names each paid leaf of a
  * handle drop by X `@handle` and picture, never by the address the money landed on.
  *
  * Paid is the chain's word: the caller passes the indexes the chain says are

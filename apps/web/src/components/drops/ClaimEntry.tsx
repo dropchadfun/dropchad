@@ -8,7 +8,7 @@ import { useSession } from "@/components/site/SessionProvider";
 import { getClaims } from "@/lib/api";
 
 /**
- * The ways in to `/claim` on the phone, where the bottom bar stays three items, handle mode step
+ * The ways in to `/claim` on the phone, where the bottom bar stays three items
  * 22. Both only for the signed in person; nothing shows while signed out.
  */
 

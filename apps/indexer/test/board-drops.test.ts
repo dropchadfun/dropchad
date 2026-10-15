@@ -1,7 +1,7 @@
 /**
  * `GET /board-drops`. Each row gains `claimedIndexes`: the merkle indexes
  * of the drop's **final** claims, both kinds, ascending. The api reads the X id behind
- * each one; an EVM handle drop counts zero until this field arrives.: nothing `seen`.
+ * each one; an EVM handle drop counts zero until this field arrives. Final claims only, nothing `seen`.
  */
 import { describe, expect, it } from "vitest";
 

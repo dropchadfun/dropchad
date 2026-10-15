@@ -323,7 +323,7 @@ describe("POST /api/handles/resolve", () => {
   let headers: Record<string, string>;
 
   beforeEach(async () => {
-    // Handle mode on for one chain.: our binder key, the same binder on chain.
+    // Handle mode on for one chain: our binder key, the same binder on chain.
     const adapter = {
       ...evmAdapterFor(createFakeChain()),
       handleModeReady: () => Promise.resolve(true),

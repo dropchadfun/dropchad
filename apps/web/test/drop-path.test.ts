@@ -1,5 +1,5 @@
 /**
- * a multisend lives at `/m/<address>`, a handle
+ * A multisend lives at `/m/<address>`, a handle
  * drop at `/d/<address>`, and each page sends the other kind to the right one with a 307. The
  * drop address is the id. `lib/drop-path.ts`.
  */

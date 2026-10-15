@@ -3,7 +3,7 @@
  *
  * First try, `caa1f62`: a smaller size from the screen width, `(100vw - 64px) / 26.9`, the two
  * halves kept. On a real iPhone in Safari it still wrapped into the two halves: the test had 8px
- * spare at 390 and the iOS mono font is wider.: the size comes from the width of the
+ * spare at 390 and the iOS mono font is wider. The size comes from the width of the
  * box the address sits in, a container query, `100cqi / 29`, room for 44 letters at up to 0.66
  * of the size each; one unbroken line, `nowrap`, never cut or shortened; no halves on the card.
  * 14px at most, so a computer keeps `body`.

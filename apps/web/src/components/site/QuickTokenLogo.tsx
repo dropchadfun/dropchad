@@ -1,7 +1,7 @@
 import { quickTokenAt } from "@/lib/chains";
 
 /**
- * A quick token's logo : only for the exact address
+ * A quick token's logo: only for the exact address
  * on its own chain in the quick token list, our own file under `/tokens/`. Anything else, a
  * pasted look alike called USDC included, gets nothing here.
  */

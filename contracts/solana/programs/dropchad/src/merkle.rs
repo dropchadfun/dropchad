@@ -96,7 +96,7 @@ pub fn encode_handle_frame(drop: &Pubkey, chain_id: u64, index: u32, x_id: u64, 
     out
 }
 
-/// `keccak256(keccak256(frame))`, the same double hash as.
+/// `keccak256(keccak256(frame))`, the same double hash as an address leaf.
 pub fn handle_leaf_hash(drop: &Pubkey, chain_id: u64, index: u32, x_id: u64, amount: u64) -> [u8; 32] {
     let frame = encode_handle_frame(drop, chain_id, index, x_id, amount);
     let inner = hashv(&[&frame]).to_bytes();

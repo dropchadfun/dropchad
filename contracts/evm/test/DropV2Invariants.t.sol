@@ -24,7 +24,7 @@ import {IDropV1} from "../src/IDropV1.sol";
 ///      wallets, one checks that a handle leaf pays only its bound wallet. `DropV2Handler` adds
 ///      real handle claims, forged ones that must never succeed, revokes and binder rotations.
 ///      The tree: indexes 0 to 7 are address leaves, 8 to 15 handle leaves. Each X id has one
-///      bound wallet, so the design stays exact.
+///      bound wallet, so that check stays exact.
 contract DropV2InvariantsTest is DropInvariantsTest {
     uint256 internal constant N_ADDR = 8;
     uint256 internal constant N_HANDLE = 8;
@@ -44,7 +44,7 @@ contract DropV2InvariantsTest is DropInvariantsTest {
     function setUp() public override {
         DropTestBase.setUp();
 
-        // A non zero fee, so the fee term of the design is really exercised. As in the V1 suite.
+        // A non zero fee, so the fee term is really exercised. As in the V1 suite.
         vm.prank(owner);
         factory.setDefaultFeeBps(250);
 

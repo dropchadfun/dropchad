@@ -134,12 +134,12 @@ describe("StreamLinks", () => {
     expect(links[1]).toContain('aria-label="twitch channel"');
   });
 
-  it("the owner's files, the same height: kick 15px box, twitch 25px box", () => {
+  it("the logo files, the same height: kick 15px box, twitch 25px box", () => {
     expect(STREAM_LOGO).toEqual({
       kick: "/social/kick-logo.png",
       twitch: "/social/twitch-logo.png",
     });
-    // Fix rounds: Twitch a little bigger, then Kick a little smaller (16px to 15px).
+    // Tuned by eye: Twitch a little bigger, then Kick a little smaller (16px to 15px).
     expect(STREAM_BOX_PX).toEqual({ kick: 15, twitch: 25 });
     const html = renderToStaticMarkup(<StreamLinks streams={BOTH} />);
     expect(html).toMatch(/<img[^>]*src="\/social\/kick-logo.png"[^>]*width="15"[^>]*height="15"/);

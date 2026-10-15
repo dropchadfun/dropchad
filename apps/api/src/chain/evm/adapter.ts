@@ -58,14 +58,14 @@ export class SaltMismatchError extends Error {
 /** `MAX_BATCH` on `DropV1`. A batch of 21 reverts with `BadBatchSize`. */
 export const MAX_BATCH = 20;
 
-/** the gas numbers of, from api config. */
+/** The gas numbers behind the fee check, from api config. */
 export interface EvmGasModel {
   readonly createDrop: bigint;
   readonly activate: bigint;
   readonly claimBatchBase: bigint;
   readonly perAddressClaim: bigint;
   readonly perHandleClaim: bigint;
-  /** a Robinhood token drop: estimates from the local V3 gas report. */
+  /** A Robinhood token drop: estimates from the local V3 gas report. */
   readonly tokenCreateDrop: bigint;
   readonly tokenActivate: bigint;
   readonly perTokenHandleClaim: bigint;
@@ -138,7 +138,7 @@ export function createEvmAdapter(options: EvmAdapterOptions): ChainAdapter {
     /** `claimBatch` of up to `MAX_BATCH` for address leaves, one `claimHandle` a handle. */
     async estimateRelayerCost({ addressLeaves, handleLeaves, token }) {
       const batches = BigInt(Math.ceil(addressLeaves / MAX_BATCH));
-      // a token drop is handle mode only, with its own numbers.
+      // A token drop is handle mode only, with its own numbers.
       const units =
         token === true
           ? gas.tokenCreateDrop + gas.tokenActivate + BigInt(handleLeaves) * gas.perTokenHandleClaim
@@ -240,7 +240,7 @@ export function createEvmAdapter(options: EvmAdapterOptions): ChainAdapter {
         fundingDeadline: event.fundingDeadline,
         claimPeriod: event.claimPeriod,
         salt,
-        // the drop itself holds the tokens; the ETH fee is `NativeFeeSet`.
+        // The drop itself holds the tokens; the ETH fee is `NativeFeeSet`.
         ...(token === undefined
           ? {}
           : {
@@ -348,7 +348,7 @@ export function createEvmAdapter(options: EvmAdapterOptions): ChainAdapter {
       return { txId: result.hash, cost: result.costWei, paid };
     },
 
-    /** the fifth relayer call. What was paid comes out of the receipt. */
+    /** The fifth relayer call. What was paid comes out of the receipt. */
     async claimHandle(drop, item) {
       const address = getAddress(drop);
       const result = await gateway.claimHandle(address, {

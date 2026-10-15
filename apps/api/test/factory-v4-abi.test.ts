@@ -1,5 +1,5 @@
 /**
- * the gateway reads `minFeePerReceiver` and
+ * The gateway reads `minFeePerReceiver` and
  * `maxFeeAmount` with the full `DropFactoryV4` ABI from `packages/shared`, generated from the
  * foundry build, not a hand written copy. Version 3 and older still answer zero without a call,
  * `native-fee.test.ts`.

@@ -182,7 +182,7 @@ export function encodeCreateParams(params: CreateParams): Uint8Array {
     .finish();
 }
 
-/** 6.0. `authority` must be the upgrade authority; the script in `scripts/` is the only caller. */
+/** 6.0. `authority` must be the upgrade authority; the admin tool is the only caller. */
 export function initializeConfigInstruction(args: {
   readonly authority: Pubkey;
   readonly chainId: bigint;
@@ -213,7 +213,7 @@ export function initializeConfigInstruction(args: {
 
 /**
  * 6.11, `set_default_fee_bps`. `admin` must be `config.admin`, the program checks `has_one`.
- * New drops only. Built for `scripts/set-solana-fee.ts`; the relayer never sends it.
+ * New drops only. Built for the admin tool; the relayer never sends it.
  */
 export function setDefaultFeeBpsInstruction(args: {
   readonly admin: Pubkey;
@@ -228,8 +228,8 @@ export function setDefaultFeeBpsInstruction(args: {
 
 /**
  * `migrate_config`, once. The admin signs and pays the extra rent, so it is writable; the
- * program checks the 116 byte `Config` by hand. Built for `scripts/solana-admin.ts`, handle mode
- * the relayer never sends it.
+ * program checks the 116 byte `Config` by hand. Built for the admin tool; the
+ * relayer never sends it.
  */
 export function migrateConfigInstruction(args: { readonly admin: Pubkey }): Instruction {
   return {
@@ -522,7 +522,7 @@ export function setComputeUnitLimit(units: number): Instruction {
   };
 }
 
-/** `SetComputeUnitPrice`, discriminant 3, u64 micro lamports per unit., zero on devnet. */
+/** `SetComputeUnitPrice`, discriminant 3, u64 micro lamports per unit, zero on devnet. */
 export function setComputeUnitPrice(microLamports: bigint): Instruction {
   return {
     programId: COMPUTE_BUDGET_PROGRAM_ID,

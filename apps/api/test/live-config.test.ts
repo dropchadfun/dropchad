@@ -1,8 +1,8 @@
 /**
- * the copy of the live devnet `Config` that the LiteSVM proof runs on. It is read from
+ * The copy of the live devnet `Config` that the LiteSVM proof runs on. It is read from
  * `contracts/solana/programs/dropchad/tests/fee_model.rs`, the one place the bytes live, so the
- * Rust proof and the api proof use the same copy. Runs everywhere, Windows too; the LiteSVM case
- * that uses it runs in WSL only, `litesvm.integration.test.ts`.
+ * Rust proof and the api proof use the same copy. Runs everywhere; the LiteSVM case that uses
+ * it, `litesvm.integration.test.ts`, runs only where the `litesvm` binding is built.
  */
 import { describe, expect, it } from "vitest";
 

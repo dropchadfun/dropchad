@@ -8,7 +8,7 @@
  */
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 
-/** 32 random bytes as base64url. 43 characters, inside the 43 to 128 the design allows. */
+/** 32 random bytes as base64url. 43 characters, inside the 43 to 128 that RFC 7636 allows. */
 export function randomToken(bytes = 32): string {
   return randomBytes(bytes).toString("base64url");
 }

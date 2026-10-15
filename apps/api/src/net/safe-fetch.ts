@@ -1,5 +1,5 @@
 /**
- * A fetch for links a stranger wrote . Today only
+ * A fetch for links a stranger wrote. Today only
  * the token logo uses it -2.
  *
  * - **The link:** `https:` on port 443 only, no user or password. `ipfs://<path>` becomes

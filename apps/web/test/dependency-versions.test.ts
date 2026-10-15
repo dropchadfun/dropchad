@@ -1,5 +1,5 @@
 /**
- * the dependency upgrade. `next` 16.3.8 closes the audit alerts of
+ * The dependency upgrade. `next` 16.3.8 closes the audit alerts of
  * 16.3.5: GHSA-vcvr (next/og), GHSA-cjq9 (image optimization), GHSA-4jqv and GHSA-mcj8 (SSG and
  * ISR cache poisoning), GHSA-3w37 and GHSA-h694 (`use cache`), GHSA-f87g (metadata image routes),
  * GHSA-39w2 (dev server). `eslint-config-next` moves with it. Both pinned exact, no `^`.

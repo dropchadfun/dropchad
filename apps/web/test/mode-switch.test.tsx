@@ -1,5 +1,5 @@
 /**
- * The `drop` / `multisend` switch at the top of `/create` and handle mode step
+ * The `drop` / `multisend` switch at the top of `/create`
  * 20. `drop` first, `multisend` always last, the board tabs look. When handle mode is off,
  * `drop` is shown greyed and cannot be picked, with one grey line: `x handle drops are paused`.
  * Rendered with `react-dom/server`, no browser.

@@ -12,8 +12,7 @@ import { homeTap } from "@/lib/home";
 import { cn } from "@/lib/utils";
 
 /**
- * home, boards, claim, profile, no `live` (; `claim`
- * ). Phone only; desktop has the top menu.
+ * home, boards, claim, profile, no `live`. Phone only; desktop has the top menu.
  * Profile goes to your own page when signed in, to sign in when not. The sign in item is a plain
  * link: a Next `<Link>` fetches it in the background first, and the strict CSP refuses the
  * redirect to X.

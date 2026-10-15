@@ -473,7 +473,7 @@ describe("POST /api/drops with a token, the happy path", () => {
       tokenProgram: TOKEN_2022_PROGRAM,
       tokenName: "Doomed Rocket",
       tokenSymbol: "DOOROC",
-      // the check saw the pump.fun curve, kept on the row.
+      // The check saw the pump.fun curve, kept on the row.
       tokenLaunchpad: "pump.fun",
       feeTierUsd: "8",
       solFeeLamports: fee.toString(),

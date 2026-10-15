@@ -6,7 +6,7 @@
  * Pure: no price feed, no chain. `create.ts` calls it.
  */
 
-/** the program's `MAX_SOL_FEE_LAMPORTS`. The api refuses above it first. */
+/** The program's `MAX_SOL_FEE_LAMPORTS`. The api refuses above it first. */
 export const MAX_SOL_FEE_LAMPORTS = 1_000_000_000n;
 
 const LAMPORTS_PER_SOL = 1_000_000_000n;
@@ -70,11 +70,11 @@ export function usdToLamports(usd: string, solPriceUsd: number): bigint {
   return (usdToMicro(usd) * LAMPORTS_PER_SOL + priceMicro - 1n) / priceMicro;
 }
 
-/** the contract's `MAX_NATIVE_FEE`: a Robinhood token drop's ETH fee is at most 0.05 ETH. */
+/** The contract's `MAX_NATIVE_FEE`: a Robinhood token drop's ETH fee is at most 0.05 ETH. */
 export const MAX_ETH_FEE_WEI = 50_000_000_000_000_000n;
 
 const WEI_PER_ETH = 1_000_000_000_000_000_000n;
-/** the ETH fee is rounded up to a whole 0.00001 ETH. */
+/** The ETH fee is rounded up to a whole 0.00001 ETH. */
 const ETH_FEE_STEP_WEI = 10_000_000_000_000n;
 
 /**

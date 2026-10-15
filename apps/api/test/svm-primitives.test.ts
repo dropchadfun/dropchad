@@ -76,7 +76,7 @@ describe("program derived addresses", () => {
   });
 
   it("derives the real devnet ProgramData address, as `solana program show` printed it", () => {
-    // recorded. The upgrade authority check of the design reads this account.
+    // As recorded from devnet. The upgrade authority check of `initialize_config` reads this account.
     expect(pubkeyToBase58(programDataPda().address)).toBe(
       "76JPAERZztsCTSUExJXiAMABnbvJfRcqMM5erCjTnTR",
     );

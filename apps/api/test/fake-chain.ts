@@ -55,7 +55,7 @@ export function evmAdapterFor(gateway: ChainGateway): ChainAdapter {
 
 /**
  * The same, on the registry entry with the V2 fields taken out: a chain before its handle mode
- * deploy. the live robinhood testnet entry has them.
+ * deploy. The live robinhood testnet entry has them.
  */
 export function evmAdapterV1OnlyFor(gateway: ChainGateway): ChainAdapter {
   const live = getChain(FAKE_CHAIN_KEY);

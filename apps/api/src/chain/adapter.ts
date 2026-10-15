@@ -61,7 +61,7 @@ export interface AdapterCreateParams {
   readonly claimPeriod: number;
   /**
    * A token drop, Solana only. Absent: a native drop. The mint and its
-   * token program as the token check read them, and the SOL fee of.
+   * token program as the token check read them, and the SOL fee.
    */
   readonly token?: {
     readonly mint: string;
@@ -70,7 +70,7 @@ export interface AdapterCreateParams {
   };
 }
 
-/** The token half of a token drop's funding card . */
+/** The token half of a token drop's funding card. */
 export interface TokenFunding {
   readonly mint: string;
   /** The drop's associated token account. Shown, since some wallets warn about a PDA. */

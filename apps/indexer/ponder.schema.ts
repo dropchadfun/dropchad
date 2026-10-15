@@ -1,8 +1,8 @@
 /**
  * The indexed tables.
  *
- * Every row carries `blockNumber`, `blockHash` and a `finality` of `seen` or `final`, which is
- * The two states mean what the design says:
+ * Every row carries `blockNumber`, `blockHash` and a `finality` of `seen` or `final`.
+ * The two states mean:
  *
  * - `seen`  the sequencer produced the block. It can still disappear in a reorg. Good enough for
  *           the live rain and the live counter, and nothing else.
@@ -89,7 +89,7 @@ export const drops = onchainTable(
     statusFinality: t.text().notNull().default(FINALITY_SEEN),
 
     /**
-     * **.** True when the clone address and its deployed code both check out:
+     * **The clone check.** True when the clone address and its deployed code both check out:
      * the address is `CREATE2(factory, salt, keccak(eip1167(implementation)))`, the
      * implementation is the one the registry approves, and the deployed code hash equals the
      * expected clone hash.

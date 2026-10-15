@@ -1,5 +1,5 @@
 /**
- * the EVM refund.
+ * The EVM refund.
  * - the EVM adapter can refund now; it can cancel too, never close
  * - `settle` on the EVM waits for the claim deadline, then sends one `refund` and never a second
  * -: a drop with nothing left is not refunded on the EVM, where a zero

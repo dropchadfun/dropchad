@@ -61,7 +61,7 @@ export interface DropCreatedEvent {
 export interface CreateDropOutcome {
   readonly result: RelayerResult;
   readonly event: DropCreatedEvent;
-  /** the factory's `NativeFeeSet`, on a V3 token drop only; `null` otherwise. */
+  /** The factory's `NativeFeeSet`, on a V3 token drop only; `null` otherwise. */
   readonly nativeFee: bigint | null;
 }
 
@@ -131,15 +131,15 @@ export interface ChainGateway {
   activate(drop: Address): Promise<RelayerResult>;
   claim(drop: Address, item: ClaimItem): Promise<RelayerResult>;
   claimBatch(drop: Address, items: readonly ClaimItem[]): Promise<RelayerResult>;
-  /** the fifth relayer call. */
+  /** The fifth relayer call. */
   claimHandle(drop: Address, item: HandleClaimItem): Promise<RelayerResult>;
-  /** a binder that is set and not revoked. False without a registry, so on V1. */
+  /** A binder that is set and not revoked. False without a registry, so on V1. */
   binderLive(): Promise<boolean>;
   /** The binder in the registry when it is set and not revoked, else `null`. */
   liveBinder(): Promise<Address | null>;
-  /** the sixth relayer call. */
+  /** The sixth relayer call. */
   refund(drop: Address): Promise<RelayerResult>;
-  /** the seventh relayer call. */
+  /** The seventh relayer call. */
   cancelUnfunded(drop: Address): Promise<RelayerResult>;
 }
 
@@ -183,7 +183,7 @@ export function decodeDropCreated(
 }
 
 /**
- * the ETH fee `DropFactoryV3` emitted for a token drop, `NativeFeeSet`, or `null` when the
+ * The ETH fee `DropFactoryV3` emitted for a token drop, `NativeFeeSet`, or `null` when the
  * receipt has none. Only logs from the factory address count, as for `DropCreated`.
  */
 export function decodeNativeFeeSet(
@@ -278,8 +278,8 @@ export interface ChainGatewayOptions {
   readonly relayer: Relayer;
   readonly chainId: number;
   /**
-   * 1 for `DropFactoryV1` and `DropV1`, 2 for `DropFactoryV2` and `DropV2`  for
-   * `DropFactoryV3` and `DropV3`  for `DropFactoryV4`  for `DropFactoryV5` and
+   * 1 for `DropFactoryV1` and `DropV1`, 2 for `DropFactoryV2` and `DropV2`, 3 for
+   * `DropFactoryV3` and `DropV3`, 4 for `DropFactoryV4`, 5 for `DropFactoryV5` and
    * `DropV5`.
    */
   readonly version: 1 | 2 | 3 | 4 | 5;

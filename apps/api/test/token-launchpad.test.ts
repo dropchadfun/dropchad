@@ -1,5 +1,5 @@
 /**
- * the launchpad kept at create (migration `0019`) is on every token
+ * The launchpad kept at create (migration `0019`) is on every token
  * object, `pump.fun` or `null`; a token drop made before `0019` has `null`. The create path and
  * the row are checked in `token-create.test.ts` and `db.test.ts`.
  */

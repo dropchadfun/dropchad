@@ -125,7 +125,7 @@ export function pickerLine(input: PickerLineInput): string {
   return `tap to change. up to ${String(MAX_TAGS)}. ${lock}`;
 }
 
-/** The pill's colour, as the token from. Never a hex in a component. */
+/** The pill's colour, as a design token. Never a hex in a component. */
 export function tagColorVar(tag: ProfileTag): string {
   return `var(--chad-tag-${tag})`;
 }

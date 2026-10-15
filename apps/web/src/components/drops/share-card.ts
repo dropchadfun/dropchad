@@ -110,8 +110,7 @@ export const CARD_DESIGNS: readonly { readonly id: CardDesignId; readonly label:
 ];
 
 /**
- * `sent to 12 chads on Solana`, never `airdropped` or `dropped on` (
- * ). A no-break space so
+ * `sent to 12 chads on Solana`, never `airdropped` or `dropped on`. A no-break space so
  * the number and the word never split; the chain's short name when it is known.
  */
 export function chadsLine(count: number, chain: string | null): string {

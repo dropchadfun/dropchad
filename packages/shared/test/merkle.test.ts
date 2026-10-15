@@ -137,7 +137,7 @@ describe("worked example", () => {
       false,
     );
 
-    // Note what the design does **not** claim. `verifyProof` is a plain commutative fold, so folding an
+    // Note what the tree does **not** claim. `verifyProof` is a plain commutative fold, so folding an
     // internal node with the rest of the path does reach the root. That is true of every
     // OpenZeppelin tree. The protection is that the contract never takes a leaf from the caller:
     // it builds the leaf itself from (drop, chainId, index, recipient, amount), and no such input
@@ -162,7 +162,7 @@ const TESTNET = {
   chainId: 46630,
   drop: "0x01532cdb9fA0AEde791c3295e7c49ADe9b29f315" as Address,
   amount: 100_000_000_000_000n, // 1e14 wei each
-  // The three well known anvil addresses, in the order of contracts/evm/script/input/test-receivers.json.
+  // The three well known anvil addresses, in a fixed order.
   receivers: [
     "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",

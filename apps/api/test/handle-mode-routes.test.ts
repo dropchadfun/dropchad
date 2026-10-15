@@ -1,5 +1,5 @@
 /**
- * the routes. Handle mode off means: a handle drop is refused, `503
+ * The routes. Handle mode off means: a handle drop is refused, `503
  * handle_mode_not_ready`, before any paid X lookup; the handle preview is refused the same way
  * when handle mode is off on every chain; `GET /api/chains` says `handleMode` per chain.
  * Multisend is untouched. The rule itself is `handle-mode.test.ts`.

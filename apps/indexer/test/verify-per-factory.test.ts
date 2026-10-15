@@ -1,6 +1,5 @@
 /**
- * the per factory implementation check the design and
- * `verifyClone` is unchanged; what changes is the pair it is given: the factory
+ * The per factory implementation check. `verifyClone` is unchanged; what changes is the pair it is given: the factory
  * that emitted `DropCreated`, and the implementation the registry approves **for that factory**.
  * A `DropFactoryV1` drop must be a clone of `DropV1`, a `DropFactoryV2` drop a clone of `DropV2`.
  */

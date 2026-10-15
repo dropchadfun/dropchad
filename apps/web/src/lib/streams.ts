@@ -1,6 +1,5 @@
 /**
- * Streamer connect  "Streamer
- * connect on the profile". The link to a channel is built here, from a fixed host and a name
+ * Streamer connect on the profile. The link to a channel is built here, from a fixed host and a name
  * checked against the same pattern the api saves with; a name that fails gets no link.
  */
 import type { ProfileStream, StreamPlatform } from "@/lib/api";
@@ -25,8 +24,8 @@ export const STREAM_LOGO: Record<StreamPlatform, string> = {
 };
 
 /**
- * The box each logo is drawn in, so the X, Kick and Twitch icons look the same height (
- * fix rounds): the Kick K fills its 15px box (16px looked a little big); the Twitch
+ * The box each logo is drawn in, so the X, Kick and Twitch icons look the same height:
+ * the Kick K fills its 15px box (16px looked a little big); the Twitch
  * glyph fills 70% of its file (538 of 768 px, measured), so 25px draws about 17.5px.
  */
 export const STREAM_BOX_PX: Record<StreamPlatform, number> = { kick: 15, twitch: 25 };
@@ -54,7 +53,7 @@ export function connectStartUrl(platform: StreamPlatform): string {
 }
 
 /**
- * The line at the top of the card after the return, from `connect=`, the words of.
+ * The line at the top of the card after the return, from `connect=`, and its words.
  * `ok` has no line, the row's `connected` pill says it; `signin`
  * lands on `/`, which shows nothing new; anything unknown shows nothing.
  */

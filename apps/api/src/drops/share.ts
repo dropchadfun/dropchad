@@ -1,5 +1,5 @@
 /**
- * The share card, first version .
+ * The share card, first version.
  *
  * The api sends the facts only: what was dropped and on how many people, the sender, every
  * receiver biggest first (pictures on the first 3 only), and the rank word. The card is drawn in the browser and the post text is built there, so

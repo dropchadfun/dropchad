@@ -2,9 +2,9 @@
  * The indexer's optional env lines, read in one place.
  *
  * **An empty line is not set.** `NAME=` with nothing after it gives `""`, and `??` only skips
- * `undefined`, so `process.env.X ?? default` took the empty string. an empty
+ * `undefined`, so `process.env.X ?? default` took the empty string. An empty
  * `DROPCHAD_CHAIN=` and later an empty `FINALITY_CHECK_INTERVAL=` (read as `0`) crashed the
- * indexer on the server. Here empty or spaces means the default.
+ * indexer that way. Here empty or spaces means the default.
  *
  * A value that is written out but wrong throws at start and names the line, so it never becomes
  * a quiet `NaN` or `0`.

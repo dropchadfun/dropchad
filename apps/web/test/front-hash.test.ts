@@ -1,6 +1,6 @@
 /**
- * `/#live` opens the live tab once, then the address goes back to plain `/` (,
- * ). A tab tap never changes the address. The logo and `home` always land on
+ * `/#live` opens the live tab once, then the address goes back to plain `/`.
+ * A tab tap never changes the address. The logo and `home` always land on
  * plain `/` on `latest`, page 1, also when already on the front page; the chain choice is kept.
  */
 import { existsSync, readFileSync } from "node:fs";

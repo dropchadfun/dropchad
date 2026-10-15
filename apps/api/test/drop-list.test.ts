@@ -1,5 +1,5 @@
 /**
- * a multisend is on no public list.
+ * A multisend is on no public list.
  *
  * `GET /api/drops` feeds `live now` and latest drops on the front page. It lists handle drops
  * only, built from our own rows on both chains, newest first. The EVM half takes the chain side

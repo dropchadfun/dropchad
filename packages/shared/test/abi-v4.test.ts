@@ -1,5 +1,5 @@
 /**
- * the full `DropFactoryV4` ABI. Generated from
+ * The full `DropFactoryV4` ABI. Generated from
  * the foundry build like every other ABI here (`npm run sync:abi`). V4 is V3 plus the fee:
  * every V3 item is in it unchanged, so the indexer and the relayer decode V4 with the V3 shapes,
  * plus the two views, the two setters and the two events.

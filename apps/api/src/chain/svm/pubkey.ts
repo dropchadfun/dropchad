@@ -52,7 +52,7 @@ export const INSTRUCTIONS_SYSVAR_ID: Pubkey = pubkeyFromBase58(
 );
 /**
  * The Clock sysvar and the owner of every sysvar account. Read from `solana-sdk-ids` 3.1.0,
- * `sysvar::clock::ID` and `sysvar::ID`. the design reads the chain's own time.
+ * `sysvar::clock::ID` and `sysvar::ID`. Handle mode reads the chain's own time.
  */
 export const CLOCK_SYSVAR_ID: Pubkey = pubkeyFromBase58(
   "SysvarC1ock11111111111111111111111111111111",

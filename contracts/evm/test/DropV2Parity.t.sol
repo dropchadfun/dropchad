@@ -15,7 +15,7 @@ import {DropV2} from "../src/DropV2.sol";
 /// @notice Every `DropV1` suite, run against `DropV2` on `DropFactoryV2`, the pair that ships.
 /// @dev `DropV2` is `DropV1` copied with handle mode added. These five
 ///      contracts prove every V1 rule still holds on the copy: claims, batches, boundaries, fuzz,
-///      and the malicious tokens and recipients of. The registry has no binder here,
+///      and the malicious tokens and recipients. The registry has no binder here,
 ///      which is right: address leaves never read it. `DropV2.t.sol` tests what V2 adds.
 abstract contract OnV2 {
     function _v2Implementation(address registryOwner) internal returns (address) {

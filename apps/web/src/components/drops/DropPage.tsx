@@ -18,7 +18,7 @@ type Phase = "funding" | "live" | "after";
  * The drop page for the whole life of a drop.
  *
  * - `funding`: created, not yet funded. The funding card above the live view, for the creator
- *   only; everyone else gets one line and no address .
+ *   only; everyone else gets one line and no address.
  * - `live`: money is moving. `who got fed` grows from the SSE stream.
  * - `after`: finished or expired. The same clean layout, the proof at the bottom.
  *

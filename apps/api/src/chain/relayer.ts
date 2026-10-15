@@ -1,14 +1,12 @@
 /**
  * The relayer. The only thing in dropchad that holds a key and signs.
  *
- * **It can send exactly seven calls: `createDrop`, `activate`, `claim`, `claimBatch`, since
- * handle mode `claimHandle` (16a) and `refund` (16c), and since `cancelUnfunded`**,
- * `refund` pays only the refund address fixed at creation, after the claim
+ * **It can send exactly seven calls: `createDrop`, `activate`, `claim`, `claimBatch`,
+ * `claimHandle`, `refund` and `cancelUnfunded`.** `refund` pays only the refund address fixed at creation, after the claim
  * deadline; `cancelUnfunded` pays the same address, after the funding deadline, while the drop is
  * `Created`. There is no eighth method on this
  * interface and there is no generic `sendTransaction` exported from this
- * file, so there is no code path that could send a raw value transfer. and
- * section 6: the relayer holds gas money only and can never move drop funds.
+ * file, so there is no code path that could send a raw value transfer: the relayer holds gas money only and can never move drop funds.
  *
  * Four guards, all inside the one private `send`, so nothing can go around them:
  *
@@ -45,7 +43,7 @@ import {
   type TransactionReceipt,
 } from "viem";
 
-/** The seven calls, and nothing else, ever. the design is the list; change it there first. */
+/** The seven calls, and nothing else, ever. Adding one is a security change. */
 export type RelayerCallKind =
   "createDrop" | "activate" | "claim" | "claimBatch" | "claimHandle" | "refund" | "cancelUnfunded";
 
@@ -78,7 +76,7 @@ export interface ClaimItem {
 }
 
 /**
- * the arguments of `DropV2.claimHandle`. It pays `recipient`, the address
+ * The arguments of `DropV2.claimHandle`. It pays `recipient`, the address
  * the binder signed for, never the caller: that is why it is safe to sponsor.
  */
 export interface HandleClaimItem {

@@ -267,7 +267,7 @@ describe("isPartial", () => {
       isPartial({ claims: [], unavailable: ["solana-devnet"], freshLoginSecondsLeft: 0 }),
     ).toBe(true);
     expect(isPartial({ claims: [], unavailable: [], freshLoginSecondsLeft: 0 })).toBe(false);
-    // An api from before the design sends no `unavailable`: complete, as it always was.
+    // An older api sends no `unavailable`: complete, as it always was.
     expect(isPartial({ claims: [], freshLoginSecondsLeft: 0 })).toBe(false);
   });
 

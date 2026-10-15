@@ -59,7 +59,7 @@ contract DeployV5ScriptTest is Test {
         _removeJson(d.chainId);
     }
 
-    /// @dev Every setting, the testnet shape of: the relayer, 1%, 0.00001 ETH per
+    /// @dev Every setting, the testnet shape: the relayer, 1%, 0.00001 ETH per
     ///      receiver, cap 0.02 ETH, the two test tokens.
     function test_DeployV5_AppliesEverySetting() public {
         vm.chainId(31_501);

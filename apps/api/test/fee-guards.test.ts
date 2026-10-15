@@ -1,5 +1,5 @@
 /**
- * the fee guards.
+ * The fee guards.
  * - a minimum per receiver in usd, per chain kind in api config: 5 usd on mainnet, 0.01 usd on the
  *   testnets; both modes, every leaf after merging; `400 below_min_usd`
  * - no price, no drop: `503 price_unavailable`

@@ -17,8 +17,8 @@ import {IDropV3} from "../src/IDropV3.sol";
 import {TestCoin} from "../src/TestCoin.sol";
 
 /// @title DropV3Test
-/// @notice What `DropV3` adds to `DropV2`: the ETH fee of a token drop. and
-///         15.8. `DropV3Parity.t.sol` runs every V1 and V2 suite against it.
+/// @notice What `DropV3` adds to `DropV2`: the ETH fee of a token drop.
+///         `DropV3Parity.t.sol` runs every V1 and V2 suite against it.
 contract DropV3Test is V3TestBase {
     // -----------------------------------------------------------------------
     // the field

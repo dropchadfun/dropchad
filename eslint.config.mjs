@@ -83,7 +83,7 @@ export default tseslint.config(
     },
   },
   {
-    // CommonJS, because pm2 loads its config with `require`: `deploy/ecosystem.config.cjs`.
+    // CommonJS, for config files that are loaded with `require`.
     files: ["**/*.cjs"],
     ...tseslint.configs.disableTypeChecked,
     languageOptions: {

@@ -1,5 +1,5 @@
 /**
- * The old words. only handle drops
+ * The old words. Only handle drops
  * count, and a person is an X account, never a wallet. Reads every source file under `src`,
  * not the tests. Only the multisend page says wallets, and it never uses these phrases.
  */
@@ -99,7 +99,7 @@ describe("no crowd and no spelled percent on the site", () => {
 
 describe("the new words are where they belong", () => {
   it("the front page and the profile tiles say payouts, with the people under it", () => {
-    // the big number is payouts, the label the same on the phone.
+    // The big number is payouts, the label the same on the phone.
     for (const name of ["components/front/FrontPage.tsx", "app/u/[handle]/page.tsx"]) {
       const text = read(name);
       expect(text, name).toContain('label="payouts"');

@@ -28,7 +28,7 @@ fn instructions_sysvar() -> Pubkey {
     "Sysvar1nstructions1111111111111111111111111".parse().unwrap()
 }
 
-/// the same constant as the EVM `HANDLE_LEAF_TAG`.
+/// The same constant as the EVM `HANDLE_LEAF_TAG`.
 fn handle_leaf_tag() -> [u8; 32] {
     keccak(&[b"dropchad:handle-leaf:v1"])
 }
@@ -38,7 +38,7 @@ fn binding_tag() -> [u8; 32] {
     keccak(&[b"dropchad:binding:v1"])
 }
 
-// -- the handle tree, written from the, not from the program ------------------------
+// -- the handle tree, written from the rules, not from the program ------------------
 
 fn word_u64(v: u64) -> [u8; 32] {
     let mut w = [0u8; 32];

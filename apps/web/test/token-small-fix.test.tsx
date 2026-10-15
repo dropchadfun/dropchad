@@ -1,6 +1,6 @@
 /**
- * The small after the live test screenshots
- * 1. the token address 's asset row wraps evenly on the phone: two equal halves that
+ * Small layout fixes for token drops on the phone:
+ * 1. the token address in the asset row wraps evenly on the phone: two equal halves that
  *    never break inside, so no character is ever alone on the last line; one line on desktop;
  * 2. the token funding card has no `people get` line, it repeated the big amount above it.
  */

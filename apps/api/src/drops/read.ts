@@ -69,7 +69,7 @@ export interface MergedList {
 
 /**
  * `GET /api/drops`, the rows behind `live now` and latest drops: **our handle drops only**, both
- * chains, newest first, cut at `limit`.: a
+ * chains, newest first, cut at `limit`: a
  * multisend is on no public list, and neither is a drop we did not create.
  *
  * The list starts from our own rows, never from the indexer's list: the indexer's newest rows

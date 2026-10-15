@@ -1,6 +1,5 @@
 /**
- * the funding card (,
- * ). The drop page builds the card from `ours.data.funding`, the same
+ * The funding card. The drop page builds the card from `ours.data.funding`, the same
  * object the create answer sent, for every drop, SOL drops too: never from `grossRequiredWei`,
  * which on a token drop is the token total (`DropPage.tsx` read it as SOL). A token drop has two
  * parts, both to the drop address: the tokens, with the vault address, and the SOL, the fee and

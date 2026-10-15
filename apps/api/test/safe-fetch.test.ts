@@ -1,5 +1,5 @@
 /**
- * -2, the fetch with limits .
+ * -2, the fetch with limits.
  *
  * - `https:` on port 443 only, no user or password. `ipfs://<path>` becomes
  *   `https://ipfs.io/ipfs/<path>`, one fixed gateway, then the same checks.

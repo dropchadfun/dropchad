@@ -134,7 +134,7 @@ describe("the phone check", () => {
 });
 
 describe("the words on the button", () => {
-  it("the owner's example: pay 1.01 SOL to …pY3o", () => {
+  it("a real example: pay 1.01 SOL to …pY3o", () => {
     const address = "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU" + "pY3o";
     expect(payLabel({ amountBaseUnits: "1010000000", decimals: 9, symbol: "SOL", address })).toBe(
       "pay 1.01 SOL to …pY3o",

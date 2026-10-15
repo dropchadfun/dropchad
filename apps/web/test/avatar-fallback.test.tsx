@@ -16,7 +16,7 @@ import { describe, expect, it } from "vitest";
 
 import { Avatar, AvatarFace, imageBroken } from "@/components/site/Avatar";
 
-const PIC = "https://pbs.twimg.com/profile_images/1214999692590739456/u9e0J7DV_normal.jpg";
+const PIC = "https://pbs.twimg.com/profile_images/1000000000000000001/sample_normal.jpg";
 const SRC = join(__dirname, "..", "src");
 
 describe("a picture that loads", () => {

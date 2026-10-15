@@ -1,5 +1,5 @@
 /**
- * the `stable` tab on `/create`
+ * The `stable` tab on `/create`
  * Three tabs: the coin, `stable`, `token`. `stable` shows the chain's quick
  * tokens as big buttons, the ticker only, no paste box and no address; the picked one is mint,
  * and the same card shows under them. `token` is the paste box only. No quick tokens, no

@@ -42,8 +42,7 @@ export const EIP1967_SLOTS = {
 } as const satisfies Record<string, Hex>;
 
 /**
- * proxies accepted by exact address, lower case. **Empty today** (
- * ); USDC and USDT go here when they exist on Robinhood, after their source is read.
+ * Proxies accepted by exact address, lower case. **Empty today**; USDC and USDT go here when they exist on Robinhood, after their source is read.
  */
 export const PROXY_EXCEPTION_TOKENS: ReadonlySet<string> = new Set<string>();
 

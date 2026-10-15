@@ -1,4 +1,4 @@
-//! Every error named, in the order the design first names it.
+//! Every error the program can return, in the order they were added.
 //! Anchor numbers custom errors from 6000 in declaration order. The tests compute the code as
 //! `6000 + variant index`, so **never reorder or remove a variant**, only append.
 

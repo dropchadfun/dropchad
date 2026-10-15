@@ -2,9 +2,9 @@
 pragma solidity 0.8.26;
 
 /// @title MerkleHelper
-/// @notice Builds dropchad merkle trees in Solidity, with the exact rules of.
+/// @notice Builds dropchad merkle trees in Solidity, with the exact rules the contracts use.
 /// @dev This library is the **only** place in the test suite that knows how a tree is shaped.
-///      If it ever drifts from the design, `MerkleVector.t.sol` fails on the hard coded section 7.4 vector.
+///      If it ever drifts from those rules, `MerkleVector.t.sol` fails on the hard coded worked example.
 ///      Rules implemented here:
 ///      - the leaf pre-image is `abi.encode` of five words, 160 bytes. Never `abi.encodePacked`
 ///      - double hash. A leaf is `keccak256` of 32 bytes, an internal node of 64 bytes
@@ -14,8 +14,8 @@ library MerkleHelper {
     /// @notice The first word of every handle leaf frame.
     bytes32 internal constant HANDLE_LEAF_TAG = keccak256("dropchad:handle-leaf:v1");
 
-    /// @notice The leaf for one X id.: six words, 192 bytes, the tag first, then the
-    ///         same double hash as. Written from the, not copied from `DropV2`.
+    /// @notice The leaf for one X id: six words, 192 bytes, the tag first, then the
+    ///         same double hash as an address leaf. Written from the rules, not copied from `DropV2`.
     function handleLeafOf(address drop, uint256 chainId, uint256 index, uint256 xId, uint256 amount)
         internal
         pure
@@ -64,7 +64,7 @@ library MerkleHelper {
 
     /// @notice The proof for `index` against the tree over `nodes`.
     /// @dev A promoted odd node contributes nothing to the proof at that level, which is the
-    ///      whole point of. It is why the index 2 proof of the section 7.4 vector has length 1.
+    ///      whole point of promoting it. It is why the index 2 proof of the worked example has length 1.
     function proofOf(bytes32[] memory nodes, uint256 index) internal pure returns (bytes32[] memory proof) {
         require(index < nodes.length, "MerkleHelper: index out of range");
 

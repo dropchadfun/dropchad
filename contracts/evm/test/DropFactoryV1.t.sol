@@ -592,7 +592,7 @@ contract DropFactoryV1Test is DropTestBase {
     ///      so each generation needs its own adapter.
     ///      **Stays skipped on purpose.** `PonsV1Adapter` and `PonsV2Adapter` are a separate
     ///      task, and the Pons addresses are still unverified.
-    ///      The generic adapter above covers the design in the meantime.
+    ///      The generic adapter above covers the adapter rules in the meantime.
     function test_PonsAdapters_BothStructShapesDecode() public {
         vm.skip(true);
     }
@@ -827,7 +827,7 @@ contract DropFactoryV1Test is DropTestBase {
     /// @notice The 13 non-indexed fields of `DropCreated`, in declaration order.
     /// @dev Every member is a static type, so the struct is a static tuple and decoding it from
     ///      the log data is exactly the inverse of how the event encodes its tail. Declaring it
-    ///      here, from, means the test does not reuse the contract chunking.
+    ///      here, from the event itself, means the test does not reuse the contract chunking.
     struct DropCreatedTail {
         bytes32 merkleRoot;
         bytes32 manifestHash;

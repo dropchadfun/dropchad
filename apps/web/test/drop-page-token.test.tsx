@@ -91,7 +91,7 @@ function after(token: TokenInfo | null, amountWei = "100000000"): string {
   );
 }
 
-// the headline first, the sender line under it, as with a title.
+// The headline first, the sender line under it, as with a title.
 describe("1. the headline, then the picture, @handle and the X logo, on every drop", () => {
   const order = (html: string) => {
     const text = html.indexOf("<h1");

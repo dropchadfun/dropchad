@@ -1,5 +1,5 @@
 /**
- * The stable tokens look real .
+ * The stable tokens look real.
  * The logo comes only from the quick token list, by chain and exact address: the `stable`
  * buttons, the card under them (with the full address), the funding card and the claim page.
  * A pasted look alike never gets it.

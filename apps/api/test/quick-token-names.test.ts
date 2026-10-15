@@ -1,5 +1,5 @@
 /**
- * for a quick token, by its chain and exact
+ * For a quick token, by its chain and exact
  * address, the ticker, the name and the logo are ours, never the chain's and never `tokens`. The
  * token check, every drop and claim answer and the funding answer carry them. Any other address
  * keeps what its chain says. The create path is in `token-create.test.ts`.

@@ -45,7 +45,7 @@ function classesAround(marker: string): string[] {
 }
 
 describe("your card, the layout", () => {
-  // the preview about 58% of the section, 5 to 7.
+  // The preview about 58% of the section, 5 to 7.
   it("two columns from tablet width up, the preview about 58% wide; one column on the phone", () => {
     expect(html).toMatch(
       /class="[^"]*\bmd:grid\b[^"]*\bmd:grid-cols-\[minmax\(0,5fr\)_minmax\(0,7fr\)\][^"]*"/,
@@ -126,7 +126,7 @@ describe("your card, the layout", () => {
     );
   });
 
-  // the counter is a plain hint, never red, never a limit.
+  // The counter is a plain hint, never red, never a limit.
   it("the n / 280 counter stays, plain and never red", () => {
     expect(html).toContain("/ 280");
     const source = readFileSync(

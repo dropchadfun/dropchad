@@ -1,5 +1,5 @@
 /**
- * The fee of a native coin drop . The one
+ * The fee of a native coin drop. The one
  * place the api works it out: the gas check, `GET /api/chains` and the read back after
  * `createDrop` all call this.
  *

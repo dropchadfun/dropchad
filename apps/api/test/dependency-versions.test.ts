@@ -1,5 +1,5 @@
 /**
- * the dependency upgrade. The api's own `drizzle-orm` and
+ * The dependency upgrade. The api's own `drizzle-orm` and
  * `@hono/node-server` move to 0.45.4 and 2.1.4, pinned exact, no `^`. The audit alerts on these
  * two names are on Ponder's own nested copies, not on ours; those stay as Ponder pins them.
  */

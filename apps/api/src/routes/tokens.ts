@@ -56,7 +56,7 @@ export function createTokenRoutes() {
     const down = evm ? "robinhood_unavailable" : "solana_unavailable";
     const checker = evm ? c.get("deps").evmTokenChecker : c.get("deps").tokenChecker;
     if (checker === undefined) return c.json({ error: down }, 503);
-    // a quick token of this api's chain, by exact address, gets our ticker, name and
+    // A quick token of this api's chain, by exact address, gets our ticker, name and
     // logo; any other mint is answered exactly as the chain read it.
     const { config } = c.get("deps");
     const chainKey = evm ? config.CHAIN_KEY : config.SOLANA_CHAIN_KEY;

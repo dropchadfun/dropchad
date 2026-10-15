@@ -4,8 +4,8 @@ import { xProfileUrl } from "@/lib/social";
 /**
  * The X link: the X logo right after a person's `@handle`, on
  * the profile page and the drop page only. It opens their X account in a new tab. Grey, mint on
- * hover, 21px in a 44px target, so the drawn X is about as tall as a Kick K beside it (
- * ). Never inside a row that is itself a link.
+ * hover, 21px in a 44px target, so the drawn X is about as tall as a Kick K beside it.
+ * Never inside a row that is itself a link.
  */
 export function XLink({ handle }: { handle: string }) {
   return (

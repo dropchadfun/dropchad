@@ -1,5 +1,5 @@
 /**
- * the bind.
+ * The bind.
  * - no wallet connect and no wallet signature: the X login is the only proof
  * - the login must be from the last 10 minutes
  * - the pasted address must be in the chain's format: EVM checksummed when mixed case and not
@@ -116,7 +116,7 @@ async function seedHandleDrop(
 
 /**
  * A ready V2 chain, the only place a real bind can happen: `DropFactoryV2` recorded and our
- * binder live, so handle mode is on. a bind needs that.
+ * binder live, so handle mode is on. A bind needs that.
  */
 function readyEvm(chain: FakeChain): ChainAdapter {
   return { ...evmAdapterFor(chain), handleModeReady: () => Promise.resolve(true) };
@@ -530,7 +530,7 @@ function solanaStub(): ChainAdapter {
 }
 
 /**
- * a bind is refused while handle mode is off on
+ * A bind is refused while handle mode is off on
  * the drop's chain. A binding signed then would only wait, so nothing is
  * signed and nothing is written.
  */

@@ -8,9 +8,8 @@
  * instruction encoding, its account decoding and its event parsing are all exercised for real.
  *
  * What it does not simulate: compute units (a test may set `unitsOverride`), the rent rule of
- * for fresh wallets, the token programs beyond a token account's balance (:
- * the vault, the receiver's and the refund recipient's associated token accounts, created when
- * missing, the rent pay back of), and the upgrade authority check of `initialize_config`. Those belong to the 201 LiteSVM tests and to
+ * for fresh wallets, the token programs beyond a token account's balance (the vault, the receiver's and the refund recipient's associated token accounts, created when
+ * missing, the rent paid back), and the upgrade authority check of `initialize_config`. Those belong to the 201 LiteSVM tests and to
  * `svm-litesvm.integration.test.ts`.
  */
 import { ed25519 } from "@noble/curves/ed25519";
@@ -50,9 +49,9 @@ export const FAKE_SVM_CHAIN_ID = 103n;
 export const FAKE_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
 export const FAKE_TOKEN_2022_PROGRAM = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
 export const FAKE_ATA_PROGRAM = "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL";
-/** the program's `MAX_SOL_FEE_LAMPORTS`. */
+/** The program's `MAX_SOL_FEE_LAMPORTS`. */
 const FAKE_MAX_SOL_FEE = 1_000_000_000n;
-/** the mints allowed a freeze authority. */
+/** The mints allowed a freeze authority. */
 const FAKE_FREEZE_EXCEPTIONS = new Set([
   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
   "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
@@ -211,7 +210,7 @@ export interface FakeConfig {
     binder: Pubkey;
     binderRevoked: boolean;
     minFeeLamports: bigint;
-    /** the two fields cut from the reserved bytes. Zero is off. */
+    /** The two fields cut from the reserved bytes. Zero is off. */
     minFeePerReceiverLamports?: bigint;
     maxFeeLamports?: bigint;
   };
@@ -358,14 +357,14 @@ const CODES: Record<string, number> = {
   BadBinding: 6041,
 };
 
-/** the tag of a binding message. The fake builds the message itself, byte by byte. */
+/** The tag of a binding message. The fake builds the message itself, byte by byte. */
 const BINDING_TAG_BYTES = toBytes(keccak256(toHex("dropchad:binding:v1")));
 const ED25519_PROGRAM = "Ed25519SigVerify111111111111111111111111111";
 
 const u256be = (value: bigint): Uint8Array => toBytes(value, { size: 32 });
 
 /**
- * The native Ed25519 program as the runtime runs it for: one signature, offsets pointing
+ * The native Ed25519 program as the runtime runs it for a handle claim: one signature, offsets pointing
  * into this instruction, and the signature must verify. Anything else fails the transaction.
  */
 function verifyEd25519(data: Uint8Array): { key: Uint8Array; message: Uint8Array } {
@@ -732,7 +731,7 @@ export class FakeSvm {
           throw new ProgramError("SolFeeTooHigh");
         let tokenAccountBytes = 0;
         if (token !== null) {
-          // the part the fake knows: the mint's program, the freeze rule, the vault.
+          // The part the fake knows: the mint's program, the freeze rule, the vault.
           const mintAccount = this.accounts.get(pubkeyToBase58(token.mint));
           const mintProgram = mintAccount === undefined ? null : pubkeyToBase58(mintAccount.owner);
           if (
@@ -801,7 +800,7 @@ export class FakeSvm {
           totalClaimed: 0n,
           claimedCount: 0,
           closed: false,
-          // the program works the budget out from the rent sysvar.
+          // The program works the budget out from the rent sysvar.
           solFeeLamports: solFee,
           accountBudgetLamports: token === null ? 0n : BigInt(leafCount) * vaultRent,
           accountBudgetUsed: 0n,
@@ -831,7 +830,7 @@ export class FakeSvm {
         if (now > d.fundingDeadline) throw new ProgramError("FundingExpired");
         // mint, vault, token program, or all three absent on a SOL drop.
         const token = this.assetSlots(d, keys, 3, false);
-        // a token drop needs both payments.
+        // A token drop needs both payments.
         if (token === null) {
           if (this.spendable(dropKey) < d.grossRequired) throw new ProgramError("Underfunded");
         } else if (
@@ -847,7 +846,7 @@ export class FakeSvm {
           claimDeadline: now + BigInt(d.claimPeriod),
           status: SVM_STATUS_ACTIVE,
         });
-        // a token drop's SOL fee to the fee wallet.
+        // A token drop's SOL fee to the fee wallet.
         const solFee = d.solFeeLamports ?? 0n;
         if (token !== null && solFee > 0n) {
           this.setLamports(dropKey, this.lamportsOf(dropKey) - solFee);
@@ -973,7 +972,7 @@ export class FakeSvm {
           this.setLamports(dropKey, this.lamportsOf(dropKey) - amount);
           this.setLamports(recipient, this.lamportsOf(recipient) + amount);
         } else {
-          // the idempotent create, the transfer, then the rent back to the caller.
+          // The idempotent create, the transfer, then the rent back to the caller.
           const created = this.ensureAta(token.ata as Pubkey, recipient, token, key(0));
           this.moveTokens(token.vault, token.ata as Pubkey, amount);
           const left = (d.accountBudgetLamports ?? 0n) - budgetUsed;
@@ -1050,7 +1049,7 @@ export class FakeSvm {
           throw new ProgramError("WrongRefundRecipient");
         const token = this.assetSlots(d, keys, 5, true);
         if (token !== null) {
-          // the tokens left, then the vault closed, its rent to the payer.
+          // The tokens left, then the vault closed, its rent to the payer.
           this.ensureAta(token.ata as Pubkey, d.refundRecipient, token, key(0));
           this.moveTokens(token.vault, token.ata as Pubkey, this.tokenAmountOf(token.vault) ?? 0n);
           const vault = this.accounts.get(pubkeyToBase58(token.vault));

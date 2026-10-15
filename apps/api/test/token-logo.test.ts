@@ -1,5 +1,5 @@
 /**
- * -2, the token logo .
+ * -2, the token logo.
  *
  * - The metadata `uri` points to a JSON file; only its `image` field is read, then that image
  *   is fetched. An empty `uri` means no fetch.

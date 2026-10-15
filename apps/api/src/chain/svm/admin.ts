@@ -1,9 +1,7 @@
 /**
- * The Solana admin calls, plus the two
- * fee setters. The logic of `scripts/solana-admin.ts`, kept here so it is
- * tested without a chain: which call to build, whether to send it, and whether the `Config` read
- * back after it shows the change.
- * `deploy/README.md` " " has the commands.
+ * The Solana admin calls, plus the two fee setters. The logic of the admin tool, kept here so
+ * it is tested without a chain: which call to build, whether to send it, and whether the
+ * `Config` read back after it shows the change.
  *
  * Run by the admin only. The relayer never sends any of these: none of the seven
  * is on its `ALLOWED_INSTRUCTIONS`.
@@ -29,9 +27,9 @@ import type { Instruction } from "./transaction.js";
 
 /** mirrored so a wrong value is a sentence, not a simulation log. */
 export const MAX_MIN_FEE_LAMPORTS = 25_000_000n;
-/** the program's `MAX_MIN_FEE_PER_RECEIVER_LAMPORTS`, mirrored the same way. */
+/** The program's `MAX_MIN_FEE_PER_RECEIVER_LAMPORTS`, mirrored the same way. */
 export const MAX_MIN_FEE_PER_RECEIVER_LAMPORTS = 3_000_000n;
-/** the program's `MAX_SOL_FEE_LAMPORTS`, the ceiling of `set_max_fee`. */
+/** The program's `MAX_SOL_FEE_LAMPORTS`, the ceiling of `set_max_fee`. */
 export const MAX_SOL_FEE_LAMPORTS = 1_000_000_000n;
 
 export const DEFAULT_RPC = "https://api.devnet.solana.com";

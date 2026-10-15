@@ -1,6 +1,6 @@
 /**
  * The hand on the share card: the logo, `dropchad-logo.png`, which lives in the
- * repo as `scripts/hand-silhouette.png` and is served as `/brand/hand-silhouette.png`. Never
+ * repo as `hand-silhouette.png` and is served as `/brand/hand-silhouette.png`. Never
  * `hand-1024.png`, that file is not for media. The space between the fingers stays see-through,
  * so it shows the card background; the hand is painted the brand mint with the file's own alpha,
  * Node has no canvas: the drawing itself is checked in Chrome.

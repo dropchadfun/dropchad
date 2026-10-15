@@ -1,5 +1,5 @@
 /**
- * the api picks `DropFactoryV4` once it is recorded.
+ * The api picks `DropFactoryV4` once it is recorded.
  * - `evmFactoryFor`: V4 creates every new drop once `hasFeeModelContracts`, both modes and both
  *   assets, with the live `BinderRegistry`; the clones are the same `DropV3`. The relayer, the
  *   gateway and the CREATE2 prediction all take this one pick
@@ -35,7 +35,7 @@ const LIVE_V4: DeployedChain = { ...LIVE, contracts: { ...LIVE.contracts, ...NO_
 const WITH_V4: DeployedChain = { ...LIVE_V4, contracts: { ...LIVE_V4.contracts, ...V4 } };
 
 describe("evmFactoryFor with DropFactoryV4", () => {
-  it("V4 alone, as from: the live V4", () => {
+  it("V4 alone, as recorded on testnet: the live V4", () => {
     expect(evmFactoryFor(LIVE_V4)).toEqual({
       version: 4,
       factory: V4_FACTORY,
@@ -64,7 +64,7 @@ describe("evmFactoryFor with DropFactoryV4", () => {
 });
 
 describe("evmTokenCheckFactory, the factory whose allowedToken the token check reads", () => {
-  it("V4 alone, as from: DropFactoryV4", () => {
+  it("V4 alone, as recorded on testnet: DropFactoryV4", () => {
     expect(evmTokenCheckFactory(LIVE_V4)).toBe(V4_FACTORY);
   });
 

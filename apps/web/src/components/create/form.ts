@@ -7,14 +7,14 @@
  * the robinhood pill turns valid the moment the solana pill is tapped. Moving between steps
  * changes `step` only; nothing else is touched.
  *
- * **Two modes **. `drop` is first and the default: X handles
+ * **Two modes**. `drop` is first and the default: X handles
  * and amounts, checked on the phone, then one paid lookup on `next` that must find every handle
  * `multisend` is the address box as it always was. Each mode keeps its own
  * box. When `GET /api/chains` says `handleMode: false` for the chosen chain, `drop` cannot be
  * picked and the page is on `multisend`; until the api answers, `drop` is selected and `next`
  * waits.
  *
- * **The token box **: drop mode on Solana, at the top of step 1,
+ * **The token box**: drop mode on Solana, at the top of step 1,
  * `SOL` or `token`. A pasted address is checked by `GET /api/tokens/:mint`; once it says ok, the
  * amounts are read in the token's decimals and the mint is what is sent. A token drop takes the
  * people of the last fee tier at most. Back to `SOL`, or another chain, clears the token;
@@ -52,8 +52,7 @@ export type Step = 1 | 2 | 3;
 export const STEP_LABELS = ["what and who", "check it", "fund it"] as const;
 
 /**
- * The note under the list when a handle or an address is there twice (
- * ). The api merges them and adds the amounts.
+ * The note under the list when a handle or an address is there twice. The api merges them and adds the amounts.
  */
 export function repeatNote(count: number, kind: "handle" | "address"): string {
   const noun = kind === "handle" ? "handle" : "address";
@@ -399,9 +398,9 @@ export function viewOf(
   ownHandle: string | null = null,
   /** `tokenFeeTiers` of the chosen chain from `GET /api/chains`. */
   tokenTiers: readonly TokenFeeTier[] | null = null,
-  /** from `GET /api/chains`: zero is off; zero when an older api does not send it. */
+  /** From `GET /api/chains`: zero is off; zero when an older api does not send it. */
   minFeePerReceiver: bigint | null = 0n,
-  /** from `GET /api/chains`: zero is no cap. */
+  /** From `GET /api/chains`: zero is no cap. */
   maxFee: bigint | null = 0n,
 ): FormView {
   const pill = pills.find((candidate) => candidate.key === state.chain);

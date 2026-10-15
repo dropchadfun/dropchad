@@ -30,7 +30,7 @@ export const profiles = pgTable("profiles", {
   profileImageUrl: text("profile_image_url"),
   /**
    * The sender's kind: `chad` | `kol` | `project`. NULL reads as `chad`, `boards/compute.ts`.
-   * It is a label and proves nothing. Column from migration 0004. it is
+   * It is a label and proves nothing. Column from migration 0004. It is
    * derived from the first of `tags` on every `PATCH /api/me`, never an input,
    */
   kind: text("kind"),
@@ -167,7 +167,7 @@ export const drops = pgTable(
     /** Our progress, not the chain's status. */
     state: text("state").notNull().default("created"),
     paidCount: integer("paid_count").notNull().default(0),
-    /** Leaf indexes we could not pay. explains why one bad index must be isolated. */
+    /** Leaf indexes we could not pay. One bad index is set aside so it never blocks the rest. */
     failedIndexes: jsonb("failed_indexes").$type<number[]>().notNull().default([]),
     /**
      * How far the payer has walked the leaves. A **position**, not a count: `paidCount` counts

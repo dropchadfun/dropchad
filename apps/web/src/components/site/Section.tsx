@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-/** A titled block.: 24 between sections on phone, 32 on desktop. Small calm title. */
+/** A titled block: 24 between sections on phone, 32 on desktop. Small calm title. */
 export function Section({
   id,
   title,

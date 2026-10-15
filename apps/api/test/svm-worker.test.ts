@@ -207,7 +207,7 @@ describe("a Solana drop through the worker", () => {
     await worker.tick(); // settle: the claimed copy, then refund, nothing left, Finalized
     expect(svm.drop(drop)?.status).toBe(SVM_STATUS_FINALIZED);
     expect((await dropRow(address))?.settleTxHash).not.toBeNull();
-    // the claimed leaves are on our row before the bitmap can go.
+    // The claimed leaves are on our row before the bitmap can go.
     expect((await dropRow(address))?.claimedIndexes).toEqual([0, 1, 2]);
     await worker.tick(); // settle: close
     const closed = await dropRow(address);

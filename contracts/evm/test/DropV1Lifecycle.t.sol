@@ -508,7 +508,7 @@ contract DropV1LifecycleTest is DropTestBase {
         _assertStatus(drop, IDropV1.Status.Cancelled);
     }
 
-    /// @dev No edge exists that is not in the table of.
+    /// @dev No edge exists that is not in the status table.
     ///      From `Created`, `refund` is impossible. From `Active`, `cancelUnfunded` is impossible.
     function test_StateMachine_OnlyTheFourEdgesExist() public {
         DropV1 drop = _createNativeDrop(3);

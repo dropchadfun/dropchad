@@ -1,5 +1,5 @@
 /**
- * the boards and tiles for token drops.
+ * The boards and tiles for token drops.
  * - a token amount is never added to a coin: `droppedTotal`, `biggestDrop`, `byChain.total` and
  *   the usd leave token drops out
  * - `drops made`, `payouts` and `people` on the tiles and the profile count token drops too;

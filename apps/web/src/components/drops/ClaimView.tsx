@@ -33,7 +33,7 @@ import { cn } from "@/lib/utils";
 export type BindResult = { readonly ok: true } | { readonly ok: false; readonly code: string };
 
 /**
- * The claim page, `/claim`., screens A to K.
+ * The claim page, `/claim`, screens A to K.
  * No wallet connect and no wallet library: sign in with X, paste an address, check it large,
  * claim. The api decides everything; this only shows it.
  */

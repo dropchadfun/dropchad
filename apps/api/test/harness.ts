@@ -36,7 +36,7 @@ export interface WriteSide {
 }
 
 /**
- * ETH at 2,000 usd and SOL at 100 usd, so the 0.01 usd testnet minimum of the design is
+ * ETH at 2,000 usd and SOL at 100 usd, so the 0.01 usd testnet minimum is
  * 5,000,000,000,000 wei and 100,000 lamports: under every amount the older create tests use.
  */
 export const FAKE_PRICES: PriceService = {
@@ -45,7 +45,7 @@ export const FAKE_PRICES: PriceService = {
 
 export const TEST_ENV = {
   NODE_ENV: "test",
-  // The test drops use tiny amounts; the 1 usd default the design is tested in config.test.ts
+  // The test drops use tiny amounts; the 1 usd default is tested in config.test.ts
   // and fee-guards.test.ts, which load the config without this line.
   MIN_RECEIVER_USD_TESTNET: "0.01",
   PORT: "3000",
@@ -254,7 +254,7 @@ export async function createHarness(
     solana?: SolanaStatus;
     /** The Solana read side, over a fake cluster. */
     solanaReader?: SvmReader;
-    /** The token check of, over a fake cluster. Absent means `503 solana_unavailable`. */
+    /** The token check, over a fake cluster. Absent means `503 solana_unavailable`. */
     tokenChecker?: TokenChecker;
     /**
      * The Robinhood token check. Absent, as on the live api until `DropFactoryV3` is

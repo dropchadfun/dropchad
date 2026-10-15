@@ -1,5 +1,5 @@
 /**
- * Numbers and addresses for the screen.: numbers do the bragging, so they have to
+ * Numbers and addresses for the screen: numbers do the bragging, so they have to
  * be short and right. Wei stays a string until here; a `Number` would lose precision above 2^53.
  */
 

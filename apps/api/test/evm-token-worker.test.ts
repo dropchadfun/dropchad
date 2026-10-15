@@ -1,5 +1,5 @@
 /**
- * the worker for Robinhood token drops and the auto cancel.
+ * The worker for Robinhood token drops and the auto cancel.
  * - funding: an EVM token drop is funded only when it holds the token `>= grossRequired` **and**
  *   ETH `>= nativeFee`, read from the drop and the chain; one part alone is not funded
  * - auto cancel: past the funding time (the deadline read from the drop) a drop that still holds

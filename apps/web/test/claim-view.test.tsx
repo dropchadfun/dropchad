@@ -1,5 +1,5 @@
 /**
- * The claim page as rendered., screens A to
+ * The claim page as rendered, screens A to
  * K. `ClaimView.tsx`, rendered with `react-dom/server`, no browser: no bind is ever called here.
  */
 import { renderToStaticMarkup } from "react-dom/server";
@@ -130,7 +130,7 @@ describe("one drop, D to K", () => {
     expect(html).toContain("0.5 ETH goes to this wallet");
     expect(html).not.toContain("send 0.5");
     // One normal piece, no groups of 4. Body size in mono, white over the grey lines around it,
-    // free to wrap on a phone.: the big size was too big.
+    // free to wrap on a phone. The big size was too big.
     const address = new RegExp(`class="([^"]*)">${WALLET}<`).exec(html);
     expect(address).not.toBeNull();
     const classes = (address?.[1] ?? "").split(" ");

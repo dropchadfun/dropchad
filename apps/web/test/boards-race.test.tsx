@@ -97,7 +97,7 @@ describe("a board row", () => {
   it("people paid big on the right, usd and drops small under the name", () => {
     expect(rowOf(1)).toContain("49");
     expect(rowOf(1)).toContain("people");
-    // the payouts after the drops, still ranked and shown big by people.
+    // The payouts after the drops, still ranked and shown big by people.
     expect(rowOf(1)).toContain("$21.40 · 4 drops · 9 payouts");
     expect(rowOf(2)).toContain("$0.00 · 1 drop · 1 payout<");
   });
@@ -125,7 +125,7 @@ describe("a board row", () => {
   });
 
   it("on the phone the tag pill is hidden on board rows, the X logo stays", () => {
-    // the names of the top 3 were cut on the phone. From md up it shows.
+    // The names of the top 3 were cut on the phone. From md up it shows.
     expect(rowOf(1)).toMatch(
       /<span class="[^"]*\bhidden\b[^"]*md:inline-flex[^"]*"><span class="pill/,
     );

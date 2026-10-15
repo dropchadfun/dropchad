@@ -32,7 +32,7 @@ contract HandleVectorTest is Test {
         assertEq(impl.HANDLE_LEAF_TAG(), TAG);
     }
 
-    /// @dev The handle leaf, from the test helper written from the.
+    /// @dev The handle leaf, from the test helper written from the rules.
     function test_Vector_HandleLeaf() public pure {
         assertEq(MerkleHelper.handleLeafOf(DROP, CHAIN_ID, INDEX, X_ID, AMOUNT), LEAF);
     }

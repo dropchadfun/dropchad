@@ -1,7 +1,7 @@
 //! An independent tree builder for the tests.
 //! Deliberately not the program's `merkle` module: the tests must not verify the program with the
 //! program. keccak comes from the `sha3` crate here and from the syscall there, and the fixture in
-//! `tests/fixture.rs` pins both to the design's numbers.
+//! `tests/fixture.rs` pins both to the worked example's numbers.
 
 use anchor_lang::prelude::Pubkey;
 use sha3::{Digest, Keccak256};
@@ -40,7 +40,7 @@ pub fn pair(a: &[u8; 32], b: &[u8; 32]) -> [u8; 32] {
     }
 }
 
-/// Bottom layer first, last layer is `[root]`.: an odd node is promoted unchanged.
+/// Bottom layer first, last layer is `[root]`: an odd node is promoted unchanged.
 pub struct Tree {
     pub layers: Vec<Vec<[u8; 32]>>,
 }

@@ -1,6 +1,5 @@
 /**
- * the small rules of the token box on `/create` (
- * 12). No React here, `TokenBox.tsx` renders it.
+ * The small rules of the token box on `/create`. No React here, `TokenBox.tsx` renders it.
  */
 import { ApiError, type TokenCheck } from "@/lib/api";
 import type { ChainFamily } from "@/lib/chains";

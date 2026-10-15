@@ -56,7 +56,7 @@ export function createHandleRoutes(): Hono<AppEnv> {
         maxHandles: config.HANDLE_MAX_RECEIVERS,
         dailyMax: config.HANDLE_LOOKUPS_DAILY_MAX,
         handles: parsed.data.handles,
-        // the preview always shows today's, never the cached one.
+        // The preview always shows today's, never the cached one.
         fresh: true,
       });
       return c.json({

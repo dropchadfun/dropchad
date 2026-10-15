@@ -1,5 +1,5 @@
 /**
- * The merkle generator, exactly as the design define it.
+ * The merkle generator, exactly as the contracts and the program check it.
  * One builder for both chains; the `family` picks how addresses are read, deduplicated and sorted.
  *
  * - recipients are deduplicated **before** the tree is built. The same address

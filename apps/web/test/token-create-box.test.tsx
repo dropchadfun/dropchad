@@ -1,5 +1,5 @@
 /**
- * the token box on `/create`. Drop mode on
+ * The token box on `/create`. Drop mode on
  * Solana only, at the top of step 1: `SOL` or `token`. A pasted address is checked with
  * `GET /api/tokens/:mint` and shown as one card (logo, name, ticker, launchpad, short address
  * with copy, `ok to drop` or the reason in red). The amounts are typed in the token, 500 people
@@ -122,7 +122,7 @@ describe("where the box shows", () => {
   });
 
   it("Robinhood with no Robinhood tiers: no box, the drop is ETH even if token was picked before", () => {
-    // the box shows on Robinhood once the api sends its tiers,
+    // The box shows on Robinhood once the api sends its tiers,
     // `robinhood-token-web.test.tsx`.
     const v = viewOf(
       run({ type: "asset", value: "token" }, { type: "chain", key: "robinhood" }),

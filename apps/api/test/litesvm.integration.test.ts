@@ -2,17 +2,15 @@
  * The whole Solana flow against the **real compiled program** on LiteSVM: create, fund, activate,
  * pay, refund, close. The twin of `anvil.integration.test.ts`.
  *
- * It needs two things that are not in the repo: the `litesvm` Node binding, which ships no
- * Windows binary, and the program
- * `contracts/solana/target/deploy/dropchad.so`, which `anchor build` writes on the local
- * machine. Missing either, the test **skips itself and says why**, so the suite is green on
- * Windows and the proof runs in WSL:
+ * It needs two things that are not in the repo: the `litesvm` Node binding, which has no build
+ * for every platform, and the program `contracts/solana/target/deploy/dropchad.so`, which
+ * `anchor build` writes locally. Missing either, the test **skips itself and says why**, so the
+ * suite stays green where it cannot run. With both in place, on Linux:
  *
- *   npx vitest run test/litesvm.integration.test.ts   (from apps/api, in WSL, after npm install)
+ *   npx vitest run test/litesvm.integration.test.ts   (from apps/api, after npm install)
  *
  * Written against the litesvm 1.4.1 typings, which take `@solana/kit` shapes: a transaction is
- * `{ messageBytes, signatures }` and an address is a base58 string. Not executed on the machine
- * this was written on; the first WSL run is the proof.
+ * `{ messageBytes, signatures }` and an address is a base58 string.
  */
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
@@ -161,7 +159,7 @@ function rpcOver(svm: LiteSvmLike, relayer: Pubkey): SvmRpc {
     // Every litesvm error class has its own `toString()`; a fieldless enum is a plain number.
     const text = (value: unknown): string =>
       typeof value === "number" ? `${value}` : (value as { toString(): string }).toString();
-    // The proof runs by hand in WSL: print the real error and the program logs, so a failure
+    // This test is run by hand: print the real error and the program logs, so a failure
     // says why before the relayer turns it into its own error.
     console.error(
       `litesvm transaction failed: ${text(err)}${inner === undefined ? "" : ` / ${text(inner)}`}\n` +

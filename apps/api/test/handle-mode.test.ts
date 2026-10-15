@@ -1,6 +1,5 @@
 /**
- * handle mode is on for a chain only when all three hold (,
- * ):
+ * Handle mode is on for a chain only when all three hold:
  * - the chain side is ready, `handleModeReady`: `DropFactoryV2` recorded on the EVM, a migrated
  *   `Config` with a live binder on Solana
  * - our binder key for that family is set, `BINDER_EVM_*` or `BINDER_SOLANA_*`

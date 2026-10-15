@@ -3,7 +3,7 @@
  *
  * Every call goes to **this origin**: `/api/...`. In dev Next rewrites that to `apps/api` on
  * 4000, in production both sit behind one host. The browser never learns another origin, so the
- * session cookie and the CSRF cookie are always in scope. `apps/api/README.md`, ports.
+ * session cookie and the CSRF cookie are always in scope.
  *
  * On the server (a server component) there is no origin to be relative to, so `apiUrl` uses
  * `API_ORIGIN` directly. Server calls carry no cookies, which is fine: everything a server
@@ -70,7 +70,7 @@ export interface Profile {
   readonly tags: ProfileTag[];
   /** ISO. The last save plus 30 days, past or future. Null when never saved. */
   readonly tagLockedUntil: string | null;
-  /** Earned, never picked. Empty until the proofs of the design exist. */
+  /** Earned, never picked. Empty until the proofs behind them exist. */
   readonly badges: ProfileBadge[];
   /**
    * The linked Kick and Twitch channels, Kick first. Optional: an older
@@ -571,7 +571,7 @@ export function bindDrop(address: string, recipient: string, csrfToken: string):
 }
 
 /**
- * The one paid lookup on `next` in drop mode.: a cent of X API per handle not yet cached.
+ * The one paid lookup on `next` in drop mode: a cent of X API per handle not yet cached.
  * Signed in and CSRF checked, 20 a minute per session.
  */
 export function resolveHandles(
@@ -649,7 +649,7 @@ export function openLive(address: string, onEvent: (event: LiveEvent) => void): 
 // boards and users
 // ---------------------------------------------------------------------------
 
-/** the last 24 hours, the last 7 days, or every drop. */
+/** The last 24 hours, the last 7 days, or every drop. */
 export type BoardRange = "day" | "week" | "all";
 export type BoardKind = "all" | ProfileKind;
 

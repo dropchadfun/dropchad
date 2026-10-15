@@ -26,8 +26,8 @@ apps/api/.env
 # allow the harmless ones back
 !**/keyboard*
 !**/*.keystore.example
-# Source files the patterns above caught by name, found when the server clone had none
-# of them. Code only, no key material. Windows git ignores case, so `*KEY*` matched `pubkey.ts`.
+# Source files the patterns above catch by name. Code only, no key material. On a file system
+# that ignores case, `*KEY*` also matches `pubkey.ts`.
 # A new file with key, secret or wallet in its name is ignored too: check `git status` for it.
 !apps/api/src/chain/svm/pubkey.ts
 !apps/api/src/chain/svm/keypair.ts

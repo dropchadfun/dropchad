@@ -126,7 +126,7 @@ console.log(
 );
 
 /**
- * Handle mode per chain.: on only with our binder key and that key as the binder on
+ * Handle mode per chain: on only with our binder key and that key as the binder on
  * chain. The reason goes to this log, never to the public. Read in the background: a slow RPC
  * must not hold the start.
  */

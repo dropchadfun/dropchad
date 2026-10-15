@@ -3,7 +3,7 @@
 -- Plain Postgres SQL on purpose. PGlite **is** Postgres, so this same file runs unchanged against
 -- the server Postgres later. There is no dialect to port and no generator output to trust.
 --
--- Rules from the design that this schema enforces:
+-- Security rules this schema enforces:
 --   * the identity is the **numeric** X user id, never the handle
 --   * no X access token is stored anywhere, so there is no column for one
 --   * a session id is never stored in the clear, only its keyed hash

@@ -94,7 +94,7 @@ blocked_extension!(confidential_transfer_fails_s12_3, ExtensionType::Confidentia
 blocked_extension!(pausable_fails_s12_3, ExtensionType::Pausable);
 blocked_extension!(mint_close_authority_fails_s12_3, ExtensionType::MintCloseAuthority);
 blocked_extension!(interest_bearing_fails_s12_3, ExtensionType::InterestBearingConfig);
-// Not named in, refused all the same: default deny.
+// Not on any list, refused all the same: default deny.
 blocked_extension!(group_pointer_fails_default_deny_s12_3, ExtensionType::GroupPointer);
 blocked_extension!(scaled_ui_amount_fails_default_deny_s12_3, ExtensionType::ScaledUiAmount);
 

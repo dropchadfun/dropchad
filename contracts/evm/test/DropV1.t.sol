@@ -326,7 +326,7 @@ contract DropV1Test is DropTestBase {
         _assertStatus(drop, IDropV1.Status.Active);
     }
 
-    /// @dev the design is covered in `MaliciousTokens.t.sol`. Activation is permissionless: anybody
+    /// @dev Bad token behaviour is covered in `MaliciousTokens.t.sol`. Activation is permissionless: anybody
     ///      can trigger it, and it cannot change a single parameter.
     function test_Activate_IsPermissionless() public {
         DropV1 drop = _createNativeDrop(3);

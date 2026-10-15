@@ -148,7 +148,7 @@ abstract contract DropTestBase is Test {
         return keccak256(abi.encode(X_USER_ID, nonce));
     }
 
-    /// @notice Params that pass every check of, with the tree already built
+    /// @notice Params that pass every create check, with the tree already built
     ///         against the address those params will produce.
     /// @dev Revert tests take these and break exactly one field, so the test really isolates
     ///      the rule it names.

@@ -10,8 +10,8 @@ import {IDropFactoryV1} from "../src/IDropFactoryV1.sol";
 import {MerkleHelper} from "./MerkleHelper.sol";
 
 /// @title GasTest
-/// @notice The gas and scale rows of.
-/// @dev Numbers here are **recorded, not asserted**, except where the design sets a real limit:
+/// @notice The gas and scale tests.
+/// @dev Numbers here are **recorded, not asserted**, except where there is a real limit:
 ///      `MAX_LEAVES` and the proof length at 10,000 leaves.
 ///      `forge snapshot` writes the measurements to `.gas-snapshot`, which is committed, so a
 ///      regression shows up as a diff in review.

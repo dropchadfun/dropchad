@@ -1,5 +1,5 @@
 /**
- * a new drop has 24
+ * A new drop has 24
  * hours to fund and 7 days to claim. The `/how` answers and the safe line say so.
  */
 import { describe, expect, it } from "vitest";

@@ -1,5 +1,5 @@
 /**
- * The dev only switch `/create?handleMode=on` with.
+ * The dev only switch `/create?handleMode=on`.
  *
  * On a laptop handle mode is off (no V2 contracts in the registry, no binder key), so `drop` is
  * greyed and its screens cannot be seen. With this switch, in local development only, `drop`

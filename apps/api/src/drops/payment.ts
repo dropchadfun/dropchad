@@ -4,7 +4,7 @@
  * The funding instructions themselves — address, amount, EIP 681 or Solana Pay uri — come from
  * the chain adapter, `src/chain/adapter.ts` `FundingInstructions`. A drop is funded by a **plain
  * transfer** from any wallet. There is nothing to sign, no approval and no connect step. That is
- * the whole point of the design — the sender never connects a wallet to dropchad.
+ * the whole point — the sender never connects a wallet to dropchad.
  *
  * The warnings are part of the response, not the frontend's job to remember.
  * the two ways a sender loses money here are sending to the wrong address and giving a refund

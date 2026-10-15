@@ -1,6 +1,5 @@
 /**
- * The profile's `received` list (
- * ). A section under `drops`, the same rows as the wall: the sender's picture, the
+ * The profile's `received` list. A section under `drops`, the same rows as the wall: the sender's picture, the
  * title, `from @sender`, the main tag pill; right, the amount received and the age. No
  * receivers, claimed or state column, every row is paid. No usd. Empty: `nothing received
  * yet.` A chain that cannot be read: skeleton rows, never a guess. No fourth tile.

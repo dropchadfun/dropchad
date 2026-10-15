@@ -5,7 +5,7 @@
  * profile page and on a front page tile is the same number that ranks the chad on the board.
  * Two code paths would drift.
  *
- * **Only handle drops count **. The chain
+ * **Only handle drops count**. The chain
  * rows come in, `countHandleDrops` keeps the ones that are our handle drops with a final claim,
  * and reads the X id behind every claimed leaf from `drop_handle_leaves`. The claimed leaves come
  * from the chain only: the indexer's `claimedIndexes` on the EVM, the bitmap on Solana. Never

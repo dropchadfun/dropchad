@@ -1,5 +1,5 @@
 //! Instruction bodies.
-//! Every body follows the same order as its design block: preconditions in the design's order, then
+//! Every body follows the same order: preconditions first, then
 //! every state write, then the interactions at the end. The declarative checks, seeds, bumps,
 //! owners, signers and token account derivations, already ran in `contexts.rs` before any of
 //! this code is reached.
@@ -188,7 +188,7 @@ fn leaf_pay_back(drop: &Drop, recipient_ata: Option<&UncheckedAccount>, token_pr
     Ok(shortfall.min(left))
 }
 
-/// the interactions of one claim. Token drop: the receiver's associated token
+/// The interactions of one claim. Token drop: the receiver's associated token
 /// account is created when missing (the caller pays), the leaf is paid with `transfer_checked`,
 /// then the caller gets `pay_back` from the drop account. SOL drop: the lamports.
 #[allow(clippy::too_many_arguments)]
@@ -450,7 +450,7 @@ fn is_refused_refund_recipient(ctx: &Context<CreateDrop>, key: &Pubkey) -> bool 
 pub fn create_drop(ctx: Context<CreateDrop>, params: CreateParams) -> Result<()> {
     let config = &ctx.accounts.config;
 
-    // is the has_one on config and the Signer type. in order.
+    // The admin check is the has_one on config and the Signer type. The rest follow in order.
     require!(!config.paused, DropError::CreationPaused);
     require!(params.total_entitlements > 0, DropError::ZeroTotal);
     require!(
@@ -508,7 +508,7 @@ pub fn create_drop(ctx: Context<CreateDrop>, params: CreateParams) -> Result<()>
             (Pubkey::default(), Pubkey::default(), sol_drop_fee(config, &params)?, 0)
         }
         Some((mint, vault, token_program, _)) => {
-            // no fee in the token., the budget the program works out itself.
+            // No fee in the token; the budget is what the program works out itself.
             let rent = Rent::get()?.minimum_balance(token_account_size(&token_program.key()));
             let budget = u64::from(params.leaf_count)
                 .checked_mul(rent)
@@ -634,7 +634,7 @@ pub fn activate(ctx: Context<Activate>) -> Result<()> {
     } else {
         drop.fee_amount
     };
-    // is the address constraint on fee_wallet.
+    // The fee wallet check is the address constraint on fee_wallet.
 
     // Effects 1 to 4
     let drop = &mut ctx.accounts.drop;
@@ -651,7 +651,7 @@ pub fn activate(ctx: Context<Activate>) -> Result<()> {
         fee_paid: fee,
     });
 
-    // Effect 5, then the fee in lamports, for both kinds of drop.: every write above
+    // Effect 5, then the fee in lamports, for both kinds of drop: every write above
     // happened first. Nothing of a token moves here.
     move_lamports(
         &ctx.accounts.drop.to_account_info(),
@@ -877,7 +877,7 @@ pub fn cancel_unfunded(ctx: Context<Settle>) -> Result<()> {
         ctx.accounts.vault.as_ref().map(|v| v.key()),
     )?;
 
-    // is the address constraint.
+    // The status and the deadline here; the refund address is its address constraint.
     require!(drop.status == DropStatus::Created, DropError::WrongStatus);
     require!(now()? > drop.funding_deadline, DropError::FundingStillOpen);
 
@@ -903,7 +903,7 @@ pub fn refund(ctx: Context<Settle>) -> Result<()> {
         ctx.accounts.vault.as_ref().map(|v| v.key()),
     )?;
 
-    // is the address constraint.
+    // The status and the deadline here; the refund address is its address constraint.
     require!(drop.status == DropStatus::Active, DropError::WrongStatus);
     require!(now()? > drop.claim_deadline, DropError::ClaimWindowOpen);
 
@@ -1037,7 +1037,7 @@ pub fn close_drop(ctx: Context<CloseDrop>) -> Result<()> {
     }
 
     // The lamports last: a direct lamport move must come after every CPI of the instruction, the
-    // runtime refuses a CPI once the caller has moved lamports itself.: the vault's rent
+    // runtime refuses a CPI once the caller has moved lamports itself: the vault's rent
     // minimum to the rent payer; every drop lamport above the drop's rent to the refund recipient,
     // a token drop's SOL side and the vault's extra; the bitmap's extra to the refund recipient.
     let drop_info = drop.to_account_info();
@@ -1054,7 +1054,7 @@ pub fn close_drop(ctx: Context<CloseDrop>) -> Result<()> {
 pub fn sweep_sol(ctx: Context<SweepSol>) -> Result<()> {
     let drop = &ctx.accounts.drop;
 
-    // is the address constraint.
+    // Only a closed drop; where the SOL goes is its address constraint.
     require!(drop.closed, DropError::NotClosed);
     // The drop keeps its rent minimum.
     let drop_info = drop.to_account_info();

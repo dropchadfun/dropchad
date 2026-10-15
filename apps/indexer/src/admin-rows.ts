@@ -1,6 +1,6 @@
 /**
  * The `admin_events` row of the two `DropFactoryV4` fee events, `MinFeePerReceiverSet` and
- * `MaxFeeAmountSet`. : every admin
+ * `MaxFeeAmountSet`: every admin
  * action is public. The same shape as the `MinFeeAmountSet` row: wei as a decimal string, so no
  * amount loses precision.
  */

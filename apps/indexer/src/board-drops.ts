@@ -2,7 +2,7 @@
  * The rows of `GET /board-drops`, built from plain rows so the rule can be tested outside Ponder.
  *
  * One row per drop handed in, with the sum of its **final** claims, the distinct addresses they
- * paid, and, since, `claimedIndexes`: the merkle indexes of those final
+ * paid, and `claimedIndexes`: the merkle indexes of those final
  * claims, both kinds, ascending. The api reads the X id behind each index for a handle drop,
  * a `seen` claim is on no board.
  */

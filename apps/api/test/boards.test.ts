@@ -23,7 +23,7 @@ const addr = (n: number) => `0x${n.toString(16).padStart(40, "0")}`;
 
 /**
  * What the indexer's `/board-drops` answers: one row per final, verified drop. Every drop here is a
- * handle drop.: `claimedIndexes` are the claimed leaves, and `LEAVES` below gives the X id
+ * handle drop: `claimedIndexes` are the claimed leaves, and `LEAVES` below gives the X id
  * behind each one. People are counted by X id, never by the wallet paid.
  */
 const INDEXED = [
@@ -243,7 +243,7 @@ describe("GET /api/boards", () => {
   });
 
   it("best token counts token drops only: a kind project profile with ETH drops is not on it", async () => {
-    // the kind no longer decides this board.
+    // The kind no longer decides this board.
     // Token drops are in `test/token-boards.test.ts`; here every drop is native.
     await harness.deps.db
       .update(profiles)
@@ -522,7 +522,7 @@ describe("boards rank claimed money, never funded", () => {
 });
 
 /**
- * the profile also lists what the person received. The
+ * The profile also lists what the person received. The
  * paid handle drops of that X id, one entry per drop, newest first, at most 50. Paid is the
  * chain's word, the indexer's `claimedIndexes` here, never `handle_bindings`. Never a multisend,
  * never another receiver, never the address paid, never usd.

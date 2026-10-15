@@ -14,7 +14,7 @@
  * own key, never blended in. `src/drops/card.ts`.
  *
  * The only price is the one frozen on a drop at activation, and `/api/stats` sums
- * it the way the boards do. decide what the numbers mean, and
+ * it the way the boards do: final rows only, and
  * `/api/stats` says `"finality": "final"` in its own response so a caller cannot mistake it for
  * live data.
  *
@@ -152,7 +152,7 @@ const createBody = z
     chain: z.string().min(1).max(40).optional(),
     /**
      * `"native"`, or a mint for a Solana token drop in handle mode. Checked against the
-     * chain and the mode below. ERC20 drops are blocked on.
+     * chain and the mode below. ERC20 drops are not open yet.
      */
     asset: z.string().min(1).max(64).default("native"),
     /** Address mode only. */
@@ -190,7 +190,7 @@ const createBody = z
       .optional(),
   })
   .superRefine((body, ctx) => {
-    // a drop is one mode. Each mode takes its own list and never the other.
+    // A drop is one mode. Each mode takes its own list and never the other.
     if (body.mode === "address" && (body.receivers === undefined || body.handles !== undefined)) {
       ctx.addIssue({
         code: "custom",
@@ -258,7 +258,7 @@ export function createDropRoutes(): Hono<AppEnv> {
     const chain: ChainAdapter | undefined = deps.writeSides.get(chainKey);
     if (chain === undefined) return chainUnavailable(c, chainKey);
 
-    // a token drop is on a chain with token drops (Solana, and Robinhood once
+    // A token drop is on a chain with token drops (Solana, and Robinhood once
     // `DropFactoryV3` is recorded), handle mode and a real address, before anything else.
     const asset = parsed.data.asset;
     if (asset !== "native") {
@@ -314,7 +314,7 @@ export function createDropRoutes(): Hono<AppEnv> {
           minReceiverUsd: minReceiverUsd(deps.config, getChain(chain.chainKey)),
           binders: deps.binders,
           randomBlind: deps.randomBlind,
-          // the chain's own check, Solana or Robinhood.
+          // The chain's own check, Solana or Robinhood.
           checkToken: ((checker) =>
             checker === undefined ? undefined : (mint: string) => checker.check(mint))(
             chain.family === "evm" ? deps.evmTokenChecker : deps.tokenChecker,
@@ -458,7 +458,7 @@ export function createDropRoutes(): Hono<AppEnv> {
   });
 
   /**
-   * The share card, first version . Handle drops only,
+   * The share card, first version. Handle drops only,
    * the sender only, once the drop is funded and live. The facts only: the browser draws the card
    * and writes the post, so no text, link or image goes out from here.
    */
@@ -826,7 +826,7 @@ function createError(c: Context<AppEnv>, error: unknown) {
   if (error instanceof CreateInputError) {
     return c.json({ error: "invalid_receivers", message: error.message }, 400);
   }
-  // Handle mode., then the resolver's own refusals.
+  // Handle mode: the sender's own checks first, then the resolver's own refusals.
   if (error instanceof HandlesNotFoundError) {
     return c.json({ error: "handles_not_found", handles: error.handles }, 400);
   }

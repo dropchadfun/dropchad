@@ -3,7 +3,7 @@
  *
  * **Why this exists.** `npm run dev` runs `tsx`, and tsx does not read a `.env` file. Only
  * `node --env-file=...` does. So the api refused to start with "invalid environment" even when
- * `.env` was filled in correctly and node had to be started by hand. Found.
+ * `.env` was filled in correctly, and node had to be started by hand to get past it.
  *
  * Two rules, and both matter:
  *

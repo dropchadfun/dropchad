@@ -77,7 +77,7 @@ describe("the post text", () => {
     );
   });
 
-  it("the owner's examples: one receiver as before, more receivers every name", () => {
+  it("the reference examples: one receiver as before, more receivers every name", () => {
     const one = main({ amount: "1000000000", people: 1, receivers: [r("name")], rest: 0 });
     expect(postText(one)).toBe(`just dropped 1 SOL to @name on dropchad 🤌 ${CLAIM}`);
     expect(postText(main({ people: 3, rest: 0 }))).toBe(
@@ -146,7 +146,7 @@ describe("the post text", () => {
 });
 
 describe("the post text on a testnet drop", () => {
-  // the drop's own chain decides. `test SOL` or
+  // The drop's own chain decides. `test SOL` or
   // `test ETH`, `on dropchad testnet`; a token keeps its ticker.
   const CLAIM = "they claim with their X, no wallet connection needed to claim.";
 

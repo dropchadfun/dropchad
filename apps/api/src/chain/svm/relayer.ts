@@ -71,7 +71,7 @@ import {
   type Instruction,
 } from "./transaction.js";
 
-/** The seven instructions, and nothing else, ever. the design is the list. */
+/** The seven instructions, and nothing else, ever. Adding one is a security change. */
 export const ALLOWED_INSTRUCTIONS = [
   "create_drop",
   "activate",
@@ -170,7 +170,7 @@ export interface SvmRelayerOptions {
   readonly caps: {
     /** Hard ceiling on the compute unit limit of one transaction. */
     readonly maxComputeUnits: number;
-    /** Micro lamports per compute unit.: zero on devnet. */
+    /** Micro lamports per compute unit: zero on devnet. */
     readonly priorityFeeMicroLamports: bigint;
   };
   /** Lamports the relayer pays in rent for a `create_drop`: the drop and the bitmap. */
@@ -250,7 +250,7 @@ const defaultSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(r
  */
 export const DEFAULT_INSTRUCTION_COMPUTE_UNITS = 200_000;
 
-/** the one Ed25519 data layout: key at 16, signature at 48, the 192 byte message at 112. */
+/** The one Ed25519 data layout: key at 16, signature at 48, the 192 byte message at 112. */
 const ED25519_DATA_BYTES = 16 + 32 + 64 + 192;
 const ED25519_OFFSETS = [48, 0xffff, 16, 0xffff, 112, 192, 0xffff];
 const BINDING_TAG_BYTES = hexToBytes(BINDING_TAG);

@@ -33,7 +33,7 @@ import { tokenInfoOf, unitOfDrop } from "../drops/token-info.js";
 import { dropHandleLeaves, drops, handleBindings, profiles } from "../db/schema.js";
 import { clientIp, rateLimit } from "../middleware/rate-limit.js";
 
-/** the same four numbers on both chains. */
+/** The same four numbers on both chains. */
 const STATUS_CREATED = 0;
 const STATUS_ACTIVE = 1;
 

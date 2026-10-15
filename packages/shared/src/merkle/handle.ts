@@ -111,7 +111,7 @@ export function encodeHandleLeaf(input: HandleLeafInput): Hex {
       input.amount,
     ]);
   }
-  /* istanbul ignore next -- neither path can produce another length, this pins the design anyway. */
+  /* istanbul ignore next -- neither path can produce another length, this pins the length anyway. */
   if (size(encoded) !== HANDLE_LEAF_ENCODED_BYTES) {
     throw new Error(
       `handle leaf encoding must be ${HANDLE_LEAF_ENCODED_BYTES} bytes, got ${size(encoded)}`,

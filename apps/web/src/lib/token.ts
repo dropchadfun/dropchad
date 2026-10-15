@@ -1,5 +1,5 @@
 /**
- * the unit a drop's amounts are in.
+ * The unit a drop's amounts are in.
  * A token drop is in its token: the ticker, else the word `tokens`
  * and the token's decimals. A SOL or ETH drop, or an answer from an api before 4f, keeps the chain's
  * coin. Never a usd number for a token.
@@ -28,8 +28,8 @@ export function dropUnit(
 
 /**
  * True when a logo image is done loading and has no picture: its 404 came back before React
- * attached `onError`, so that handler never ran. Robinhood tokens never have a logo (token step
- * ), so there it happens on every page load that is fast enough.
+ * attached `onError`, so that handler never ran. Robinhood tokens never have a logo,
+ * so there it happens on every page load that is fast enough.
  */
 export function logoFailedEarly(img: { complete: boolean; naturalWidth: number }): boolean {
   return img.complete && img.naturalWidth === 0;

@@ -2,12 +2,12 @@
  * only handle drops count.
  *
  * - A multisend, `mode = 'address'`, is on no board, adds nothing to a profile or a tile, and is
- *   not on the profile wall. Its own page keeps working, the rain stream included (,
- *   the web decides). It has no share card.
+ *   not on the profile wall. Its own page keeps working, the rain stream included
+ *   (the web decides). It has no share card.
  * - A handle drop counts **people**, the X ids behind the claimed leaves: the indexer's final
  *   `claimedIndexes` read through `drop_handle_leaves`. Never the paid wallets.
- * - The EVM handle claims come from the indexer only. the indexer sends no
- *   `claimedIndexes`, so an EVM handle drop counts zero. Never from
+ * - The EVM handle claims come from the indexer only. While the indexer sends no
+ *   `claimedIndexes`, an EVM handle drop counts zero. Never from
  *   `handle_bindings`.
  * - The front page tiles are built from the same rows as the boards, never from the indexer's
  *   `/stats`, which counts every drop.

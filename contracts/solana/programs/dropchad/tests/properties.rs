@@ -12,7 +12,7 @@ use proptest::prelude::*;
 use solana_keypair::Keypair;
 use solana_signer::Signer;
 
-/// 15.4. as far as a snapshot can see them.
+/// The invariants, as far as a snapshot can see them.
 fn check_invariants(h: &Harness, ctx: &DropCtx) {
     let d = h.drop_state(ctx);
     assert!(d.total_claimed <= d.total_entitlements, "I1");
@@ -64,7 +64,7 @@ proptest! {
             prop_assert_eq!(h.drop_state(&ctx).claimed_count as usize, step + 1);
             check_invariants(&h, &ctx);
         }
-        // a second pass fails everywhere
+        // A second pass fails everywhere
         for &i in &order {
             expect_fail(h.claim(&ctx, i));
         }
@@ -112,7 +112,7 @@ proptest! {
     }
 
     /// A token drop in random claim order, some receivers with a token account already and some
-    /// without, a random SOL fee. after every claim; the SOL side adds up at the end: the fee
+    /// without, a random SOL fee. The token side adds up after every claim; the SOL side adds up at the end: the fee
     /// to us, the rent of each new account back to the caller, the rest back to the sender.
     #[test]
     fn random_token_claims(n in 1usize..=16, seed in any::<u64>(), has_account in any::<u16>(), fee in 0u64..=1_000_000_000) {

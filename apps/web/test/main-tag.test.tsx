@@ -1,5 +1,5 @@
 /**
- * The main tag . A person keeps up
+ * The main tag. A person keeps up
  * to three tags and picks one main tag, the first of the saved list. Drop rows, board rows and
  * the drop page show only the main tag: no `+2`, no count, no box with the others. The profile
  * shows them all, the main one first. In the picker one row, `main tag`, in the board tabs look,

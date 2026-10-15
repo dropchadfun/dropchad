@@ -34,7 +34,7 @@ contract DropHandler is CommonBase, StdCheats, StdUtils {
     uint256[] public amounts;
     bytes32[] public leaves;
 
-    /// @notice Addresses that are not in the tree. the design says none of them may ever be paid.
+    /// @notice Addresses that are not in the tree. None of them may ever be paid.
     address[] public outsiders;
 
     // --- ghosts -------------------------------------------------
@@ -49,15 +49,15 @@ contract DropHandler is CommonBase, StdCheats, StdUtils {
     uint256 public ghostClaimCount;
     /// @notice The sum of those claims. Cross-checked against `totalClaimed`.
     uint256 public ghostClaimedSum;
-    /// @notice Highest `status` value ever seen. the design says it never goes down.
+    /// @notice Highest `status` value ever seen. It never goes down.
     uint8 public ghostMaxStatus;
-    /// @notice `claimDeadline` the first time it became non zero. the design says it never changes after.
+    /// @notice `claimDeadline` the first time it became non zero. It never changes after.
     uint64 public ghostFirstClaimDeadline;
     /// @notice Asset that arrived **after** the drop was already `Finalized` or `Cancelled`.
     /// @dev An ERC20 transfer in cannot be blocked by the receiving contract, exactly like a
-    ///      native forced send. This is the "unless value was force sent afterwards" clause of.
+    ///      native forced send. This is the "unless value was force sent afterwards" clause.
     uint256 public ghostReceivedAfterFinish;
-    /// @notice A second `initialize` that went through. the design says it stays zero.
+    /// @notice A second `initialize` that went through. It stays zero.
     /// @dev A counter, not a `revert`: `fail_on_revert` is false, so a revert here would be silent.
     uint256 public ghostReinitialized;
 

@@ -1,6 +1,5 @@
 /**
- * the parts of a funding answer (,
- * ). A SOL or ETH drop is one part, the whole amount. A token drop is two,
+ * The parts of a funding answer. A SOL or ETH drop is one part, the whole amount. A token drop is two,
  * both to the drop address: the tokens first, then the SOL, the fee and the receivers' token
  * accounts. Each part has its own payment link, so each gets its own QR. No React here.
  */
@@ -107,7 +106,7 @@ export function payLabel(part: {
 }
 
 /**
- * MetaMask's send link : the part's own EIP
+ * MetaMask's send link: the part's own EIP
  * 681 link with `ethereum:` swapped for `https://link.metamask.io/send/`, so MetaMask opens the
  * payment at once with the amount and address filled in. ETH `<to>@<chainId>?value=<wei>`, a
  * token `<token>@<chainId>/transfer?address=<to>&uint256=<amount>`.

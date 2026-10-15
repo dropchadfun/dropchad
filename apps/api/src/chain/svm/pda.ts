@@ -11,7 +11,7 @@
  * api now names as its own dependency.
  *
  * The 7.4 worked example pins every derivation below: the drop PDA, the bitmap PDA and the
- * config PDA, each with its bump. `test/svm-pda.test.ts`.
+ * config PDA, each with its bump.
  */
 import { createHash } from "node:crypto";
 

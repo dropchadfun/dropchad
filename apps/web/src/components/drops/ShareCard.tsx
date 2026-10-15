@@ -768,7 +768,7 @@ const COIN_RATIO = 0.42;
 const COIN_RATIO_SMALL = 0.34;
 
 /**
- * The hand on the card: the logo, `dropchad-logo.png`, kept as `scripts/hand-silhouette.png` and
+ * The hand on the card: the logo, `dropchad-logo.png`, kept as `hand-silhouette.png` and
  * served from here. Never `hand-1024.png`.
  */
 export const HAND_SRC = "/brand/hand-silhouette.png";

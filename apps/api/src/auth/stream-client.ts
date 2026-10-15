@@ -60,7 +60,7 @@ export class StreamAuthError extends Error {
   }
 }
 
-/** The channel name check of. A name that fails is never saved and never linked. */
+/** The channel name check. A name that fails is never saved and never linked. */
 export const CHANNEL_PATTERN: Record<StreamPlatform, RegExp> = {
   twitch: /^[a-z0-9_]{1,25}$/,
   kick: /^[A-Za-z0-9_-]{1,25}$/,

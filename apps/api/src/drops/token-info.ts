@@ -37,7 +37,7 @@ type TokenColumns = Pick<
 };
 
 /**
- * for a quick token, by its chain and exact address, the ticker,
+ * For a quick token, by its chain and exact address, the ticker,
  * the name and the logo are ours, never the chain's and never `tokens`. Any other address, or
  * no chain, keeps exactly what it has. The token check, create and every answer use this.
  */

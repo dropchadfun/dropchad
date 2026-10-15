@@ -103,7 +103,7 @@ export function CreateDrop({
     {
       readonly bps: number | null;
       readonly min: bigint | null;
-      /** the minimum per receiver and the max fee, zero is off. */
+      /** The minimum per receiver and the max fee, zero is off. */
       readonly perReceiver: bigint | null;
       readonly maxFee: bigint | null;
       readonly tiers: readonly TokenFeeTier[] | null;
@@ -216,7 +216,7 @@ export function CreateDrop({
   // answer for an address that is no longer in the box.
   const pastedMint = view.tokenChosen ? mintOf(form.mintText, view.family) : null;
   const checkedMint = form.tokenCheck?.forMint ?? null;
-  // a `0x` address is checked on Robinhood.
+  // A `0x` address is checked on Robinhood.
   const checkChain = view.family === "evm" ? "robinhood" : "solana";
   useEffect(() => {
     if (pastedMint === null || checkedMint === pastedMint) return;

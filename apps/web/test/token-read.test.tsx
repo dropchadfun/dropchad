@@ -1,5 +1,5 @@
 /**
- * the web shows tokens right. The api names the token on every
+ * The web shows tokens right. The api names the token on every
  * answer since 4f: one `token` object, `null` on a SOL or ETH drop. The web
  * shows a token drop's amounts in the token's ticker and decimals (the short mint with no
  * ticker), its logo with a letter fallback, `best token` rows without usd, the token logo

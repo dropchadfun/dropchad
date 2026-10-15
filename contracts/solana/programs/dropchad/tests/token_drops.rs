@@ -12,7 +12,7 @@ use dropchad::{Drop, DropError};
 use solana_keypair::Keypair;
 use solana_signer::Signer;
 
-/// the hard cap, from the text.
+/// The hard cap, from the text.
 const ONE_SOL_CAP: u64 = 1_000_000_000;
 const FEE: u64 = 50_000_000; // 0.05 SOL
 

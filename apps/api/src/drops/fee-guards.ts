@@ -60,7 +60,7 @@ export class FeeBelowGasError extends Error {
   }
 }
 
-/** the usd minimum for this chain, as the decimal string in config. */
+/** The usd minimum for this chain, as the decimal string in config. */
 export function minReceiverUsd(config: Config, chain: Chain): string {
   return chain.kind === "mainnet"
     ? config.MIN_RECEIVER_USD_MAINNET
@@ -98,7 +98,7 @@ export interface FeeGuardInput {
 }
 
 /**
- * for a token drop: the tier fee in SOL must cover the relayer's estimate, one
+ * For a token drop: the tier fee in SOL must cover the relayer's estimate, one
  * `claim_handle` a person. No usd minimum per receiver; the receivers' token accounts are
  * the account budget, not part of the estimate.
  */

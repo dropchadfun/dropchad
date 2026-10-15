@@ -5,8 +5,8 @@ import {ITokenFactoryAdapter} from "../src/ITokenFactoryAdapter.sol";
 
 /// @notice An `ITokenFactoryAdapter` over a configurable set of tokens.
 /// @dev Stands in for `PonsV1Adapter` and `PonsV2Adapter`, which are a
-///      separate task and are blocked on, the unverified Pons addresses.
-///      Two independent instances model: membership is **per factory**, so a token
+///      separate task and are blocked on the unverified Pons addresses.
+///      Two independent instances show that membership is **per factory**, so a token
 ///      allowed on one instance returns false on the other.
 contract MockTokenFactoryAdapter is ITokenFactoryAdapter {
     /// @dev `getTokenDeployer` must revert, never return the zero address.

@@ -101,7 +101,7 @@ export function encodeLeaf(input: LeafInput): Hex {
           getAddress(input.recipient),
           input.amount,
         ]);
-  /* istanbul ignore next -- neither path can produce another length, this pins the design anyway. */
+  /* istanbul ignore next -- neither path can produce another length, this pins the length anyway. */
   if (size(encoded) !== LEAF_ENCODED_BYTES) {
     throw new Error(`leaf encoding must be ${LEAF_ENCODED_BYTES} bytes, got ${size(encoded)}`);
   }

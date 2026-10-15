@@ -22,9 +22,9 @@
  * Step 7 is the one that matters most. Until the chain agrees, the address the sender would be
  * asked to fund is a prediction, and a prediction is not somewhere to send money.
  *
- * Native coins, and token drops on Solana in handle mode
+ * Native coins, and token drops on Solana in handle mode:
  * the token is checked again, the fee is the usd tier in SOL, and the read back also
- * checks the vault, the SOL fee and the account budget. ERC20 drops are blocked on.
+ * checks the vault, the SOL fee and the account budget. ERC20 drops are not open yet.
  */
 import {
   MAX_LEAVES,
@@ -99,7 +99,7 @@ export class HandlesNotFoundError extends Error {
 }
 
 /**
- * a handle now points to another X id than the one the sender saw on step 2. Each
+ * A handle now points to another X id than the one the sender saw on step 2. Each
  * handle lowercased, once.
  */
 export class HandlesChangedError extends Error {
@@ -109,7 +109,7 @@ export class HandlesChangedError extends Error {
   }
 }
 
-/** a handle drop never pays the sender's own X account. */
+/** A handle drop never pays the sender's own X account. */
 export class OwnHandleError extends Error {
   constructor() {
     super("a handle drop cannot pay your own X account");
@@ -128,7 +128,7 @@ export class HandleModeNotReadyError extends Error {
   }
 }
 
-/** a mint where only `"native"` fits, or a mint that is not one. `400 invalid_asset`. */
+/** A mint where only `"native"` fits, or a mint that is not one. `400 invalid_asset`. */
 export class InvalidAssetError extends Error {
   constructor(message: string) {
     super(message);
@@ -136,7 +136,7 @@ export class InvalidAssetError extends Error {
   }
 }
 
-/** the token check said no. `400 token_refused` with its one plain reason. */
+/** The token check said no. `400 token_refused` with its one plain reason. */
 export class TokenRefusedError extends Error {
   constructor(readonly reason: string) {
     super(reason);
@@ -144,7 +144,7 @@ export class TokenRefusedError extends Error {
   }
 }
 
-/** the token cannot be checked, no checker or the chain cannot be read. `503`. */
+/** The token cannot be checked, no checker or the chain cannot be read. `503`. */
 export class TokenCheckUnavailableError extends Error {
   /** Which chain's reads are missing: `solana_unavailable` or `robinhood_unavailable`. */
   readonly family: "evm" | "svm";
@@ -155,7 +155,7 @@ export class TokenCheckUnavailableError extends Error {
   }
 }
 
-/** the fee in SOL is above the 1 SOL cap. `400 fee_too_high`. */
+/** The fee in SOL is above the 1 SOL cap. `400 fee_too_high`. */
 export class FeeTooHighError extends Error {
   constructor(readonly feeLamports: bigint) {
     super("the fee is too high right now, try again later.");
@@ -214,9 +214,9 @@ export interface CreateDropDeps {
   readonly binders?: Binders | undefined;
   /** The commitment blind of a new drop. Absent means `newCommitmentBlind`. */
   readonly randomBlind?: (() => Hex) | undefined;
-  /** The token check of, run again for a token drop. Absent: a token drop is a `503`. */
+  /** The token check, run again for a token drop. Absent: a token drop is a `503`. */
   readonly checkToken?: ((mint: string) => Promise<TokenCheck>) | undefined;
-  /** from config. Needed for a token drop only. */
+  /** From config. Needed for a token drop only. */
   readonly tokenFeeTiers?: readonly TokenFeeTier[] | undefined;
 }
 
@@ -282,7 +282,7 @@ export async function createDrop(
 
   const mode = input.mode ?? "address";
   let mint = input.asset === undefined || input.asset === "native" ? null : input.asset;
-  // a token drop is a handle drop, on a chain with token drops: Solana, and Robinhood once
+  // A token drop is a handle drop, on a chain with token drops: Solana, and Robinhood once
   // `DropFactoryV3` is recorded. The adapter has `tokenVault` exactly then.
   if (mint !== null && (mode !== "handle" || chain.tokenVault === undefined)) {
     throw new InvalidAssetError(
@@ -306,7 +306,7 @@ export async function createDrop(
     readonly decimals: number;
     readonly name: string | null;
     readonly symbol: string | null;
-    /** the check's launchpad, kept on the row. */
+    /** The check's launchpad, kept on the row. */
     readonly launchpad: "pump.fun" | null;
   } | null = null;
   let tokenFee: {
@@ -322,7 +322,7 @@ export async function createDrop(
       throw new HandleModeNotReadyError(chain.chainKey);
     }
     if (deps.resolve === undefined) throw new HandleModeNotReadyError(chain.chainKey);
-    // the token is checked again, before any paid X lookup.
+    // The token is checked again, before any paid X lookup.
     if (mint !== null) {
       if (deps.checkToken === undefined) throw new TokenCheckUnavailableError(chain.family);
       let checked: TokenCheck;
@@ -334,7 +334,7 @@ export async function createDrop(
       if (!checked.ok || checked.tokenProgram === null || checked.decimals === null) {
         throw new TokenRefusedError(checked.reason ?? "not a token");
       }
-      // a quick token, by this chain and exact address, gets our name and ticker.
+      // A quick token, by this chain and exact address, gets our name and ticker.
       const named = withQuickToken(chain.chainKey, mint, checked);
       tokenInfo = {
         mint,
@@ -364,7 +364,7 @@ export async function createDrop(
     if (handleReceivers.every((r) => r.amount <= 0n)) {
       throw new CreateInputError("a drop needs at least one receiver with an amount above zero");
     }
-    // the people after the merge set the tier; the end of the last tier is the cap.
+    // The people after the merge set the tier; the end of the last tier is the cap.
     if (tokenInfo !== null) {
       const tiers = deps.tokenFeeTiers;
       if (tiers === undefined) throw new TokenCheckUnavailableError(chain.family);
@@ -452,7 +452,7 @@ export async function createDrop(
     );
   }
 
-  // --- 5. the tree is built at the predicted address. binds the leaf to this drop --------
+  // --- 5. the tree is built at the predicted address, which binds each leaf to this drop ---
   // Handle mode: the six word leaf, the version 2 manifest. Address mode is 7.1.
   let tree: { readonly root: Hex; readonly totalEntitlements: bigint; readonly leafCount: number };
   let manifestJson: string;
@@ -478,7 +478,7 @@ export async function createDrop(
       xId: e.xId,
       amount: e.amount,
     }));
-    // the rent floor holds on SOL handle leaves too. Address leaves get it in the
+    // The rent floor holds on SOL handle leaves too. Address leaves get it in the
     // adapter. A token amount has no floor and no usd minimum.
     if (chain.family === "svm" && tokenInfo === null) {
       const under = handleLeaves.find((l) => l.amount < MIN_SOL_LEAF_LAMPORTS);
@@ -570,11 +570,11 @@ export async function createDrop(
   if (canonicalAddress(created.asset) !== canonicalAddress(expectedAsset)) {
     throw new EventMismatchError("asset", expectedAsset, created.asset);
   }
-  // a native drop's fee is exactly the one the api worked out from the same chain read.
+  // A native drop's fee is exactly the one the api worked out from the same chain read.
   if (nativeFee !== null && created.feeAmount !== nativeFee) {
     throw new EventMismatchError("feeAmount", nativeFee.toString(), created.feeAmount.toString());
   }
-  // a token drop's vault, its zero token fee, the SOL fee and the account budget.
+  // A token drop's vault, its zero token fee, the SOL fee and the account budget.
   let vault: string | null = null;
   let accountBudget = 0n;
   if (tokenInfo !== null && tokenFee !== null) {
@@ -709,13 +709,13 @@ export async function createDrop(
       tokenInfo === null || tokenFee === null || vault === null
         ? chain.fundingInstructions({
             drop: created.drop,
-            // The sender must cover entitlements plus fee. check this number.
+            // The sender must cover entitlements plus fee; the contract and the program check this number.
             amount: created.grossRequired,
             fundingDeadline: created.fundingDeadline,
           })
         : chain.fundingInstructions({
             drop: created.drop,
-            // the SOL part is the fee and the account budget; the tokens apart.
+            // The SOL part is the fee and the account budget; the tokens apart.
             amount: tokenFee.lamports + accountBudget,
             fundingDeadline: created.fundingDeadline,
             token: {

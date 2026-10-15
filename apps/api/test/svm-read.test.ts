@@ -470,7 +470,7 @@ describe("GET /api/drops/:address for a Solana drop", () => {
 
 describe("GET /api/stats with Solana", () => {
   it("reports per chain totals and never adds lamports to wei", async () => {
-    // the EVM half is the handle drops on the board rows, never the indexer's /stats.
+    // The EVM half is the handle drops on the board rows, never the indexer's /stats.
     // X ids 1000 and 5000 claimed on the EVM; 1000 is paid on Solana too. People are counted per
     // chain: 2 on the EVM plus 3 on Solana is 5 on the all view.
     const evmAddress = "0x0000000000000000000000000000000000000055";
@@ -723,7 +723,7 @@ describe("GET /api/boards with Solana", () => {
   });
 
   it("counts people per chain: the all view adds up each chain", async () => {
-    // Bob pays X ids 1000 and 5000 on the EVM and 1000 again on Solana.: once
+    // Bob pays X ids 1000 and 5000 on the EVM and 1000 again on Solana: once
     // inside one chain, each chain's count added up on the all view, so 2 plus 1 is 3.
     const evmAddress = "0x0000000000000000000000000000000000000056";
     const { svm, harness } = await world({
@@ -817,7 +817,7 @@ describe("GET /api/boards with Solana", () => {
 
   it("a Solana multisend counts nowhere: no board, no profile total, no tile", async () => {
     const { svm, harness } = await world({ boardDrops: [] });
-    // Three wallets paid in full. a multisend is worth nothing on a board.
+    // Three wallets paid in full. A multisend is worth nothing on a board.
     await seedSolanaDrop(harness, svm, {
       xUserId: "1",
       nonce: 0n,

@@ -12,7 +12,7 @@
  *   sender of a multisend. Boards and stats are covered by `handle-counting.test.ts`.
  *
  * What the chain itself says is not ours to hide: `refundRecipient` and `creatorCommitment` are
- * on chain in the drop. See the note in.
+ * on chain in the drop, so they are public by design.
  */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 

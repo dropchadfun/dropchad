@@ -1,5 +1,5 @@
 /**
- * the login return path is an allowlist. A receiver who
+ * The login return path is an allowlist. A receiver who
  * signs in from `/claim` lands back on `/claim`, and a stale login refreshed from one drop lands
  * back on that drop. Nothing else is kept: no open redirect.
  *

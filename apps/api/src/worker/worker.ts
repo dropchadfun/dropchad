@@ -18,7 +18,7 @@
  * ran half way and died finds its own work already done and carries on from there. Nothing is
  * remembered in memory between ticks.
  *
- * **A failed batch is split, not abandoned.**: one native send that reverts takes the whole
+ * **A failed batch is split, not abandoned:** one native send that reverts takes the whole
  * batch with it, so a batch that fails is halved and halved again until the bad leaf is alone.
  * That leaf goes into `failed_indexes` and everybody else still gets paid. A contract recipient
  * that rejects ETH is the usual cause, and it must not cost the other nineteen anything.
@@ -99,9 +99,9 @@ export type DropState =
   | "paying"
   /** The worker has no more work. `paidCount` and `failedIndexes` say how it ended. */
   | "finished"
-  /** Nobody funded it before the funding deadline. the design is now open to anyone. */
+  /** Nobody funded it before the funding deadline. Cancelling is now open to anyone. */
   | "funding_expired"
-  /** The claim window closed with leaves still unpaid. refunds them to the creator. */
+  /** The claim window closed with leaves still unpaid. The refund sends them back to the creator. */
   | "claims_expired";
 
 export interface WorkerDeps {
@@ -188,7 +188,7 @@ export function createWorker(deps: WorkerDeps): Worker {
   // 1. watch for funding
   // -------------------------------------------------------------------------
   async function watchFunding(job: DropJobRow, row: DropRow, chain: ChainAdapter): Promise<void> {
-    // a chain that can read many drops at once checks every waiting drop in this turn,
+    // A chain that can read many drops at once checks every waiting drop in this turn,
     // at most once per turn: a watch row due again in the same turn waits for the next.
     if (chain.fundingStatuses !== undefined) {
       if (polledThisTurn?.has(row.chainKey) === true) {
@@ -208,7 +208,7 @@ export function createWorker(deps: WorkerDeps): Worker {
     let balance: bigint;
     let tokenAmount: bigint | null = null;
     if (isTokenDrop(row, chain) && chain.fundingStatus !== undefined) {
-      // the program's own check, both parts. One part alone is not funded.
+      // The program's own check, both parts. One part alone is not funded.
       const status = await chain.fundingStatus(chain.parseAddress(row.address));
       ({ funded, tokenAmount } = status);
       balance = status.lamports;
@@ -295,7 +295,7 @@ export function createWorker(deps: WorkerDeps): Worker {
     const { funded, balance, tokenAmount } = read;
 
     if (funded) {
-      // is `>=`, not `==`. Anything extra is extra and goes back at the end.
+      // Funding is `>=`, not `==`. Anything extra is extra and goes back at the end.
       await setDrop(row.address, { state: "funded" });
       events.emit({
         type: "funding_seen",
@@ -401,7 +401,7 @@ export function createWorker(deps: WorkerDeps): Worker {
     });
 
     await completeJob(db, job.id, now);
-    // a handle drop pays the bindings its receivers make, never the manifest in one go.
+    // A handle drop pays the bindings its receivers make, never the manifest in one go.
     await enqueueJob(db, {
       dropAddress: row.address,
       kind: row.mode === "handle" ? "claim_handles" : "pay",
@@ -940,7 +940,7 @@ export function createWorker(deps: WorkerDeps): Worker {
       }
       if (!chain.capabilities.cancelUnfunded) return completeJob(db, job.id, now);
       if (!(await copyClaimed(job, row, chain, address, onChain, onChain.fundingDeadline))) return;
-      // the EVM auto cancel, only when the drop holds something. Our relayer pays the gas,
+      // The EVM auto cancel, only when the drop holds something. Our relayer pays the gas,
       // inside the daily budget; `GasBudgetExceededError` retries the job later.
       if (!(await worthSettling(chain, address))) return completeJob(db, job.id, now);
       const result = await chain.cancelUnfunded(address);

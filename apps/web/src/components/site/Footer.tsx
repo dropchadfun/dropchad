@@ -18,8 +18,8 @@ const TEXT_LINK = "interactive type-small flex min-h-11 items-center hover:text-
 /**
  * The site footer. The wordmark small and grey left; on phone the social
  * icons right, on desktop they sit in the top bar instead. The links come from `lib/social`,
- * never from here. The text links, `how it works` and the trust links (
- * ): right of the wordmark on desktop, one line; on phone they wrap under the wordmark
+ * never from here. The text links, `how it works` and the trust links:
+ * right of the wordmark on desktop, one line; on phone they wrap under the wordmark
  * line, one line does not fit at 390. `github` opens the public repo in a new tab. On phone it
  * sits above the fixed bottom bar, so it carries that bar's height underneath.
  */

@@ -40,7 +40,7 @@ export const OAUTH_STATE_TTL_SECONDS = 10 * 60;
 export const X_SCOPES = ["users.read", "tweet.read"] as const;
 
 /**
- * The two drop periods.: the production default is 24 hours of
+ * The two drop periods: the production default is 24 hours of
  * funding and a 7 day claim period. A drop made
  * before keeps what it was created with: both are written into the drop at creation. v1 does
  * not let a user change them, so they are constants here and not request fields. Both sit well
@@ -155,7 +155,7 @@ const schema = z.object({
     }),
 
   /**
-   * the EVM gas numbers behind the fee check, from. `createDrop` and
+   * The EVM gas numbers behind the fee check. `createDrop` and
    * `activate` measured 327,808 to 353,841 and 74,443 to 85,179, rounded up. A `claimBatch` costs
    * about 86,000 plus about 47,440 a fresh receiver, estimates, rounded up. A `claimHandle` is one
    * transaction per leaf: 110,984 measured for a single `claim`, plus about 11,000 for the binder
@@ -167,7 +167,7 @@ const schema = z.object({
   EVM_GAS_PER_ADDRESS_CLAIM: z.coerce.number().int().positive().default(50_000),
   EVM_GAS_PER_HANDLE_CLAIM: z.coerce.number().int().positive().default(130_000),
   /**
-   * a Robinhood token drop on `DropV3`. The local V3 gas report of the design says
+   * A Robinhood token drop on `DropV3`. The local V3 gas report says
    * `createDrop` 342,067, `activate` 90,412, a token `claimHandle` 110,730, execution only; plus
    * the 21,000 of a transaction and calldata, rounded up. Estimates until the live test.
    */
@@ -259,7 +259,7 @@ const schema = z.object({
   /**
    * The binder keys. One secp256k1 key for the EVM,
    * one ed25519 key for Solana, each its own key and never a relayer key. Testnet only here,
-   * under the server exception of. Optional: without one
+   * kept on the server only. Optional: without one
    * that chain refuses a bind with `503 binder_not_configured`. Never logged, never returned.
    */
   BINDER_EVM_PRIVATE_KEY: z
@@ -300,7 +300,7 @@ const schema = z.object({
    */
   SOLANA_MAX_COMPUTE_UNITS: z.coerce.number().int().min(10_000).max(1_400_000).default(400_000),
 
-  /** Priority fee in micro lamports per compute unit.: zero on devnet. */
+  /** Priority fee in micro lamports per compute unit: zero on devnet. */
   SOLANA_PRIORITY_FEE_MICROLAMPORTS: z
     .string()
     .regex(/^[0-9]+$/, "must be a whole number of micro lamports, as digits")

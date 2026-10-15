@@ -2,7 +2,7 @@
  * Create step 3, the way back to
  * it. Under the funding card: the label `your drop page`, the link short in mono and `copy link`,
  * then `it is on your profile too.` A multisend: `your multisend page`, the `/m/` link, `copy
- * link`, and `find it again anytime in your multisends, in the menu.` (: the
+ * link`, and `find it again anytime in your multisends, in the menu.` (the
  * sender's own list; a multisend is on no public list and no profile.)
  */
 import { readFileSync } from "node:fs";

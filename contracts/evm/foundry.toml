@@ -1,4 +1,4 @@
-# dropchad EVM contracts. Rules live in ../../ and ../../.
+# dropchad EVM contracts, built and tested with Foundry.
 
 [profile.default]
 src = "src"
@@ -50,15 +50,15 @@ runs = 1024
 depth = 100
 fail_on_revert = false
 
-# Every exclusion below is a lint that fires on behaviour the design requires. Each one has a
+# Every exclusion below is a lint that fires on behaviour the contracts need on purpose. Each one has a
 # reason. Anything not listed here must be fixed, not silenced. Four remaining findings are
 # suppressed line by line in the source, with the reason written next to the code.
-#   event-fields                   event signatures are fixed field for field by the design and
-#                                  11.2 because the indexer reads them. We cannot add `indexed`
-#   block-timestamp                the whole design is deadline based. to
-#                                  say why: the smallest period is a day, drift is minutes
+#   event-fields                   event signatures are fixed field for field because the
+#                                  indexer reads them. We cannot add `indexed`
+#   block-timestamp                the whole design is deadline based. It is safe because
+#                                  the smallest period is a day, drift is minutes
 #   calls-loop                     claimBatch pays up to 20 recipients in one call
-#   require-revert-in-loop the design requires a bad proof to revert the whole batch
+#   require-revert-in-loop         a bad proof must revert the whole batch
 #   missing-events-access-control  false positive. setCreatorAllowed and setTokenFactoryAllowed
 #                                  both emit. saltUsed is not access control
 #   reentrancy-events              false positive across claimBatch iterations. Inside one claim

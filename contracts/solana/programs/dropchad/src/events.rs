@@ -168,7 +168,7 @@ pub struct MinFeeSet {
     pub new_lamports: u64,
 }
 
-// the fee model config events, 11.2.
+// The fee model config events, 11.2.
 
 #[event]
 pub struct FeePerReceiverSet {

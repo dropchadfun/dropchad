@@ -26,7 +26,7 @@ anchor-spl = "=1.2.0"
 solana-keccak-hasher = { version = "3.1.0", features = ["sha3"] }
 # the safe #[account(zero_copy)] derive expands to ::bytemuck::Pod, so the crate must be a direct dependency
 bytemuck = { version = "1.17", features = ["derive", "min_const_generics"] }
-# the instructions sysvar reader and the Ed25519 program id. Already in Cargo.lock
+# The instructions sysvar reader and the Ed25519 program id. Already in Cargo.lock
 # through anchor-lang; anchor-lang 1.2 does not re-export them.
 solana-instructions-sysvar = "3.0.1"
 solana-sdk-ids = "3.1.0"

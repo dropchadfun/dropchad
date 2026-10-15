@@ -101,7 +101,7 @@ export function svmBindingMessage(args: SvmBindingArgs): Uint8Array {
       pubkeyToHex(args.recipient),
     ]),
   );
-  /* istanbul ignore next -- six fixed words, this pins the design anyway. */
+  /* istanbul ignore next -- six fixed words, this pins the layout anyway. */
   if (msg.length !== SVM_BINDING_MESSAGE_BYTES)
     throw new Error(`binding message must be 192 bytes, got ${msg.length}`);
   return msg;
@@ -130,7 +130,7 @@ export function ed25519InstructionData(
 
   const data = new Uint8Array(16 + 32 + 64 + SVM_BINDING_MESSAGE_BYTES);
   data[0] = 1; // one signature
-  data[1] = 0; // padding the design requires zero
+  data[1] = 0; // padding, always zero
   const offsets = [48, 0xffff, 16, 0xffff, 112, SVM_BINDING_MESSAGE_BYTES, 0xffff];
   offsets.forEach((v, i) => {
     data[2 + 2 * i] = v & 0xff;

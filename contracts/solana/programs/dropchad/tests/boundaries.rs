@@ -1,5 +1,5 @@
 //! The four deadline boundaries, both sides of each.
-//! Same six names as.
+//! Same six names as the EVM boundary tests.
 
 mod common;
 

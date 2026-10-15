@@ -131,7 +131,7 @@ async function onActivated({ event, context }: IndexingFunctionArgs<"DropV1:Acti
 
   await context.db.update(drops, { address: drop }).set({
     status: STATUS.Active,
-    // the event carries the derived deadline, so no storage read is needed.
+    // The event carries the derived deadline, so no storage read is needed.
     activatedAt: BigInt(event.args.activatedAt),
     claimDeadline: BigInt(event.args.claimDeadline),
     activationBalance: event.args.balance,
@@ -427,7 +427,7 @@ async function onImplementationSet({
   });
 }
 
-/** `DropFactoryV2` only.: every admin action is public. */
+/** `DropFactoryV2` only. Every admin action is public. */
 async function onMinFeeAmountSet({
   event,
   context,
@@ -447,7 +447,7 @@ async function onMinFeeAmountSet({
   });
 }
 
-/** `DropFactoryV4` only . */
+/** `DropFactoryV4` only. */
 async function onMinFeePerReceiverSet({
   event,
   context,
@@ -455,7 +455,7 @@ async function onMinFeePerReceiverSet({
   await context.db.insert(adminEvents).values(amountSetRow("MinFeePerReceiverSet", event));
 }
 
-/** `DropFactoryV4` only . Zero is no cap. */
+/** `DropFactoryV4` only. Zero is no cap. */
 async function onMaxFeeAmountSet({
   event,
   context,
@@ -565,11 +565,11 @@ if (HAS_V5) {
 /**
  * Promote everything that is now deep enough to be called `final`.
  *
- * One direction only.: `seen` rows that vanish in a reorg are removed by Ponder's own
+ * One direction only: `seen` rows that vanish in a reorg are removed by Ponder's own
  * rollback, and a `final` row is never rolled back — which holds because nothing is promoted
  * until it is `CONFIRMATION_DEPTH` blocks behind the head, past the window a reorg can touch.
  *
- * The depth default is 64 and ** decides the real number**. See `ponder.config.ts`.
+ * The depth default is 64 and **a placeholder until the real number is settled**. See `ponder.config.ts`.
  */
 ponder.on("Finality:block", async ({ event, context }) => {
   const head = event.block.number;

@@ -1,5 +1,5 @@
 /**
- * Who got fed, by handle., the clean drop page: `GET
+ * Who got fed, by handle, on the clean drop page: `GET
  * /api/drops/:address` names each paid leaf of a handle drop by `handle` and `profileImageUrl`,
  * paid as the chain says, never anyone who has not claimed. A multisend names nobody.
  */

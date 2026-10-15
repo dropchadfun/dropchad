@@ -1,5 +1,5 @@
 /**
- * the api side of the fee.
+ * The api side of the fee.
  * - one fee function, `nativeDropFee`, the same math as `sol_drop_fee` in the Solana program and
  *   `createDrop` in `DropFactoryV4`: `min(max(bps fee, flat minimum, per receiver x leaves), cap)`,
  *   zero is off, a zero cap is no cap. The table below is the one `fee_model.rs` and

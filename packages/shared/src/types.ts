@@ -5,7 +5,7 @@
  * boundary serialises them to **decimal strings**. That conversion happens once, at the edge, and
  * nowhere else.
  *
- * Field meanings come from the design sections 4, 5 and 11. The design wins over this file.
+ * Field meanings follow the contracts. If this file and a contract disagree, the contract wins.
  */
 import type { Address, Hex } from "viem";
 
@@ -48,7 +48,7 @@ export interface ChainPosition {
 }
 
 /**
- * A drop, rebuilt from events alone.: reading storage is an optimisation, never a
+ * A drop, rebuilt from events alone: reading storage is an optimisation, never a
  * requirement, so nothing in this shape needs an `eth_call`.
  */
 export interface Drop extends ChainPosition {
@@ -120,7 +120,7 @@ export interface Profile {
   readonly updatedAt: Date;
 }
 
-/** Totals for the front page.: computed from `final` rows only. */
+/** Totals for the front page: computed from `final` rows only. */
 export interface Stats {
   readonly chainId: number;
   /** Wei. No prices yet, so no USD anywhere in this shape. */

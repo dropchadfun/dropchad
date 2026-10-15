@@ -26,7 +26,7 @@ pub struct Config {
     /// Immutable. The leaf chain id for this cluster.
     pub chain_id: u64,
     pub bump: u8,
-    // handle mode. Every field after `bump`, so the 116 bytes above keep their offsets
+    // Handle mode. Every field after `bump`, so the 116 bytes above keep their offsets
     // and `migrate_config` can grow a legacy config in place.
     /// The ed25519 binder of. Zero means none: every `claim_handle` fails.
     pub binder: Pubkey,

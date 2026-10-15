@@ -216,7 +216,7 @@ export function FrontPage({
             </Link>
             <FrontLine />
           </div>
-          {/* only signed in, only with something to claim now */}
+          {/* Only signed in, only with something to claim now */}
           <FrontClaimLine />
 
           {/* 6. one drops list, two tabs. `id="live"` keeps the `/#live` anchor for old links. */}

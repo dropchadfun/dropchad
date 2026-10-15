@@ -1,5 +1,5 @@
 /**
- * The dev only switch `/create?handleMode=on` with. It
+ * The dev only switch `/create?handleMode=on`. It
  * lets a developer see drop mode on a laptop where handle mode is off: `drop` can be picked, and
  * the lookup on `next` answers with sample names from this file instead of calling the api.
  *

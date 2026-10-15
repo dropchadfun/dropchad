@@ -1,6 +1,6 @@
 /**
  * The one grey line at the foot of `/boards`. Plain words
- * for: only handle drops count, and one person is one X account.
+ * for how the boards count: only handle drops count, and one person is one X account.
  */
 export function BoardsFoot() {
   return (

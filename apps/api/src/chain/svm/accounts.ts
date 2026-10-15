@@ -1,5 +1,5 @@
 /**
- * Decoding the program's accounts and events. section 5 and 11.
+ * Decoding the program's accounts and the events it logs.
  *
  * Two checks before a single field is read: the account is owned by **our** program id,
  * and its first eight bytes are the discriminator of the type we expect. A fake `Drop` with the
@@ -8,7 +8,7 @@
  *
  * Layouts follow the IDL field order. Borsh: little endian integers, a `bool` is one byte, an
  * enum with unit variants is one byte, `Pubkey` and `[u8; 32]` are 32 raw bytes. The sizes are
- * pinned by a test against the numbers in.
+ * pinned by a test against the program's own account sizes.
  */
 import { dropchadIdl } from "@dropchad/shared";
 
@@ -42,7 +42,7 @@ export const DROP_ACCOUNT_BYTES_HANDLE = 424;
 export const BITMAP_ACCOUNT_BYTES = 1291;
 export const BITMAP_BYTES = 1250;
 
-/** the same four values as the EVM `status`. */
+/** The same four values as the EVM `status`. */
 export const SVM_STATUS_CREATED = 0;
 export const SVM_STATUS_ACTIVE = 1;
 export const SVM_STATUS_FINALIZED = 2;
@@ -136,13 +136,13 @@ export interface ConfigAccount {
   readonly handle: ConfigHandleFields | null;
 }
 
-/** the fields after `bump`. */
+/** The fields after `bump`. */
 export interface ConfigHandleFields {
   readonly binder: Pubkey;
   readonly binderRevoked: boolean;
   readonly guardian: Pubkey;
   readonly minFeeLamports: bigint;
-  /** from the old reserved bytes: zero on a `Config` from before the upgrade, off. */
+  /** From the old reserved bytes: zero on a `Config` from before the upgrade, off. */
   readonly minFeePerReceiverLamports: bigint;
   /** zero is no cap. */
   readonly maxFeeLamports: bigint;

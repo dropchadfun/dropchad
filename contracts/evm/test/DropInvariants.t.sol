@@ -15,7 +15,7 @@ import {MockERC20} from "./MockERC20.sol";
 /// @dev `DropHandler` calls random functions in random order with random actors, and
 ///      keeps ghost totals of what really moved. The assertions below never trust a number the
 ///      contract reports on its own where a ghost can check it.
-///      **Every invariant the design is covered here or by a named unit test:**
+///      **Every invariant is covered here or by a named unit test:**
 ///      | id  | where |
 ///      |-----|-------|
 ///      | | `invariant_TotalClaimedNeverExceedsEntitlements` |
@@ -44,7 +44,7 @@ contract DropInvariantsTest is DropTestBase {
     function setUp() public virtual override {
         super.setUp();
 
-        // A non zero fee, so the fee term of the design is really exercised.
+        // A non zero fee, so the fee term is really exercised.
         vm.prank(owner);
         factory.setDefaultFeeBps(250);
 
@@ -108,7 +108,7 @@ contract DropInvariantsTest is DropTestBase {
         assertEq(handler.ghostReceived(), accountedFor, "I10 and I4");
     }
 
-    /// @dev `status` only follows the edges of, and never goes backwards.
+    /// @dev `status` only follows the allowed edges, and never goes backwards.
     ///      `Finalized` is 2 and `Cancelled` is 3, and both are terminal, so once the handler has
     ///      seen a terminal value the current value must be that same one.
     function invariant_StatusOnlyMovesForward() public view {

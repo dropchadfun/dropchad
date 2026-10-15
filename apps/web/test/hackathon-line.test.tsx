@@ -65,7 +65,7 @@ function runScript(opts: {
 }
 
 describe("the words", () => {
-  it("says exactly the owner's line, after a code prompt", () => {
+  it("says exactly the hackathon line, after a code prompt", () => {
     expect(HACKATHON_TEXT).toBe("submitted to the Crypto World's Fair hackathon");
     expect(html).toContain("&gt; ");
     expect(html.replace(/&#x27;/g, "'")).toContain(HACKATHON_TEXT);

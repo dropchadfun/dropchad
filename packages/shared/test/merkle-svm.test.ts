@@ -55,7 +55,7 @@ describe("base58", () => {
     }
   });
 
-  it("decodes the drop PDA to the bytes in the design", () => {
+  it("decodes the drop PDA to the bytes in the reference", () => {
     expect(pubkeyToHex(REFERENCE.drop)).toBe(REFERENCE.dropHex);
     expect(hexToPubkey(REFERENCE.dropHex)).toBe(REFERENCE.drop);
   });

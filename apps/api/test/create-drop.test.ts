@@ -434,7 +434,7 @@ describe("GET /api/drops/:address/manifest", () => {
     expect(response.status).toBe(200);
 
     const text = await response.text();
-    // This is the whole point of: anybody can hash the body themselves and get the number
+    // This is the whole point of the manifest hash: anybody can hash the body themselves and get the number
     // that is stored in the drop. No envelope, no reformatting.
     expect(keccak256(toHex(text))).toBe(payload.drop.manifestHash);
     expect(response.headers.get("x-dropchad-manifest-hash")).toBe(payload.drop.manifestHash);

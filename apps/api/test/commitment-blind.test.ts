@@ -1,5 +1,5 @@
 /**
- * the commitment carries a
+ * The commitment carries a
  * secret blind.
  *
  * `creatorCommitment = keccak256(abi.encode(xUserId, nonce, blind))`, `blind` 32 random bytes the

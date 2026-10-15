@@ -481,8 +481,8 @@ export function hasTokenDropContracts(chain: Chain): chain is TokenDropContracts
 
 /**
  * True when the V4 set is recorded on top of V3 on this evm chain: `DropFactoryV4` carries the
- * fee. False everywhere until the design records V4, so the indexer stays on V1 to V3 until
- * then. .
+ * fee. False until V4 is recorded on a chain, so the indexer stays on V1 to V3 there until
+ * then.
  */
 export function hasFeeModelContracts(chain: Chain): chain is FeeModelContractsChain {
   return (

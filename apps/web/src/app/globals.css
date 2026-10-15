@@ -1,5 +1,5 @@
 /*
- * dropchad design tokens. sections 2, 3 and 4 are the source of truth.
+ * dropchad design tokens: colours, type and spacing, in one place.
  *
  * Every colour a component uses comes from a `--chad-*` variable, through the Tailwind theme
  * below. No raw hex in a component. Dark only: light mode is out of scope, so there is no `.dark`

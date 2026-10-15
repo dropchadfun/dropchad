@@ -1,6 +1,6 @@
-//! The fee model of: a SOL drop pays `min(max(bps fee,
+//! The fee model: a SOL drop pays `min(max(bps fee,
 //! min_fee_lamports, min_fee_per_receiver_lamports × leaf_count), max_fee_lamports)`, zero is
-//! off. The two new `Config` fields of, `set_fee_per_receiver` and `set_max_fee` of 6.11,
+//! off. The two new `Config` fields, `set_fee_per_receiver` and `set_max_fee` of 6.11,
 //! and the upgrade proof: the new program reads a copy of the live devnet `Config` bytes.
 
 mod common;
@@ -16,10 +16,10 @@ use dropchad::{DropError, MAX_MIN_FEE_PER_RECEIVER_LAMPORTS, MAX_SOL_FEE_LAMPORT
 use solana_keypair::Keypair;
 use solana_signer::Signer;
 
-/// the devnet values, the same as mainnet will be: 0.0003 SOL per receiver, cap 0.5 SOL.
+/// The devnet values, the same as mainnet will be: 0.0003 SOL per receiver, cap 0.5 SOL.
 const PER_RECEIVER: u64 = 300_000;
 const MAX_FEE: u64 = 500_000_000;
-/// the flat minimum live on devnet today.
+/// The flat minimum live on devnet today.
 const FLAT_MIN: u64 = 300_000;
 
 /// The live devnet `Config` `bQjXn4eUvq6rq7pTQHgjdnb5eJ6nQtLxP4uLQCQvZQD`, read only on
@@ -272,7 +272,7 @@ fn the_cap_wins_over_the_per_receiver_minimum_s8_20() {
 #[test]
 fn the_cap_wins_over_the_flat_minimum_s8_20() {
     let mut h = new_model(100, FLAT_MIN, 0, 100_000);
-    // The flat minimum 300,000, capped at 100,000: min of max, as written in.
+    // The flat minimum 300,000, capped at 100,000: min of max, as the fee rule says.
     assert_eq!(fee_of(&mut h, &receivers(1, MIN_SOL_LEAF), 1), 100_000);
 }
 

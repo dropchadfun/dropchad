@@ -1,5 +1,5 @@
 /**
- * the worker side.
+ * The worker side.
  * - a handle drop never runs `pay`: after activation it gets `claim_handles`
  * - each `bound` binding is sent as one `claimHandle`, then `paid` from the `HandleClaimed` log
  * - after a failed send the chain decides: claimed is `paid`, a revoked binder keeps it `bound`
@@ -190,7 +190,7 @@ describe("claim_handles", () => {
     expect((await job("claim_handles"))?.state).toBe("ready");
   });
 
-  // the live list names the receiver at once, by handle and picture.
+  // The live list names the receiver at once, by handle and picture.
   it("`claim_paid` carries the receiver's handle and picture; no `x_users` row is null", async () => {
     await seedHandleDrop("active", [{ kind: "claim_handles" }]);
     await handle.db.insert(xUsers).values({

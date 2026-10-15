@@ -1,5 +1,5 @@
 /**
- * the local chain file for the anvil check, `src/local-chain.ts`. The
+ * The local chain file for the anvil check, `src/local-chain.ts`. The
  * indexer follows one registry entry; for the anvil check that entry comes from a local file
  * named by `INDEXER_LOCAL_CHAIN` instead of `chains.json`, so no test chain ever sits in the real
  * registry. The file is the registry's own shape with one chain,
@@ -38,11 +38,11 @@ const anvilEntry = {
     implementationV2: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
     binderRegistry: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
     deployBlockV2: 5,
-    // the registry wants the V3 fields too, all three or none.
+    // The registry wants the V3 fields too, all three or none.
     factoryV3: null,
     implementationV3: null,
     deployBlockV3: null,
-    // the V4 fields, all three or none.
+    // The V4 fields, all three or none.
     factoryV4: null,
     implementationV4: null,
     deployBlockV4: null,

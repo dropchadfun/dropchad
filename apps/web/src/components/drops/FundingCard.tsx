@@ -32,7 +32,7 @@ import { exactAmount, formatAmount } from "@/lib/format";
 
 /**
  * "Fund this address." The exact amount, the address with copy, and a real QR of the EIP 681
- * uri.: the address shown is the one the api read back from `DropCreated`,
+ * uri: the address shown is the one the api read back from `DropCreated`,
  * and the plain address is always next to the QR because not every wallet reads `ethereum:`.
  *
  * The fee line is shown even at zero, so the screen is ready for the 1% fee.
@@ -153,7 +153,7 @@ export function FundingCard({
 }
 
 /**
- * The funding card from a funding answer, the create page and the drop page alike, token step
+ * The funding card from a funding answer, the create page and the drop page alike
  * 5b: the amount to send is the answer's, never `grossRequiredWei`, which on a token drop is the
  * token total. A token drop gets the two part card.
  */
@@ -193,8 +193,7 @@ export function FundingCardFrom({
 }
 
 /**
- * A token drop, simple enough for anyone (after the live test
- * ): the tokens, then the SOL, each with its amount, QR and copy; one drop address
+ * A token drop, simple enough for anyone: the tokens, then the SOL, each with its amount, QR and copy; one drop address
  * for both; four short lines. The api's long warnings are not repeated here.
  */
 function TokenFundingCard({ funding, phone }: { funding: Funding; phone?: boolean }) {

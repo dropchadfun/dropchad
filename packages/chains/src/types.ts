@@ -1,6 +1,6 @@
 /**
  * Types for the chain registry. The shapes here describe `chains.json` exactly.
- * Field meanings are documented in `packages/chains/README.md`, which is the prose version of
+ * Field meanings are documented next to each field, which is the prose version of
  * this file. If the two disagree, the README wins and this file is wrong.
  */
 
@@ -46,7 +46,7 @@ export interface ChainContracts {
   readonly binderRegistry: string | null;
   /** The **L2** block `DropFactoryV2` was deployed in, the indexer start block for V2. */
   readonly deployBlockV2: number | null;
-  // Robinhood token drops . EVM only, all three or none, and only
+  // Robinhood token drops. EVM only, all three or none, and only
   // on top of the V2 set: `DropV3` reads the live `BinderRegistry`. Null until V3 is deployed, so
   // Robinhood token drops stay off until then.
   /** `DropFactoryV3`, the factory every new drop is created on once it is recorded. */
@@ -55,9 +55,9 @@ export interface ChainContracts {
   readonly implementationV3: string | null;
   /** The **L2** block `DropFactoryV3` was deployed in, the indexer start block for V3. */
   readonly deployBlockV3: number | null;
-  // The new fee on Robinhood . EVM only, all three or
+  // The new fee on Robinhood. EVM only, all three or
   // none, only on top of the V3 set, and `implementationV4` is `implementationV3`: V4 clones the
-  // same `DropV3`. Null until the design records V4, so the indexer and the api stay on V3.
+  // same `DropV3`. Null until V4 is recorded, so the indexer and the api stay on V3.
   /** `DropFactoryV4`, V3 plus the fee. */
   readonly factoryV4: string | null;
   /** The `DropV3` implementation `DropFactoryV4` clones, the same as `implementationV3`. */
@@ -108,8 +108,8 @@ export interface Chain {
   readonly testnetOf?: string;
   readonly family: ChainFamily;
   /**
-   * The chain id that goes into the merkle leaf
-   * The EVM chain id on an evm chain; the cluster constant of the design on an svm chain, 101
+   * The chain id that goes into the merkle leaf.
+   * The EVM chain id on an evm chain; the cluster constant on an svm chain, 101
    * mainnet and 103 devnet. `null` on a chain that has neither.
    */
   readonly chainId: number | null;
@@ -126,7 +126,7 @@ export interface Chain {
   readonly rpcEnv: string | null;
   readonly archiveRpcEnv: string | null;
   readonly fallbackRpcEnv: string | null;
-  /** Blocks before the indexer calls a row `final`. `null` until the design is answered. */
+  /** Blocks before the indexer calls a row `final`. `null` until the value is settled. */
   readonly finalityDepth: number | null;
   readonly contracts: ChainContracts;
   readonly launchpadFactories: readonly LaunchpadFactory[];

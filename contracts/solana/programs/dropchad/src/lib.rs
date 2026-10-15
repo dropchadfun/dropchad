@@ -1,4 +1,4 @@
-//! dropchad on Solana. the design is the source of truth; this crate follows it.
+//! dropchad on Solana: merkle drops in one Anchor program.
 //! One program, no clones. A drop is three accounts at program derived addresses: the `Drop`,
 //! its `ClaimBitmap`, and for SPL the vault. Funding is a plain transfer, claims are merkle
 //! proofs, leftovers go back to the refund recipient after the claim deadline, and the relayer

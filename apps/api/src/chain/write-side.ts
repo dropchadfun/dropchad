@@ -79,7 +79,7 @@ export interface EvmFactory {
 
 /**
  * `DropFactoryV2` and `DropV2` once the whole V2 set is recorded, else `DropFactoryV1` and
- * `DropV1`.: V2 creates **every** new drop, both modes, and V1 is paused, so there is never
+ * `DropV1`: V2 creates **every** new drop, both modes, and V1 is paused, so there is never
  * a choice per drop. The relayer's one factory, the gateway and the CREATE2 prediction all take
  * this pick, so they can never disagree. False on every chain.
  */

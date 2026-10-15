@@ -120,7 +120,7 @@ describe("GET /api/stats", () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as Record<string, unknown>;
 
-    // the indexer's `/stats` counts every drop, multisend included. The tiles come from
+    // The indexer's `/stats` counts every drop, multisend included. The tiles come from
     // the handle drops on the board rows, and there are none here.
     expect(body["droppedTotalWei"]).toBe("0");
     expect(body["dropCount"]).toBe(0);

@@ -1,5 +1,5 @@
 /**
- * the worker for token drops.
+ * The worker for token drops.
  * -: a token `claim_handle` fits at depth 9 only without compute budget instructions, so
  *   it carries none; the relayer still refuses one above the default 200,000 units
  * - the five instructions carry the token accounts in the IDL order; SOL drops are unchanged
@@ -595,7 +595,7 @@ describe("a token drop through the worker", () => {
     const freshAta = associatedTokenAddress(fresh, t.mint, t.tokenProgram);
     expect(svm.tokenAmountOf(freshAta)).toBe(TOKENS);
     expect(svm.tokenAmountOf(holderAta)).toBe(TOKENS);
-    // the new account's rent came back from the budget, so the relayer paid fees only.
+    // The new account's rent came back from the budget, so the relayer paid fees only.
     expect(relayerBefore - svm.lamportsOf(signer.publicKey)).toBe(2n * 5_000n);
     expect(svm.drop(t.drop)?.accountBudgetUsed).toBe(rentFor(165));
     const paid = seen.filter((e) => e.type === "claim_paid");
@@ -616,7 +616,7 @@ describe("a token drop through the worker", () => {
     expect(svm.drop(t.drop)?.status).toBe(SVM_STATUS_FINALIZED);
     const refundAta = associatedTokenAddress(pubkeyFromBase58(REFUND), t.mint, t.tokenProgram);
     expect(svm.tokenAmountOf(refundAta)).toBe(TOKENS);
-    // the budget never used goes back to the sender.
+    // The budget never used goes back to the sender.
     expect(svm.lamportsOf(pubkeyFromBase58(REFUND)) - refundLamportsBefore).toBe(
       t.budget - rentFor(165),
     );

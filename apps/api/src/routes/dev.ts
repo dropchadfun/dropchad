@@ -1,7 +1,7 @@
 /**
  * `GET /api/dev/proof` — a dev only page for the testnet proof.
  *
- * It does what `scripts/create-testnet-drop.mjs` does, without copying cookies out of devtools:
+ * It makes a testnet drop the way the create page does, without copying cookies out of devtools:
  * the page is served from the api's own origin, so the browser sends `dc_session` by itself, and
  * the script reads `dc_csrf`, the one cookie that is not httpOnly, to echo it in the header.
  *

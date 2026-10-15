@@ -117,7 +117,7 @@ pub fn expect_err(res: TxResult, err: DropError) {
     );
 }
 
-/// Anchor framework errors, for the constraint failures the design does not name.
+/// Anchor framework errors, for the constraint failures the program does not name itself.
 /// 2006 ConstraintSeeds, 2001 ConstraintHasOne, 2012 ConstraintAddress, 3007 AccountOwnedByWrongProgram,
 /// 3002 AccountDiscriminatorMismatch, 2009 ConstraintAssociated.
 pub fn expect_anchor_err(res: TxResult, code: u32) {

@@ -1,6 +1,5 @@
 /**
- * No `live` in the top menu or the phone bottom bar (
- * and 9). The `live` tab under drops stays, and `/#live` still opens it, so old links work.
+ * No `live` in the top menu or the phone bottom bar. The `live` tab under drops stays, and `/#live` still opens it, so old links work.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";

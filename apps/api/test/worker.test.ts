@@ -142,7 +142,7 @@ describe("watching for funding", () => {
     expect((await jobRow("activate"))?.state).toBe("ready");
   });
 
-  it("accepts an overfunded drop, because the design is >= and not ==", async () => {
+  it("accepts an overfunded drop, because funding is >= and not ==", async () => {
     await seedDrop();
     chain.setBalance(DROP, GROSS + 1n);
     await worker.tick();

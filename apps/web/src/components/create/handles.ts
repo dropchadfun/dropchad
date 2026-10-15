@@ -4,8 +4,8 @@
  * sign, like `receivers.ts`, so a paste from a sheet works.
  *
  * Everything here is checked on the phone, before the one paid lookup on `next`: the handle
- * shape, the amount, the sender's own handle (and
- * ) and the 500 people cap. The lookup itself decides whether X knows a
+ * shape, the amount, the sender's own handle
+ * and the 500 people cap. The lookup itself decides whether X knows a
  * handle. The api merges repeated handles per X id, so a repeat only gets a note here.
  */
 import { parseAmount } from "@/lib/format";

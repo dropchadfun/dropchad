@@ -219,7 +219,7 @@ describe("the Dexscreener link", () => {
     expect(createHash("sha256").update(file).digest("hex")).toBe(DEX_LOGO_SHA256);
   });
 
-  it("the button: the owner's logo at 14px before the words, no lucide icon, a quiet pill, a new tab", () => {
+  it("the button: the launchpad logo at 14px before the words, no lucide icon, a quiet pill, a new tab", () => {
     for (const [html, href] of [
       [tokenRow(PUMP, SOLANA), `https://dexscreener.com/solana/${PUMP.mint}`],
       [tokenRow(PLAIN, SOLANA), `https://dexscreener.com/solana/${PLAIN.mint}`],

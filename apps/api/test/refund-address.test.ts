@@ -1,5 +1,5 @@
 /**
- * the api refuses a refund address
+ * The api refuses a refund address
  * that is one of the drop's own accounts or a program, before anything is sent. The answer is
  * the zero address one, `400 invalid_receivers`, with a message that names the reason. No row,
  * no create call, no fee. The token cases, the mint and the vault on Solana and the token on

@@ -16,7 +16,7 @@ import { Footer } from "@/components/site/Footer";
 import { NAV } from "@/components/site/Header";
 import type { ChainInfo } from "@/lib/api";
 
-/** The live `/api/chains` of, trimmed to what the page reads. */
+/** A copy of the live `/api/chains`, trimmed to what the page reads. */
 const CHAINS: ChainInfo[] = [
   {
     key: "robinhood-testnet",
