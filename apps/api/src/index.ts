@@ -15,6 +15,7 @@ import { cleanupExpired, startCleanup } from "./auth/cleanup.js";
 import { createXClient } from "./auth/x-client.js";
 import { getProgramChain } from "./chain/svm/write-side.js";
 import { createSvmReader } from "./chain/svm/reader.js";
+import { pubkeyFromBase58 } from "./chain/svm/pubkey.js";
 import { createSvmRpc } from "./chain/svm/rpc.js";
 import { createTokenChecker } from "./chain/svm/token-check.js";
 import { createReadClient } from "./chain/client.js";
@@ -33,6 +34,13 @@ import { createPriceService } from "./prices/service.js";
 import { buildBinders } from "./binder/binders.js";
 import { handleModeStatus } from "./binder/handle-mode.js";
 import { createTelegramSender, type TelegramSender } from "./telegram/sender.js";
+import {
+  createRelayerAlert,
+  relayerAlertSettings,
+  watchedRelayers,
+  type AlertRelayer,
+  type RelayerAlert,
+} from "./telegram/relayer-alert.js";
 import { telegramSettings } from "./telegram/settings.js";
 import { createWorker } from "./worker/worker.js";
 
@@ -204,6 +212,49 @@ if (telegram.on) {
 }
 
 /**
+ * The relayer low balance alert: a private message to the owner, never the
+ * channel. Off unless switched on with the token and a private chat id. Read only: one balance read
+ * per relayer, every 10 minutes. The reason never holds a value.
+ */
+const relayerAlertSwitch = relayerAlertSettings(config);
+let relayerAlert: RelayerAlert | null = null;
+if (relayerAlertSwitch.on) {
+  const { watched, notWatched } = watchedRelayers(config);
+  const relayers: AlertRelayer[] = [];
+  for (const relayer of watched) {
+    const family = findChain(relayer.chainKey)?.family;
+    if (family === "svm" && solanaRpc !== undefined) {
+      const pubkey = pubkeyFromBase58(relayer.address);
+      relayers.push({ ...relayer, readBalance: () => solanaRpc.getBalance(pubkey, "confirmed") });
+    } else if (family === "evm" && evmChain !== undefined && config.chainRpcUrls !== null) {
+      const client = createReadClient(evmChain, config.chainRpcUrls);
+      const address = getAddress(relayer.address);
+      relayers.push({ ...relayer, readBalance: () => client.getBalance({ address }) });
+    } else {
+      notWatched.push({ chainKey: relayer.chainKey, reason: "no rpc url" });
+    }
+  }
+  for (const r of relayers) {
+    console.log(`relayer alert ${r.chainKey}: watched, limit ${r.limit.toString()} base units`);
+  }
+  for (const n of notWatched) console.log(`relayer alert ${n.chainKey}: not watched, ${n.reason}`);
+  relayerAlert = createRelayerAlert({
+    db: handle.db,
+    fetch: globalThis.fetch,
+    now: () => new Date(),
+    token: relayerAlertSwitch.token,
+    chatId: relayerAlertSwitch.chatId,
+    relayers,
+    log: (line) => console.log(line),
+  });
+  // In the background: a slow RPC or Telegram must not hold the start.
+  void relayerAlert.start();
+  console.log("relayer alert on");
+} else {
+  console.log(`relayer alert off: ${relayerAlertSwitch.reason}`);
+}
+
+/**
  * The worker only runs when there is a relayer, because every step it takes ends in a transaction.
  * Without a key the api is read only and there is nothing for it to do.
  */
@@ -249,6 +300,7 @@ async function shutdown(signal: string): Promise<void> {
   cleanup.stop();
   worker?.stop();
   telegramSender?.stop();
+  relayerAlert?.stop();
   server.close();
   await handle.close();
   process.exit(0);

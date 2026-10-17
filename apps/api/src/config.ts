@@ -116,6 +116,22 @@ const schema = z.object({
   TELEGRAM_POSTS: z.enum(["on", "off"]).default("off"),
   TELEGRAM_BOT_TOKEN: z.string().optional(),
   TELEGRAM_CHANNEL_ID: z.string().optional(),
+  /**
+   * The relayer low balance alert. Off unless `on`. A
+   * private message to the owner with the same bot token, never the channel; a chat id that is not
+   * a positive number, or is the channel, stays off, `src/telegram/relayer-alert.ts`. The limits
+   * in base units; unset, 0.8 SOL and 0.001 ETH on a testnet, and a mainnet chain is not watched.
+   */
+  RELAYER_ALERT: z.enum(["on", "off"]).default("off"),
+  RELAYER_ALERT_CHAT_ID: z.string().optional(),
+  RELAYER_ALERT_MIN_LAMPORTS: z
+    .string()
+    .regex(/^[0-9]+$/, "must be a whole number of lamports, as digits")
+    .optional(),
+  RELAYER_ALERT_MIN_WEI: z
+    .string()
+    .regex(/^[0-9]+$/, "must be a whole number of wei, as digits")
+    .optional(),
   /** At most this many receivers in a handle drop. Api config, never a contract constant. */
   HANDLE_MAX_RECEIVERS: z.coerce.number().int().min(1).max(10_000).default(500),
   /**
@@ -463,6 +479,10 @@ export function redactedConfig(config: Config): Record<string, string | number> 
     TELEGRAM_POSTS: config.TELEGRAM_POSTS,
     TELEGRAM_BOT_TOKEN: setOrNot(config.TELEGRAM_BOT_TOKEN),
     TELEGRAM_CHANNEL_ID: setOrNot(config.TELEGRAM_CHANNEL_ID),
+    RELAYER_ALERT: config.RELAYER_ALERT,
+    RELAYER_ALERT_CHAT_ID: setOrNot(config.RELAYER_ALERT_CHAT_ID),
+    RELAYER_ALERT_MIN_LAMPORTS: config.RELAYER_ALERT_MIN_LAMPORTS ?? "<unset>",
+    RELAYER_ALERT_MIN_WEI: config.RELAYER_ALERT_MIN_WEI ?? "<unset>",
     HANDLE_MAX_RECEIVERS: config.HANDLE_MAX_RECEIVERS,
     HANDLE_LOOKUPS_DAILY_MAX: config.HANDLE_LOOKUPS_DAILY_MAX,
     MIN_RECEIVER_USD_MAINNET: config.MIN_RECEIVER_USD_MAINNET,

@@ -9,7 +9,9 @@ export const metadata: Metadata = {
   description: "who builds dropchad, testnet only, no token, open code.",
 };
 
-/** `/about`. No person's name, the public repo only. */
+/**
+ * `/about`. The only person's name on it is the builder's own line.
+ */
 export default function Page() {
   return (
     <TrustPage
@@ -19,7 +21,9 @@ export default function Page() {
         {
           title: "who builds it",
           lines: [
-            "built by the dropchad team.",
+            <>
+              built by <OutLink href="https://x.com/einzxx">Einz</OutLink>.
+            </>,
             <>
               built for the Crypto World&apos;s Fair hackathon.{" "}
               <OutLink href={HACKATHON_URL}>see our project page</OutLink>

@@ -31,6 +31,7 @@
 import { findChain } from "@dropchad/chains";
 
 import type { ChainFilter } from "../chain/filter.js";
+import type { TokenInfo } from "../drops/token-info.js";
 
 /** `day` is the last 24 hours, `week` the last 7 days, by drop creation time. */
 export const BOARD_RANGES = ["day", "week", "all"] as const;
@@ -209,6 +210,11 @@ export interface ChadTotals {
   readonly byChain: readonly ChainTotals[];
   /** Different tokens dropped, by mint. Never an amount. */
   readonly tokens: number;
+  /**
+   * The token that paid the most people: on a tie more drops of it, then the one
+   * dropped first. `null` with no token drop in scope, so on `fed` and `dropper`.
+   */
+  readonly topToken: TokenInfo | null;
 }
 
 /**
@@ -249,6 +255,8 @@ export interface CountedDrop {
   readonly priceUsd: number | null;
   /** A token drop's token, from our row's `asset`; `null` or absent on a SOL or ETH drop. */
   readonly mint?: string | null;
+  /** The token's fields for `topToken`; `null` or absent on a SOL or ETH drop. */
+  readonly token?: TokenInfo | null;
 }
 
 /** A token drop: its asset is a token, not the chain's coin. */
@@ -285,6 +293,12 @@ export function totalsByChad(
     claims: number;
     usd: number;
   }
+  interface PerMint {
+    token: TokenInfo | null;
+    people: Set<string>;
+    drops: number;
+    first: number;
+  }
   const acc = new Map<
     string,
     {
@@ -292,7 +306,7 @@ export function totalsByChad(
       drops: number;
       last: number;
       chains: Map<string, PerChain>;
-      mints: Set<string>;
+      mints: Map<string, PerMint>;
     }
   >();
 
@@ -315,7 +329,7 @@ export function totalsByChad(
       drops: 0,
       last: 0,
       chains: new Map<string, PerChain>(),
-      mints: new Set<string>(),
+      mints: new Map<string, PerMint>(),
     };
     const chain = entry.chains.get(chainKey) ?? {
       total: 0n,
@@ -327,7 +341,18 @@ export function totalsByChad(
     };
     // A token amount is never added to a coin, and a token never gets usd.
     if (isToken) {
-      entry.mints.add(drop.mint as string);
+      const mint = drop.mint as string;
+      const perMint = entry.mints.get(mint) ?? {
+        token: null,
+        people: new Set<string>(),
+        drops: 0,
+        first: createdAt,
+      };
+      perMint.token ??= drop.token ?? null;
+      for (const person of drop.people) perMint.people.add(person);
+      perMint.drops += 1;
+      if (createdAt < perMint.first) perMint.first = createdAt;
+      entry.mints.set(mint, perMint);
     } else {
       chain.total += amount;
       chain.usd += usdOf(amount, chainKey, drop.priceUsd);
@@ -375,8 +400,31 @@ export function totalsByChad(
       lastDropAt: entry.last,
       byChain,
       tokens: entry.mints.size,
+      topToken: topTokenOf([...entry.mints.values()]),
     };
   });
+}
+
+/** Most people, then most drops, then dropped first. */
+function topTokenOf(
+  mints: readonly {
+    readonly token: TokenInfo | null;
+    readonly people: ReadonlySet<string>;
+    readonly drops: number;
+    readonly first: number;
+  }[],
+): TokenInfo | null {
+  let best: (typeof mints)[number] | undefined;
+  for (const mint of mints) {
+    if (
+      best === undefined ||
+      mint.people.size > best.people.size ||
+      (mint.people.size === best.people.size &&
+        (mint.drops > best.drops || (mint.drops === best.drops && mint.first < best.first)))
+    )
+      best = mint;
+  }
+  return best?.token ?? null;
 }
 
 /**
@@ -459,5 +507,7 @@ export function boardRowJson(row: BoardRow) {
       claimCount: chain.claimCount,
       usd: Math.round(chain.usd * 100) / 100,
     })),
+    tokens: row.tokens,
+    topToken: row.topToken,
   };
 }

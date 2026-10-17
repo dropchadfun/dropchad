@@ -680,6 +680,10 @@ export interface BoardRow {
   /** Usd across every chain, the prices frozen at activation. Unpriced drops count zero. */
   readonly usd: number;
   readonly byChain: BoardChainTotals[];
+  /** Different tokens dropped, by mint; absent from an older api. */
+  readonly tokens?: number;
+  /** `best token`: the token that paid the most people; `null` on the others. */
+  readonly topToken?: TokenInfo | null;
 }
 
 /**

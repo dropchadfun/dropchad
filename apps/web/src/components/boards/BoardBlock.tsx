@@ -26,6 +26,10 @@ export function BoardBlock({
   const rows = limit === undefined ? board.rows : board.rows.slice(0, limit);
   return (
     <>
+      {/* How the board ranks, said once over the rows. */}
+      {board.rankedBy === "uniqueReceivers" && (
+        <p className="type-small mb-2 text-chad-text-dim">ranked by people fed</p>
+      )}
       {header && (
         <div className="type-label flex h-8 items-center gap-3 border-b border-chad-border px-2 md:px-3">
           <span className="w-5 text-right">#</span>

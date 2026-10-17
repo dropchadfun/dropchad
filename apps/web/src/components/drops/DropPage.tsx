@@ -267,8 +267,11 @@ function phaseOf(detail: DropDetail): Phase {
       return "live";
     return "after";
   }
-  const status = detail.chain.data?.drop.status;
-  if (status === "Created") return "funding";
+  const chainDrop = detail.chain.data?.drop;
+  const status = chainDrop?.status;
+  // `Created` past its funding deadline is over, not waiting.
+  if (chainDrop && status === "Created")
+    return chipForChain(chainDrop) === "EXPIRED" ? "after" : "funding";
   if (status === "Active") return "live";
   return "after";
 }

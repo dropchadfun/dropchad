@@ -8,11 +8,14 @@ export function CopyButton({
   value,
   label = "copy",
   compact = false,
+  doneMs = 1200,
 }: {
   value: string;
   label?: string;
   /** Small to look at, 28px, next to small text; the tap area stays 44px. */
   compact?: boolean;
+  /** How long it says `copied`. */
+  doneMs?: number;
 }) {
   const [done, setDone] = useState(false);
   return (
@@ -21,7 +24,7 @@ export function CopyButton({
       onClick={() => {
         void navigator.clipboard?.writeText(value).then(() => {
           setDone(true);
-          window.setTimeout(() => setDone(false), 1200);
+          window.setTimeout(() => setDone(false), doneMs);
         });
       }}
       className={

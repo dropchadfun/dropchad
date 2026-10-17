@@ -25,6 +25,7 @@ import type { Config } from "../config.js";
 import { loadStreams } from "../auth/stream-links.js";
 import type { BoardDrop, IndexerClient } from "../indexer/client.js";
 import { solanaBoardDrops } from "../drops/read.js";
+import { tokenInfoOf } from "../drops/token-info.js";
 import {
   boardProfile,
   totalsByChad,
@@ -90,6 +91,12 @@ export async function countHandleDrops(
       priceUsd: drops.priceUsd,
       mode: drops.mode,
       asset: drops.asset,
+      chainKey: drops.chainKey,
+      tokenProgram: drops.tokenProgram,
+      tokenDecimals: drops.tokenDecimals,
+      tokenName: drops.tokenName,
+      tokenSymbol: drops.tokenSymbol,
+      tokenLaunchpad: drops.tokenLaunchpad,
     })
     .from(drops)
     .where(inArray(drops.creatorCommitment, commitments));
@@ -146,6 +153,8 @@ export async function countHandleDrops(
       people: [...people],
       priceUsd: row.priceUsd === null ? null : Number(row.priceUsd),
       mint: isNativeAsset(row.asset) ? null : row.asset,
+      // The top token on a `best token` row.
+      token: isNativeAsset(row.asset) ? null : tokenInfoOf(row),
     };
   });
 }

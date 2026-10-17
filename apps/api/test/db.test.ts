@@ -69,6 +69,7 @@ describe("migrations", () => {
       "0019_token_launchpad.sql",
       "0020_stream_links.sql",
       "0021_telegram_posts.sql",
+      "0022_relayer_alerts.sql",
     ]);
 
     const tables = await handle.client.query<{ table_name: string }>(
@@ -82,6 +83,7 @@ describe("migrations", () => {
       "handle_bindings",
       "oauth_states",
       "profiles",
+      "relayer_alerts",
       "relayer_spend",
       "relayer_txs",
       "sessions",

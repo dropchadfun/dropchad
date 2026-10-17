@@ -4,8 +4,9 @@ import { Avatar } from "@/components/site/Avatar";
 import { MainTagPill } from "@/components/site/MainTag";
 import { StreamLinks } from "@/components/site/StreamLinks";
 import { TEST_COINS } from "@/components/site/TestCoinsLine";
+import { TokenLogo } from "@/components/site/TokenLogo";
 import { XLink } from "@/components/site/XLink";
-import type { Board, BoardRow, BoardType } from "@/lib/api";
+import type { Board, BoardRow, BoardType, TokenInfo } from "@/lib/api";
 import { TESTNET_ONLY, unitForKey } from "@/lib/chains";
 import { formatAmount, formatCount, formatPeople, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -113,6 +114,23 @@ export function usdAndDrops(row: BoardRow, board?: BoardType, testnetOnly = fals
   return `${usd} · ${counts}`;
 }
 
+/**
+ * `best token`: the chad's top token after the X link. The logo always; the ticker (`token`
+ * when none) and a grey `+N` from `sm` up, so
+ * on the phone the handle keeps its room. Not a link: a tap still opens the profile.
+ */
+function TopToken({ token, more }: { token: TokenInfo; more: number }) {
+  return (
+    <span className="flex shrink-0 items-center gap-1 font-normal">
+      <TokenLogo token={token} size={16} />
+      <span className="hidden text-chad-text sm:inline">
+        {token.symbol ?? "token"}
+        {more > 0 && <span className="ml-1 text-chad-text-dim">{`+${String(more)}`}</span>}
+      </span>
+    </span>
+  );
+}
+
 function Row({
   row,
   rankedBy,
@@ -151,6 +169,9 @@ function Row({
             <XLink handle={row.profile.handle} />
             <StreamLinks streams={row.profile.streams} />
           </span>
+          {board === "project" && row.topToken ? (
+            <TopToken token={row.topToken} more={(row.tokens ?? 1) - 1} />
+          ) : null}
           {/* The tag only from md up: on the phone it cut the names. */}
           <span className="relative z-10 hidden shrink-0 md:inline-flex">
             <MainTagPill tags={row.profile.tags} />

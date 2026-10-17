@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FedList, FedProgress, type PaidEntry } from "@/components/drops/FedList";
 import { StatusChip } from "@/components/drops/StatusChip";
 import { TokenRow } from "@/components/drops/TokenRow";
+import { CopyDropLink } from "@/components/drops/drop-link";
 import { dropLines } from "@/components/drops/drop-lines";
 import { Avatar } from "@/components/site/Avatar";
 import { MainTagPill } from "@/components/site/MainTag";
@@ -101,6 +102,7 @@ export function LiveView({
             : "nobody yet. waiting for the first claim."
         }
       />
+      {waiting ? null : <CopyDropLink address={address} />}
       {token ? <TokenRow token={token} chainId={chainId} /> : null}
     </div>
   );

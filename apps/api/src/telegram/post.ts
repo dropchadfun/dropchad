@@ -72,7 +72,7 @@ function oneLine(text: string): string {
 }
 
 /** Base units to whole coins, exact: every decimal, no comma, like the drop page. */
-function exactAmount(base: string, decimals: number): string {
+export function exactAmount(base: string, decimals: number): string {
   const scale = 10n ** BigInt(decimals);
   const value = BigInt(base || "0");
   const fraction = (value % scale).toString().padStart(decimals, "0").replace(/0+$/, "");
@@ -88,7 +88,7 @@ function code(text: string): string {
 }
 
 /** `solana`, `robinhood`, and on a testnet `solana devnet`, `robinhood testnet`. */
-function chainName(chainKey: string): string {
+export function chainName(chainKey: string): string {
   return chainKey.replace(/-/g, " ");
 }
 

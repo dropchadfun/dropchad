@@ -6,6 +6,7 @@ import { StatusChip } from "@/components/drops/StatusChip";
 import { TestnetMark } from "@/components/site/Wordmark";
 import { TokenRow } from "@/components/drops/TokenRow";
 import { dropLines } from "@/components/drops/drop-lines";
+import { CopyDropLink } from "@/components/drops/drop-link";
 import type { Chip } from "@/components/drops/drop-card-data";
 import { Avatar } from "@/components/site/Avatar";
 import { MainTagPill } from "@/components/site/MainTag";
@@ -50,9 +51,9 @@ export function AfterPicture({
  * The finished drop page, the same clean layout as the live one: the
  * title and the chip, `people fed` with the bar and the amount, `who got fed` by handle, the
  * proof at the bottom. No rain, no replay. The share card is its own section under it, for the
- * sender only, `ShareCard.tsx`.
+ * sender only, `ShareCard.tsx`. `copy drop link`, under `who got fed`, is for everyone.
  *
- * Everything is settled, so the numbers are white. No value line on testnet
+ * Everything is settled, so the numbers are white. No value line on testnet:
  * nothing is priced live and the frozen usd is not sent to the page. On mainnet a plain `worth
  * $2.40 when dropped` comes later.
  */
@@ -148,6 +149,7 @@ export function AfterView({
             chip === "EXPIRED" ? "nobody. the drop expired before it was funded." : "no claims yet."
           }
         />
+        <CopyDropLink address={detail.address} />
         {token ? <TokenRow token={token} chainId={chainId} /> : null}
 
         <section className="mt-8 border-t border-chad-border pt-4">

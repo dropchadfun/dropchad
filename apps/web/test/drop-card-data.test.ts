@@ -64,6 +64,25 @@ describe("chipForChain", () => {
     expect(chipForChain({ status: "Finalized", claimedCount: 3, leafCount: 3 })).toBe("DONE");
     expect(chipForChain({ status: "Cancelled", claimedCount: 0, leafCount: 3 })).toBe("EXPIRED");
   });
+
+  // The chain stays `Created` after the funding time until somebody cancels, and an empty
+  // EVM drop is never cancelled. Its own deadline says the funding is over.
+  it("Created after its funding deadline is EXPIRED, from the chain's own deadline", () => {
+    const created = { status: "Created", claimedCount: 0, leafCount: 3 } as const;
+    expect(chipForChain({ ...created, fundingDeadline: "1800000000" }, 1_800_000_001)).toBe(
+      "EXPIRED",
+    );
+  });
+
+  it("Created up to and at its funding deadline is still FUNDING", () => {
+    const created = { status: "Created", claimedCount: 0, leafCount: 3 } as const;
+    expect(chipForChain({ ...created, fundingDeadline: "1800000000" }, 1_799_999_999)).toBe(
+      "FUNDING",
+    );
+    expect(chipForChain({ ...created, fundingDeadline: "1800000000" }, 1_800_000_000)).toBe(
+      "FUNDING",
+    );
+  });
 });
 
 describe("fromListEntry chip", () => {
@@ -89,6 +108,17 @@ describe("fromListEntry chip", () => {
       fromListEntry(entry({ claimedCount: 0, dropchad: ours({ state: "failed", paidCount: 0 }) }))
         .chip,
     ).toBe("DONE");
+  });
+
+  it("a Created drop past its funding deadline is EXPIRED, whatever our row says", () => {
+    const waiting = { status: "Created", claimedCount: 0, fundingDeadline: "1700000000" } as const;
+    expect(fromListEntry(entry({ ...waiting, dropchad: null })).chip).toBe("EXPIRED");
+    expect(
+      fromListEntry(entry({ ...waiting, dropchad: ours({ state: "funding_expired" }) })).chip,
+    ).toBe("EXPIRED");
+    expect(fromListEntry(entry({ ...waiting, dropchad: ours({ state: "created" }) })).chip).toBe(
+      "EXPIRED",
+    );
   });
 
   it("claimed is the larger of the chain count and ours", () => {

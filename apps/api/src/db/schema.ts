@@ -288,6 +288,16 @@ export const telegramPosts = pgTable(
 );
 
 /**
+ * The relayer low balance alert. One row per watched chain: `low` after the
+ * low message was sent, `ok` after the ok message. No row counts as `ok`. Migration 0022.
+ */
+export const relayerAlerts = pgTable("relayer_alerts", {
+  chainKey: text("chain_key").primaryKey(),
+  state: text("state").notNull().default("ok"),
+  changedAt: timestamp("changed_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
  * Every transaction either relayer sent. The hash or signature is public. The key is not, and
  * is never here.
  *
@@ -429,3 +439,4 @@ export type XHandleLookupRow = typeof xHandleLookups.$inferSelect;
 export type DropHandleLeafRow = typeof dropHandleLeaves.$inferSelect;
 export type HandleBindingRow = typeof handleBindings.$inferSelect;
 export type TelegramPostRow = typeof telegramPosts.$inferSelect;
+export type RelayerAlertRow = typeof relayerAlerts.$inferSelect;

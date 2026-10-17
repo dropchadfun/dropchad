@@ -20,6 +20,9 @@ import { CONTACT_EMAIL } from "@/lib/social";
 const WEB = join(__dirname, "..");
 const PUBLIC_REPO = "https://github.com/dropchadfun/dropchad";
 const SITE = "https://dropchad.com";
+/** The one person's name on the trust pages, `/about` only. */
+const BUILDER = "Einz";
+const BUILDER_X = "https://x.com/einzxx";
 
 interface PageModule {
   default: () => ReactElement;
@@ -50,9 +53,12 @@ const hrefs = (markup: string): string[] =>
 describe("the four pages, what they all share", () => {
   for (const name of PAGES) {
     // lowercase but X. The hackathon's name and `DM` keep their capitals, as on
-    // the hackathon line and in the security line.
-    it(`/${name}: all lowercase but X, the hackathon's name and DM`, () => {
-      const text = words(name).replace(/Crypto World's Fair|\bDM\b/g, "");
+    // the hackathon line and in the security line. The builder's name keeps
+    // its capital too.
+    it(`/${name}: all lowercase but X, the hackathon's name, DM and the builder`, () => {
+      const text = words(name)
+        .replace(/Crypto World's Fair|\bDM\b/g, "")
+        .replace(`built by ${BUILDER} .`, "");
       expect(text.replace(/\bX\b/g, "")).toBe(text.replace(/\bX\b/g, "").toLowerCase());
       expect(String(modules[name].metadata.description)).toBe(
         String(modules[name].metadata.description).toLowerCase(),
@@ -78,7 +84,9 @@ describe("the four pages, what they all share", () => {
       expect(words(name)).not.toMatch(handle);
       const source = readFileSync(join(WEB, "src", "app", name, "page.tsx"), "utf8");
       expect(source).not.toMatch(handle);
-      expect(hrefs(markup).filter((h) => /\/\/(x|twitter)\.com\//.test(h))).toEqual([]);
+      // The one exception, the builder's line on `/about`.
+      const xLinks = hrefs(markup).filter((h) => /\/\/(x|twitter)\.com\//.test(h));
+      expect(xLinks).toEqual(name === "about" ? [BUILDER_X] : []);
       for (const href of hrefs(markup).filter((h) => h.includes("github.com"))) {
         expect(href).toBe(PUBLIC_REPO);
       }
@@ -102,14 +110,29 @@ describe("the four pages, what they all share", () => {
 });
 
 describe("/about", () => {
-  it("the dropchad team, the hackathon, testnet only, no token, the public repo", () => {
+  it("built by the builder, the hackathon, testnet only, no token, the public repo", () => {
     const text = words("about");
-    expect(text).toContain("the dropchad team");
+    // `words` puts a space where the link ends; the page reads `built by <name>.`
+    expect(text).toContain(`built by ${BUILDER} .`);
+    expect(text).not.toContain("the dropchad team");
     expect(text).toContain("Crypto World's Fair hackathon");
     expect(text).toMatch(/testnet only/);
     expect(text).toContain("dropchad has no token. anyone selling one is not us.");
     expect(hrefs(html("about"))).toContain(PUBLIC_REPO);
     expect(hrefs(html("about"))).toContain("https://colosseum.com/arena/projects/dropchad");
+  });
+
+  // The one person's name on the trust pages, linked to X.
+  it("the builder's name links to their X page in a new tab, the only name on the four pages", () => {
+    const anchors = html("about").match(/<a [^>]*>[^<]*<\/a>/g) ?? [];
+    const link = anchors.find((a) => a.includes(`href="${BUILDER_X}"`));
+    expect(link).toContain(`>${BUILDER}</a>`);
+    expect(link).toContain('target="_blank"');
+    expect(link).toContain('rel="noopener noreferrer"');
+    for (const name of PAGES) {
+      const count = html(name).toLowerCase().split(BUILDER.toLowerCase()).length - 1;
+      expect(count, name).toBe(name === "about" ? 2 : 0);
+    }
   });
 });
 

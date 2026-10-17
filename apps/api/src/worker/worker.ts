@@ -91,6 +91,9 @@ export { MAX_BATCH } from "../chain/evm/adapter.js";
 export const MAX_JOBS_PER_TURN = 10;
 export const TURN_MS = 30_000;
 
+/** how often the worker looks for drops left `created` after their funding deadline. */
+export const EXPIRY_CHECK_MS = 60 * 60 * 1000;
+
 /** The states in our own database. The chain's status is the indexer's business, not this. */
 export type DropState =
   | "created"
@@ -132,6 +135,11 @@ export interface Worker {
    * `MAX_JOBS_PER_TURN` jobs and `TURN_MS`. Returns how many jobs ran. `start()` runs one per poll.
    */
   turn(): Promise<number>;
+  /**
+   * Drops still `created` after their funding deadline with no open job go
+   * to `funding_expired` with a `settle` job. Returns how many. `turn()` runs it once an hour.
+   */
+  expireWaiting(): Promise<number>;
   /** Run jobs until none is due. */
   drain(): Promise<number>;
   start(): Promise<void>;
@@ -167,6 +175,8 @@ export function createWorker(deps: WorkerDeps): Worker {
   let stopped = false;
   /** The chains whose funding poll already ran in this turn; `null` outside a turn. */
   let polledThisTurn: Set<string> | null = null;
+  /** When the check last ran, epoch ms by the worker clock; `null` before the first turn. */
+  let lastExpiryCheck: number | null = null;
 
   async function loadDrop(address: string): Promise<DropRow | null> {
     const rows = await db
@@ -308,24 +318,9 @@ export function createWorker(deps: WorkerDeps): Worker {
       return;
     }
 
-    if (BigInt(Math.floor(now.getTime() / 1000)) > row.fundingDeadline) {
-      // Anyone can now cancel and send whatever arrived back to the creator.
-      // Our relayer does it in the `settle` job: on Solana so the rent comes back; on the
-      // EVM when the drop holds anything. `settle` reads the deadline from the drop.
-      await setDrop(row.address, {
-        state: "funding_expired",
-        lastError: "nobody funded this drop before the funding deadline",
-      });
-      events.emit({
-        type: "finished",
-        drop: address,
-        state: "funding_expired",
-        paidCount: 0,
-        leafCount: row.leafCount,
-        failedIndexes: [],
-      });
+    if (fundingOver(row, now)) {
       await completeJob(db, job.id, now);
-      await scheduleSettle(chain, row.address, now);
+      await expireUnfunded(row, chain, now);
       return;
     }
 
@@ -336,6 +331,64 @@ export function createWorker(deps: WorkerDeps): Worker {
       now,
       countAttempt: false,
     });
+  }
+
+  /** The funding deadline has passed by the server clock: `activate` is refused. */
+  function fundingOver(row: DropRow, now: Date): boolean {
+    return BigInt(Math.floor(now.getTime() / 1000)) > row.fundingDeadline;
+  }
+
+  /**
+   * Anyone can now cancel and send whatever arrived back to the creator. Our
+   * relayer does it in the `settle` job: on Solana so the rent comes back; on the EVM when
+   * the drop holds anything. `settle` reads the deadline from the drop. The funding poll
+   * and the check both end here.
+   */
+  async function expireUnfunded(row: DropRow, chain: ChainAdapter, now: Date): Promise<void> {
+    await setDrop(row.address, {
+      state: "funding_expired",
+      lastError: "nobody funded this drop before the funding deadline",
+    });
+    events.emit({
+      type: "finished",
+      drop: chain.parseAddress(row.address),
+      state: "funding_expired",
+      paidCount: 0,
+      leafCount: row.leafCount,
+      failedIndexes: [],
+    });
+    await scheduleSettle(chain, row.address, now);
+  }
+
+  /**
+   * Every drop of ours still `created` after its funding deadline with no job in `ready` or
+   * `running`: a watcher that failed for good left it there, and nothing else moves it. Each gets
+   * what the funding poll does at the deadline. A drop of a chain this process has no adapter for
+   * waits for the next check. Returns how many it moved.
+   */
+  async function expireWaiting(): Promise<number> {
+    const now = deps.now();
+    const rows = await db
+      .select()
+      .from(drops)
+      .where(
+        and(
+          eq(drops.state, "created"),
+          sql`${drops.fundingDeadline} < ${Math.floor(now.getTime() / 1000)}`,
+          sql`NOT EXISTS (SELECT 1 FROM drop_jobs j WHERE j.drop_address = ${drops.address}
+            AND j.state IN ('ready', 'running'))`,
+        ),
+      );
+    let moved = 0;
+    for (const row of rows) {
+      const chain = chains.get(row.chainKey);
+      if (chain === undefined || !fundingOver(row, now)) continue;
+      await expireUnfunded(row, chain, now);
+      moved += 1;
+    }
+    if (moved > 0)
+      console.log(`worker: ${String(moved)} drops past their funding deadline expired`);
+    return moved;
   }
 
   /**
@@ -1074,6 +1127,16 @@ export function createWorker(deps: WorkerDeps): Worker {
    */
   async function turn(): Promise<number> {
     const started = deps.now().getTime();
+    // in the first turn, then at most once an hour. A failed check waits for the next hour
+    // and never stops the turn.
+    if (lastExpiryCheck === null || started - lastExpiryCheck >= EXPIRY_CHECK_MS) {
+      lastExpiryCheck = started;
+      try {
+        await expireWaiting();
+      } catch (error) {
+        console.error("worker: the funding deadline check failed", error);
+      }
+    }
     polledThisTurn = new Set();
     let ran = 0;
     try {
@@ -1090,6 +1153,7 @@ export function createWorker(deps: WorkerDeps): Worker {
   return {
     tick,
     turn,
+    expireWaiting,
 
     async drain() {
       let done = 0;

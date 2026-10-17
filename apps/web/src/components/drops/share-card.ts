@@ -48,6 +48,20 @@ export function showShareCard(drop: {
   return drop.mode === "handle" && drop.yours && LIVE_STATES.has(drop.state);
 }
 
+/**
+ * What the sender's card space shows: `card` once live, `wait` (the
+ * loading line) while the sender's handle drop is `created` or `funded`, `none` otherwise.
+ */
+export function shareCardWait(
+  drop:
+    { readonly mode: string; readonly yours?: boolean; readonly state: string } | null | undefined,
+): "card" | "wait" | "none" {
+  if (drop === null || drop === undefined || drop.mode !== "handle" || drop.yours !== true)
+    return "none";
+  if (LIVE_STATES.has(drop.state)) return "card";
+  return drop.state === "created" || drop.state === "funded" ? "wait" : "none";
+}
+
 function people(count: number): string {
   return count === 1 ? "1 person" : `${String(count)} people`;
 }

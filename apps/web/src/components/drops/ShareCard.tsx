@@ -31,8 +31,8 @@ import {
   pictureRect,
   postIntentUrl,
   postText,
+  shareCardWait,
   sharePath,
-  showShareCard,
   zoomPicture,
   type BarMark,
   type CardDesignId,
@@ -72,8 +72,20 @@ export function shareCardViewer(profile: Profile | null | undefined): string | n
 }
 
 function ShareCardLoader({ address, live }: { address: string; live: boolean }) {
-  const card = useShareCard(address, live);
-  if (card === null) return null;
+  const { card, waiting } = useShareCard(address, live);
+  if (card === null) {
+    if (!waiting) return null;
+    return (
+      <section className="mx-auto w-full max-w-(--container-content) px-4 pb-10">
+        <div className="border-t border-chad-border pt-6">
+          {/* The card's own box, so the line sits in the middle of where the card will be. */}
+          <div className="mx-auto flex aspect-video w-full max-w-[640px] items-center justify-center">
+            <CardsLoading />
+          </div>
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="mx-auto w-full max-w-(--container-content) px-4 pb-10">
       <ShareCardEditor card={card} />
@@ -81,9 +93,36 @@ function ShareCardLoader({ address, live }: { address: string; live: boolean }) 
   );
 }
 
-/** The card facts once the api says this viewer is the sender and the drop is live. */
-function useShareCard(address: string, live: boolean): ShareCardData | null {
+/**
+ * `your cards are loading` and 3 moving dots: where the card will be,
+ * while the drop goes live and while the card's facts and images load.
+ */
+export function CardsLoading() {
+  return (
+    <p
+      role="status"
+      className="font-title flex items-center justify-center text-center text-[16px] leading-tight font-semibold tracking-[-0.01em] text-chad-text-dim md:text-[18px]"
+    >
+      your cards are loading
+      <span aria-hidden="true" className="ml-1.5 inline-flex items-center gap-1">
+        <span className="loading-dot" />
+        <span className="loading-dot" />
+        <span className="loading-dot" />
+      </span>
+    </p>
+  );
+}
+
+/**
+ * The card facts once the api says this viewer is the sender and the drop is live. `waiting`
+ * while it is the sender's handle drop and the card is not there yet; it ends with the tries.
+ */
+function useShareCard(
+  address: string,
+  live: boolean,
+): { readonly card: ShareCardData | null; readonly waiting: boolean } {
   const [card, setCard] = useState<ShareCardData | null>(null);
+  const [waiting, setWaiting] = useState(false);
 
   useEffect(() => {
     if (!live) return;
@@ -96,21 +135,26 @@ function useShareCard(address: string, live: boolean): ShareCardData | null {
       tries += 1;
       try {
         const fresh = await getDrop(address);
-        const ours = fresh.ours.data;
-        // Not ours, not a handle drop, or not this sender: nothing to show, nothing to wait for.
-        if (ours === null || ours === undefined || ours.mode !== "handle" || ours.yours !== true)
+        const wait = shareCardWait(fresh.ours.data);
+        // Not ours, not a handle drop, not this sender, or never live: nothing to wait for.
+        if (wait === "none") {
+          if (!stopped) setWaiting(false);
           return;
-        if (showShareCard({ mode: ours.mode, yours: true, state: ours.state })) {
+        }
+        if (!stopped) setWaiting(true);
+        if (wait === "card") {
           const facts = await getShareCard(address);
           if (!stopped) setCard(facts);
           return;
         }
-        // Only a drop still on its way to live is worth asking again about.
-        if (ours.state !== "created" && ours.state !== "funded") return;
+        // `wait`: a drop still on its way to live is worth asking again about.
       } catch {
         // Not the sender, or not ready yet; try again below while tries are left.
       }
-      if (!stopped && tries < 30) timer = window.setTimeout(() => void attempt(), 10_000);
+      if (stopped) return;
+      if (tries < 30) timer = window.setTimeout(() => void attempt(), 10_000);
+      // The wait ended with no card: the line goes too, nothing is shown.
+      else setWaiting(false);
     };
     void attempt();
     return () => {
@@ -119,7 +163,7 @@ function useShareCard(address: string, live: boolean): ShareCardData | null {
     };
   }, [address, live]);
 
-  return card;
+  return { card, waiting };
 }
 
 /** Anything the canvas can draw with a size: a picture, or the first frame of an upload. */
@@ -280,7 +324,7 @@ export function ShareCardEditor({ card }: { card: ShareCardData }) {
           columns start and end on the same lines, the post box takes the space between. The
           PNG stays CARD_WIDTH by CARD_HEIGHT; only the preview is drawn smaller. */}
       <div className="mt-4 md:grid md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:items-stretch md:gap-8">
-        <div className="w-full max-w-[640px] md:order-2 md:justify-self-end">
+        <div className="relative w-full max-w-[640px] md:order-2 md:justify-self-end">
           <canvas
             ref={canvas}
             width={CARD_WIDTH}
@@ -296,6 +340,12 @@ export function ShareCardEditor({ card }: { card: ShareCardData }) {
               picture !== null && "cursor-grab touch-none active:cursor-grabbing",
             )}
           />
+          {/* Over the blank canvas while the card's images load. */}
+          {assets === null && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <CardsLoading />
+            </div>
+          )}
         </div>
 
         <div className="md:order-1 md:flex md:flex-col">

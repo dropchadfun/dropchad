@@ -68,12 +68,25 @@ export function chipForIndexedStatus(status: IndexedDrop["status"]): Chip {
  * The chip from the chain side alone. On chain a drop stays `Active` after its last claim is
  * paid, nothing flips it until the refund. So `Active` with every leaf
  * claimed is DONE here, not LIVE, with or without a row of ours. Item 0.2.
+ *
+ * `Created` stays `Created` after the funding time until somebody cancels, and an empty EVM drop
+ * is never cancelled. So `Created` past its own `fundingDeadline` is EXPIRED: the
+ * chain's status and deadline, the browser's clock. Without a deadline it stays FUNDING.
  */
 export function chipForChain(
-  drop: Pick<IndexedDrop, "status" | "claimedCount" | "leafCount">,
+  drop: Pick<IndexedDrop, "status" | "claimedCount" | "leafCount"> &
+    Partial<Pick<IndexedDrop, "fundingDeadline">>,
+  nowSeconds: number = Math.floor(Date.now() / 1000),
 ): Chip {
   if (drop.status === "Active" && drop.leafCount > 0 && drop.claimedCount >= drop.leafCount) {
     return "DONE";
+  }
+  if (
+    drop.status === "Created" &&
+    drop.fundingDeadline !== undefined &&
+    nowSeconds > Number(drop.fundingDeadline)
+  ) {
+    return "EXPIRED";
   }
   return chipForIndexedStatus(drop.status);
 }

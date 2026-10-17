@@ -43,6 +43,7 @@ import { getAbiItem } from "viem";
 import { readIndexerEnv } from "./src/env.js";
 import { factoriesFor } from "./src/factories.js";
 import { indexedChain } from "./src/local-chain.js";
+import { ethGetLogsBlockRangeFor } from "./src/logs-range.js";
 
 /** The optional lines of `.env.local`. Empty means not set, `src/env.ts`. */
 const env = readIndexerEnv();
@@ -106,6 +107,8 @@ export const CHAIN_ID = chain.chainId;
  * and the primary here is the public endpoint.
  */
 export const RPC_URL = rpcUrlFor(chain);
+/** Blocks per eth_getLogs, or `undefined` to let Ponder find it, `src/logs-range.ts`. */
+const LOGS_RANGE = ethGetLogsBlockRangeFor(chain.key);
 
 /**
  * `DropFactoryV2` and its clones, or nothing. Typed as always present so the V2 handler names
@@ -216,6 +219,8 @@ export default createConfig({
       id: chain.chainId,
       // The registry holds the env var NAME. `rpcUrlFor` is the one place it becomes a value.
       rpc: RPC_URL,
+      // The public Robinhood RPC refuses over 100,000 blocks per eth_getLogs, src/logs-range.ts.
+      ...(LOGS_RANGE === undefined ? {} : { ethGetLogsBlockRange: LOGS_RANGE }),
     },
   },
   contracts: {
