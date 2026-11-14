@@ -1,0 +1,35 @@
+{
+  "name": "@dropchad/shared",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared dropchad types, the merkle generator, ABIs generated from contracts/evm/out and the Anchor IDL generated from contracts/solana/target.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./merkle": "./src/merkle/index.ts",
+    "./binding": "./src/binding.ts",
+    "./abi": "./src/abi/index.ts",
+    "./idl": "./src/idl/index.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "sync:abi": "node scripts/sync-abi.mjs",
+    "sync:abi:check": "node scripts/sync-abi.mjs --check",
+    "sync:idl": "node scripts/sync-idl.mjs",
+    "sync:idl:check": "node scripts/sync-idl.mjs --check"
+  },
+  "dependencies": {
+    "viem": "^2.56.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.0"
+  }
+}
