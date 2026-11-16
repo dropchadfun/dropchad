@@ -311,7 +311,7 @@ export default createConfig({
       id: chain.chainId,
       // The registry holds the env var NAME. `rpcUrlFor` is the one place it becomes a value.
       rpc: RPC_URL,
-      // The public Robinhood RPC refuses over 100,000 blocks per eth_getLogs, src/logs-range.ts.
+      // A fixed eth_getLogs block range per chain, src/logs-range.ts.
       ...(LOGS_RANGE === undefined ? {} : { ethGetLogsBlockRange: LOGS_RANGE }),
     },
   },

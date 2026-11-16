@@ -79,3 +79,11 @@ describe("explain", () => {
     expect(explain(new Error("network"))).toBe("the api did not answer. is it running on 4000?");
   });
 });
+
+describe("a busy network", () => {
+  it("create_expired: solana is busy, the drop was not made", () => {
+    expect(explain(err(503, { error: "create_expired" }))).toBe(
+      "solana is busy right now. the drop was not made. try again in a minute.",
+    );
+  });
+});

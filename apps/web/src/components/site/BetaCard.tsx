@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useCallback, useRef, useSyncExternalStore, type Ref, type SetStateAction } from "react";
 
-import { betaCardCaps } from "@/lib/beta";
 import {
   BETA_CARD_HEAD,
   BETA_CARD_TAIL,
@@ -11,11 +10,8 @@ import {
   rememberBetaCard,
   shouldShowBetaCard,
 } from "@/lib/beta-card";
-import { TESTNET_ONLY, liveMainnetKeys } from "@/lib/chains";
+import { TESTNET_ONLY } from "@/lib/chains";
 import { useDismiss } from "@/lib/dismiss";
-
-/** The cap lines of the live mainnet chains, read once from the registry. */
-const CAPS = betaCardCaps(liveMainnetKeys());
 
 /** `localStorage`, or `null` when even reading the property throws. */
 function browserStorage(): Storage | null {
@@ -55,9 +51,10 @@ function closeBetaCard(): void {
  * place, in the middle over a dimmed page. Drawn in the browser only: the server snapshot is
  * closed, so the server HTML, a link preview, the og image and the share card never carry it.
  * Escape and a click or tap outside close it through the shared dismiss hook; every way of
- * closing it is remembered.
+ * closing it is remembered. `caps` are the lines of the live chains, read by the layout on the
+ * server from the api switch.
  */
-export function BetaCard() {
+export function BetaCard({ caps }: { caps: readonly string[] }) {
   const open = useSyncExternalStore(subscribe, isOpen, () => false);
   const box = useRef<HTMLDivElement>(null);
   // The dismiss hook only ever closes; closing that way is remembered too.
@@ -69,7 +66,7 @@ export function BetaCard() {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-chad-bg/70 px-4">
-      <BetaCardBox ref={box} caps={CAPS} onClose={closeBetaCard} />
+      <BetaCardBox ref={box} caps={caps} onClose={closeBetaCard} />
     </div>
   );
 }

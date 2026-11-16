@@ -179,4 +179,14 @@ describe("the adapter and handle mode, per drop", () => {
     });
     expect(await adapter.handleModeReady()).toBe(true);
   });
+
+  it("a V7 only chain, the robinhood mainnet record: handle mode is ready", async () => {
+    const mainnet = getChain("robinhood");
+    expect(mainnet.contracts.factoryV7).not.toBeNull();
+    expect(mainnet.contracts.factoryV6).toBeNull();
+    expect(mainnet.contracts.factoryV2).toBeNull();
+    const { gateway } = world({ registries: [REGISTRY_V2] });
+    const adapter = createEvmAdapter({ gateway, chain: mainnet });
+    expect(await adapter.handleModeReady()).toBe(true);
+  });
 });

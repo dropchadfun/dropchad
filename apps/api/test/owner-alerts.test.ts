@@ -808,7 +808,9 @@ describe("alert 3 with V6", () => {
 
   it("the V6 set alone: no old factory and no old registry", () => {
     const mainnet = getChain("robinhood");
-    const chain = { ...mainnet, contracts: { ...mainnet.contracts, ...v6 } };
+    // Without the V7 record, V6 is the only set.
+    const noV7 = { factoryV7: null, implementationV7: null, deployBlockV7: null };
+    const chain = { ...mainnet, contracts: { ...mainnet.contracts, ...v6, ...noV7 } };
     if (!isServedEvmChain(chain)) throw new Error("the V6 only chain should be served");
     expect(evmAdminTargets(chain, RELAYER)).toEqual({
       factory: F6,

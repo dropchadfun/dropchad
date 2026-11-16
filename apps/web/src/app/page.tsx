@@ -2,6 +2,7 @@ import { boardPageFromParam } from "@/components/front/board-page";
 import { dropsPageFromParam } from "@/components/front/drops-page";
 import { FrontPage } from "@/components/front/FrontPage";
 import { chainPills } from "@/lib/chains";
+import { readLiveChains } from "@/lib/live-chains";
 import { ApiError, getBoard, getStats, getTrending, listDrops, listDropsPage } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +24,9 @@ export default async function HomePage({
   const boardPage = boardPageFromParam(params.board_page);
   // The `latest` page, its own `drops_page=`. Anything else is page 1.
   const dropsPage = dropsPageFromParam(params.drops_page);
-  const [stats, drops, latest, board, trending] = await Promise.all([
+  // The pills of the live chains, from the api switch.
+  const [view, stats, drops, latest, board, trending] = await Promise.all([
+    readLiveChains(),
     settle(getStats()),
     // The newest drops, for the `live` tab, as before.
     settle(listDrops(50)),
@@ -36,7 +39,7 @@ export default async function HomePage({
 
   return (
     <FrontPage
-      pills={chainPills()}
+      pills={chainPills({ view })}
       stats={stats}
       drops={drops === null ? null : drops.drops}
       board={board}

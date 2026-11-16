@@ -161,7 +161,7 @@ describe("the seven instructions, and no eighth", () => {
     }
   });
 
-  it("exposes seven sending methods and two public fields, nothing else", () => {
+  it("exposes seven sending methods, two public fields and two reads, nothing else", () => {
     const w = world();
     expect(Object.keys(w.relayer).sort()).toEqual(
       [
@@ -172,10 +172,93 @@ describe("the seven instructions, and no eighth", () => {
         "claimHandle",
         "closeDrop",
         "createDrop",
+        "isRetrying",
+        "lookupTableState",
         "publicKey",
         "refund",
       ].sort(),
     );
+  });
+
+  it("isRetrying, the first read, returns a boolean and sends nothing: no rpc call, no signer call", () => {
+    const svm = new FakeSvm({ relayer: randomSigner().publicKey });
+    const rpcCalls: string[] = [];
+    const rpc = new Proxy(createFakeSvmRpc(svm), {
+      get(target, name, receiver) {
+        const value = Reflect.get(target, name, receiver) as unknown;
+        if (typeof value !== "function") return value;
+        return (...args: unknown[]) => {
+          rpcCalls.push(String(name));
+          return (value as (...a: unknown[]) => unknown).apply(target, args);
+        };
+      },
+    });
+    const inner = randomSigner();
+    let signs = 0;
+    const signer: Signer = {
+      publicKey: inner.publicKey,
+      sign: (message) => {
+        signs += 1;
+        return inner.sign(message);
+      },
+    };
+    const relayer = createSvmRelayer({
+      rpc,
+      signer,
+      isKnownDrop: () => Promise.resolve(true),
+      budget: memoryBudget(ONE_SOL),
+      caps: { maxComputeUnits: 400_000, priorityFeeMicroLamports: 0n },
+      rentForCreate: () => Promise.resolve(0n),
+      commitment: "confirmed",
+      sleep: () => Promise.resolve(),
+    });
+    const answer = relayer.isRetrying("CVDFLCAjXhVWiPXH9nTCTpCgVzmDVoiPzNJYuccr1dqB", 0);
+    expect(typeof answer).toBe("boolean");
+    expect(answer).toBe(false);
+    expect(rpcCalls).toEqual([]);
+    expect(signs).toBe(0);
+    expect(svm.sent).toHaveLength(0);
+  });
+
+  it("lookupTableState, the second read, makes one account read and sends nothing: no signer call", async () => {
+    const svm = new FakeSvm({ relayer: randomSigner().publicKey });
+    const rpcCalls: string[] = [];
+    const rpc = new Proxy(createFakeSvmRpc(svm), {
+      get(target, name, receiver) {
+        const value = Reflect.get(target, name, receiver) as unknown;
+        if (typeof value !== "function") return value;
+        return (...args: unknown[]) => {
+          rpcCalls.push(String(name));
+          return (value as (...a: unknown[]) => unknown).apply(target, args);
+        };
+      },
+    });
+    const inner = randomSigner();
+    let signs = 0;
+    const signer: Signer = {
+      publicKey: inner.publicKey,
+      sign: (message) => {
+        signs += 1;
+        return inner.sign(message);
+      },
+    };
+    const relayer = createSvmRelayer({
+      rpc,
+      signer,
+      isKnownDrop: () => Promise.resolve(true),
+      budget: memoryBudget(ONE_SOL),
+      caps: { maxComputeUnits: 400_000, priorityFeeMicroLamports: 0n },
+      rentForCreate: () => Promise.resolve(0n),
+      commitment: "confirmed",
+      sleep: () => Promise.resolve(),
+      lookupTable: { address: new Uint8Array(32).fill(0x7a) },
+      log: () => undefined,
+    });
+    const state = await relayer.lookupTableState();
+    expect(state).toEqual({ on: false, reason: "missing" });
+    expect(rpcCalls).toEqual(["getMultipleAccounts"]);
+    expect(signs).toBe(0);
+    expect(svm.sent).toHaveLength(0);
   });
 
   it("never builds a System program instruction: only dropchad and compute budget touch the wire", async () => {
@@ -250,10 +333,11 @@ describe("guard 4, simulate, cap, budget", () => {
     expect(w.svm.executed).toEqual([]);
   });
 
-  it("gives up when the blockhash expires and returns the reservation", async () => {
-    const w = world({ rpc: { neverConfirm: true } });
+  it("gives up when the blockhash expires on every attempt and returns each reservation", async () => {
+    const w = world({ rpc: { dropSends: 99 } });
     await expect(createThree(w)).rejects.toThrow(TransactionExpiredError);
-    expect(w.budget.settled.at(-1)?.[1]).toBe(0n);
+    expect(w.svm.sent).toHaveLength(3);
+    expect(w.budget.settled.map(([, actual]) => actual)).toEqual([0n, 0n, 0n]);
   });
 });
 

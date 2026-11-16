@@ -34,7 +34,10 @@ export function dropCapWords(
   return [...coins, ...tokens].join(", ");
 }
 
-/** The caps of this build's live mainnet chains. */
+/**
+ * The caps with no api answer: the chains live from the registry
+ * alone. The pages pass the live keys of `readLiveChains()` to `dropCapWords` instead.
+ */
 export const DROP_CAPS = dropCapWords(liveMainnetKeys(), DROP_CAP_LINES);
 
 /** The cap lines of the beta card: only the live chains given, Solana first. */
@@ -42,8 +45,13 @@ export function betaCardCaps(liveKeys: readonly string[]): string[] {
   return CAP_ORDER.filter((key) => liveKeys.includes(key)).flatMap((key) => DROP_CAP_LINES[key]);
 }
 
-/** Under the `total` tile on step 1 of `/create`. */
-export const BETA_NOTICE = `dropchad is in beta. each drop has a limit while we grow: ${DROP_CAPS}. other tokens have no limit.`;
+/** Under the `total` tile on step 1 of `/create`, for the given live chains. */
+export function betaNotice(liveKeys: readonly string[]): string {
+  return `dropchad is in beta. each drop has a limit while we grow: ${dropCapWords(liveKeys)}. other tokens have no limit.`;
+}
+
+/** The notice with no api answer. */
+export const BETA_NOTICE = betaNotice(liveMainnetKeys());
 
 /** The tick box before `drop it` and `send it`. */
 export const BETA_TICK = "i understand dropchad is in beta and i send at my own risk.";

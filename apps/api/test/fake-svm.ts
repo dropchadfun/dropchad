@@ -40,6 +40,7 @@ import {
   pubkeyToBase58,
   type Pubkey,
 } from "../src/chain/svm/pubkey.js";
+import { RpcError } from "../src/chain/svm/rpc.js";
 import type { AccountInfo, Commitment, SvmRpc, TransactionMeta } from "../src/chain/svm/rpc.js";
 import type { Message } from "../src/chain/svm/transaction.js";
 
@@ -165,14 +166,89 @@ function concat(parts: readonly Uint8Array[]): Uint8Array {
   return out;
 }
 
-/** The inverse of `serializeMessage`, so the fake reads what the relayer really signed. */
-export function decodeTransaction(bytes: Uint8Array): {
+/** The address lookup table program. */
+export const FAKE_ALT_PROGRAM = "AddressLookupTab1e1111111111111111111111111";
+
+/** One table lookup of a v0 message, as the bytes carry it. */
+export interface FakeLookup {
+  readonly table: Pubkey;
+  readonly writable: number[];
+  readonly readonly: number[];
+}
+
+/** A table the fake cannot use. `name` is the `TransactionError` the cluster would give. */
+export class FakeLookupError extends Error {
+  constructor(readonly code: string) {
+    super(code);
+    this.name = "FakeLookupError";
+  }
+}
+
+/**
+ * A lookup table account in the layout of the address lookup table program, written here from
+ * its documented layout and not from the api's parser: u32 type 1, u64 deactivation slot, u64
+ * last extended slot, u8 start index, `Option<Pubkey>` authority, u16 padding, then the
+ * addresses from byte 56.
+ */
+export function encodeLookupTable(t: {
+  readonly addresses: readonly Pubkey[];
+  readonly authority?: Pubkey | null;
+  readonly deactivationSlot?: bigint;
+  readonly lastExtendedSlot?: bigint;
+}): Uint8Array {
+  const data = new Uint8Array(56 + 32 * t.addresses.length);
+  const view = new DataView(data.buffer);
+  view.setUint32(0, 1, true);
+  view.setBigUint64(4, t.deactivationSlot ?? 0xffff_ffff_ffff_ffffn, true);
+  view.setBigUint64(12, t.lastExtendedSlot ?? 1n, true);
+  data[20] = 0;
+  const authority = t.authority ?? null;
+  if (authority !== null) {
+    data[21] = 1;
+    data.set(authority, 22);
+  }
+  t.addresses.forEach((a, i) => data.set(a, 56 + 32 * i));
+  return data;
+}
+
+/** The addresses of a table account in that layout, or a `FakeLookupError`. */
+function lookupAddresses(account: Account | undefined): Pubkey[] {
+  if (account === undefined) throw new FakeLookupError("AddressLookupTableNotFound");
+  if (pubkeyToBase58(account.owner) !== FAKE_ALT_PROGRAM) {
+    throw new FakeLookupError("InvalidAddressLookupTableOwner");
+  }
+  const d = account.data;
+  if (d.length < 56 || (d.length - 56) % 32 !== 0 || d[0] !== 1) {
+    throw new FakeLookupError("InvalidAddressLookupTableData");
+  }
+  return Array.from({ length: (d.length - 56) / 32 }, (_, i) => d.slice(56 + 32 * i, 88 + 32 * i));
+}
+
+/**
+ * The inverse of `serializeMessage`, so the fake reads what the relayer really signed. A v0
+ * message (first byte `0x80`) has its lookups read too; with `resolve`, `accountKeys` is the
+ * static keys, then the loaded writable, then the loaded readonly, the order the runtime uses.
+ * Without it, only the static keys.
+ */
+export function decodeTransaction(
+  bytes: Uint8Array,
+  resolve?: (table: Pubkey) => Pubkey[],
+): {
   signatures: Uint8Array[];
   message: Message;
+  version: "legacy" | 0;
+  staticKeys: Pubkey[];
+  lookups: FakeLookup[];
 } {
   const c = new Cursor(bytes);
   const sigCount = c.shortvec();
   const signatures = Array.from({ length: sigCount }, () => c.take(64));
+  const first = bytes[c.offset] as number;
+  const version: "legacy" | 0 = (first & 0x80) !== 0 ? 0 : "legacy";
+  if (version === 0) {
+    if (first !== 0x80) throw new Error(`unknown message version ${String(first & 0x7f)}`);
+    c.u8();
+  }
   const header = {
     numRequiredSignatures: c.u8(),
     numReadonlySigned: c.u8(),
@@ -190,8 +266,40 @@ export function decodeTransaction(bytes: Uint8Array): {
     const data = c.take(dataLength);
     return { programIdIndex, accountIndexes, data };
   });
+  const lookups: FakeLookup[] = [];
+  if (version === 0) {
+    const count = c.shortvec();
+    for (let i = 0; i < count; i += 1) {
+      const table = c.take(32);
+      const writable = [...c.take(c.shortvec())];
+      const readonly = [...c.take(c.shortvec())];
+      lookups.push({ table, writable, readonly });
+    }
+  }
   if (c.offset !== bytes.length) throw new Error("trailing bytes in transaction");
-  return { signatures, message: { header, accountKeys, recentBlockhash, instructions } };
+  const staticKeys = accountKeys;
+  let keys = staticKeys;
+  if (resolve !== undefined && lookups.length > 0) {
+    const pick = (list: Pubkey[], indexes: number[]) =>
+      indexes.map((i) => {
+        const key = list[i];
+        if (key === undefined) throw new FakeLookupError("InvalidAddressLookupTableIndex");
+        return key;
+      });
+    const tables = lookups.map((l) => resolve(l.table));
+    keys = [
+      ...staticKeys,
+      ...lookups.flatMap((l, i) => pick(tables[i] as Pubkey[], l.writable)),
+      ...lookups.flatMap((l, i) => pick(tables[i] as Pubkey[], l.readonly)),
+    ];
+  }
+  return {
+    signatures,
+    message: { header, accountKeys: keys, recentBlockhash, instructions },
+    version,
+    staticKeys,
+    lookups,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -629,7 +737,27 @@ export class FakeSvm {
    * every write back, and the fee is still paid.
    */
   run(bytes: Uint8Array): TransactionMeta {
-    const { signatures, message } = decodeTransaction(bytes);
+    let decoded: ReturnType<typeof decodeTransaction>;
+    try {
+      decoded = decodeTransaction(bytes, (table) =>
+        lookupAddresses(this.accounts.get(pubkeyToBase58(table))),
+      );
+    } catch (error) {
+      if (!(error instanceof FakeLookupError)) throw error;
+      // The table cannot be loaded: the transaction never runs and pays nothing.
+      return {
+        slot: this.blockHeight,
+        blockTime: Number(this.clock),
+        fee: 0n,
+        err: error.code,
+        logMessages: [],
+        computeUnitsConsumed: 0,
+        preBalances: [],
+        postBalances: [],
+        accountKeys: [],
+      };
+    }
+    const { signatures, message } = decoded;
     const payer = message.accountKeys[0] as Pubkey;
     const logs: string[] = [];
     const before = this.snapshot();
@@ -1283,10 +1411,32 @@ export interface FakeSvmRpcOptions {
   readonly failSend?: () => never;
   /** Report every sent transaction as never confirmed, so the relayer sees it expire. */
   readonly neverConfirm?: boolean;
+  /**
+   * The first `dropSends` sends are lost on the way: recorded in `svm.sent`, never run, never
+   * found. The chain moves on, so each one expires.
+   */
+  readonly dropSends?: number;
+  /** These sends, counted from 1, are lost the same way. */
+  readonly loseSends?: readonly number[];
+  /** Each send runs, but its status is found only once its blockhash has expired. */
+  readonly landLate?: boolean;
+  /** Each call in order: `send`, `status`, `height:<commitment>`. */
+  readonly log?: string[];
+  /** Called inside each `sendTransaction`, with the count of sends so far. */
+  readonly onSend?: (count: number) => void;
+  /**
+   * A table that cannot be loaded makes `simulateTransaction` throw an `RpcError`, the way a
+   * node answers a transaction it cannot sanitize, in place of an `err` in the result.
+   */
+  readonly lookupErrorAsRpc?: boolean;
+  /** Each `getMultipleAccounts` call, in order. */
+  readonly onMultiple?: (keys: readonly Pubkey[]) => void;
 }
 
 export function createFakeSvmRpc(svm: FakeSvm, options: FakeSvmRpcOptions = {}): SvmRpc {
   const clockId = "SysvarC1ock11111111111111111111111111111111";
+  /** The block height each landed send was made at, for `landLate`. */
+  const sentAtHeight = new Map<string, number>();
   const info = (key: Pubkey, commitment?: Commitment): AccountInfo | null => {
     // The Clock sysvar, 40 bytes, `unix_timestamp` at 32: the cluster's own time, `svm.clock`.
     if (pubkeyToBase58(key) === clockId) {
@@ -1314,8 +1464,10 @@ export function createFakeSvmRpc(svm: FakeSvm, options: FakeSvmRpcOptions = {}):
   };
   return {
     getAccountInfo: (key, commitment) => Promise.resolve(info(key, commitment)),
-    getMultipleAccounts: (keys, commitment) =>
-      Promise.resolve(keys.map((key) => info(key, commitment))),
+    getMultipleAccounts: (keys, commitment) => {
+      options.onMultiple?.(keys);
+      return Promise.resolve(keys.map((key) => info(key, commitment)));
+    },
     getBalance: (key) => Promise.resolve(svm.lamportsOf(key)),
     getMinimumBalanceForRentExemption: (bytes) => Promise.resolve(rentFor(bytes)),
     getLatestBlockhash: () =>
@@ -1323,7 +1475,10 @@ export function createFakeSvmRpc(svm: FakeSvm, options: FakeSvmRpcOptions = {}):
         blockhash: new Uint8Array(32).map((_, i) => (svm.blockHeight + i) & 0xff),
         lastValidBlockHeight: svm.blockHeight + 150,
       }),
-    getBlockHeight: () => Promise.resolve(svm.blockHeight),
+    getBlockHeight: (commitment) => {
+      options.log?.push(`height:${commitment}`);
+      return Promise.resolve(svm.blockHeight);
+    },
     simulateTransaction: (tx) => {
       const before = svm.snapshot();
       const height = svm.blockHeight;
@@ -1335,6 +1490,11 @@ export function createFakeSvmRpc(svm: FakeSvm, options: FakeSvmRpcOptions = {}):
       svm.restore(before);
       svm.blockHeight = height;
       svm.executed.length = executedBefore;
+      if (options.lookupErrorAsRpc === true && typeof meta.err === "string") {
+        return Promise.reject(
+          new RpcError("simulateTransaction", -32602, `invalid transaction: ${meta.err}`),
+        );
+      }
       return Promise.resolve({
         err: meta.err,
         logs: meta.logMessages,
@@ -1346,6 +1506,14 @@ export function createFakeSvmRpc(svm: FakeSvm, options: FakeSvmRpcOptions = {}):
       const { signatures } = decodeTransaction(tx);
       const signature = pubkeyToBase58(signatures[0] as Uint8Array);
       svm.sent.push(new Uint8Array(tx));
+      options.log?.push("send");
+      options.onSend?.(svm.sent.length);
+      if (
+        svm.sent.length <= (options.dropSends ?? 0) ||
+        options.loseSends?.includes(svm.sent.length) === true
+      )
+        return Promise.resolve(signature);
+      sentAtHeight.set(signature, svm.blockHeight);
       const meta = svm.run(tx);
       svm.transactions.set(signature, meta);
       return Promise.resolve(signature);
@@ -1353,8 +1521,12 @@ export function createFakeSvmRpc(svm: FakeSvm, options: FakeSvmRpcOptions = {}):
     getSignatureStatuses: (signatures) =>
       Promise.resolve(
         signatures.map((signature) => {
+          options.log?.push("status");
           const meta = svm.transactions.get(signature);
-          if (meta === undefined || options.neverConfirm === true) {
+          const sentAt = sentAtHeight.get(signature);
+          const hidden =
+            options.landLate === true && sentAt !== undefined && svm.blockHeight <= sentAt + 150;
+          if (meta === undefined || options.neverConfirm === true || hidden) {
             // An unconfirmed transaction still moves the chain along, so an expiry can be seen.
             svm.blockHeight += 100;
             return null;

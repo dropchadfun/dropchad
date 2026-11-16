@@ -68,8 +68,22 @@ describe("isServedEvmChain, a V7 only chain", () => {
     expect(isServedEvmChain(ALONE_RAW)).toBe(true);
   });
 
-  it("mainnet as recorded today, nothing deployed: not served", () => {
-    expect(isServedEvmChain(MAINNET)).toBe(false);
+  it("mainnet as recorded since, the V7 set alone: served", () => {
+    expect(isServedEvmChain(MAINNET)).toBe(true);
+  });
+
+  it("mainnet without the V7 record, nothing deployed: not served", () => {
+    const before: Chain = {
+      ...MAINNET,
+      contracts: {
+        ...MAINNET.contracts,
+        factoryV7: null,
+        implementationV7: null,
+        binderRegistryV2: null,
+        deployBlockV7: null,
+      },
+    };
+    expect(isServedEvmChain(before)).toBe(false);
   });
 });
 

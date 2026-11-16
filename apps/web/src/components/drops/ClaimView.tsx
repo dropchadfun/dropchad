@@ -17,6 +17,7 @@ import {
   pasteHint,
   pausedLine,
   rowAction,
+  RETRYING_LINE,
   SENDING_PREFIX,
   type ClaimItem,
   type ClaimStep,
@@ -441,7 +442,11 @@ function Detail({
           ) : screen === "sending" ? (
             <p className="type-body flex items-center gap-2">
               <span className="live-dot size-2 rounded-full bg-chad-accent" aria-hidden="true" />
-              <ClaimAddress prefix={SENDING_PREFIX} address={item.recipient ?? ""} />
+              {item.retrying === true ? (
+                <span>{RETRYING_LINE}</span>
+              ) : (
+                <ClaimAddress prefix={SENDING_PREFIX} address={item.recipient ?? ""} />
+              )}
             </p>
           ) : screen === "paid" ? (
             <div className="flex flex-col gap-3">

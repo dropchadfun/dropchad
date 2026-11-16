@@ -20,19 +20,19 @@ import {
 
 import { Section } from "@/components/site/Section";
 import type { ChainInfo } from "@/lib/api";
-import { chainPills, type ChainPill } from "@/lib/chains";
+import { TESTNET_ONLY, chainPills, liveMainnetKeys, type ChainPill } from "@/lib/chains";
 
 import {
-  CAN,
   CLAIM_STEPS,
-  FAQ,
-  HOW_CHAINS,
   NEXT,
   SAFE_LINES,
-  SEND_STEPS,
   TESTED_LINE,
   WHY_GROUPS,
+  canCards,
+  faqFor,
   feeLines,
+  howChains,
+  sendSteps,
   tokenTierNote,
 } from "./how";
 
@@ -42,8 +42,20 @@ import {
  * dropchad in a card, what you can do (drop, token drop, multisend), then the steps, safety, fees,
  * testnet, coming next and the questions. Steps are lucide icons in numbered cards, no
  * screenshots. `chains` is the api's `GET /api/chains`, `null` when it did not answer.
+ * `liveKeys` are the live mainnet chains of the api switch
+ * absent, the chains with no api answer.
  */
-export function HowPage({ chains }: { chains: readonly ChainInfo[] | null }) {
+export function HowPage({
+  chains,
+  liveKeys = liveMainnetKeys(),
+}: {
+  chains: readonly ChainInfo[] | null;
+  liveKeys?: readonly string[];
+}) {
+  const named = howChains(TESTNET_ONLY, liveKeys);
+  const can = canCards(named);
+  const steps = sendSteps(named);
+  const faq = faqFor(named);
   const fees = feeLines(chains);
   const pills = new Map(chainPills().map((pill) => [pill.key, pill]));
   return (
@@ -66,7 +78,7 @@ export function HowPage({ chains }: { chains: readonly ChainInfo[] | null }) {
 
       <Section title="what you can do">
         <ul className="grid gap-2 md:grid-cols-3">
-          {CAN.map((item) => (
+          {can.map((item) => (
             <li key={item.key} data-can={item.key} className="card flex flex-col gap-2 p-4">
               <span className="flex gap-1">
                 {item.chains.length === 0 ? (
@@ -88,7 +100,7 @@ export function HowPage({ chains }: { chains: readonly ChainInfo[] | null }) {
       </Section>
 
       <Section title="how to send">
-        <Steps icons={[Link2, Coins, AtSign, Wallet, Rocket]} steps={SEND_STEPS} />
+        <Steps icons={[Link2, Coins, AtSign, Wallet, Rocket]} steps={steps} />
       </Section>
 
       <Section title="how to claim">
@@ -129,7 +141,7 @@ export function HowPage({ chains }: { chains: readonly ChainInfo[] | null }) {
               ))}
               {fees.tiers.length > 0 ? (
                 <>
-                  <p className="mt-3">{tokenTierNote(HOW_CHAINS)}</p>
+                  <p className="mt-3">{tokenTierNote(named)}</p>
                   <ul className="mt-1 text-chad-text-dim">
                     {fees.tiers.map((line) => (
                       <li key={line} className="tabular-nums">
@@ -161,7 +173,7 @@ export function HowPage({ chains }: { chains: readonly ChainInfo[] | null }) {
 
       <Section title="questions">
         <dl data-faq="" className="space-y-6">
-          {FAQ.map((item) => (
+          {faq.map((item) => (
             <div key={item.q}>
               <dt className="type-body font-semibold">{item.q}</dt>
               <dd className="mt-2">

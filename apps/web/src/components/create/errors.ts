@@ -56,6 +56,8 @@ export function explain(
       return "the relayer spent its gas for today. try after midnight utc.";
     case "gas_cap_exceeded":
       return "gas is too high right now. try again in a while.";
+    case "create_expired":
+      return "solana is busy right now. the drop was not made. try again in a minute.";
     case "create_reverted":
       return "the chain refused the drop. nothing was sent. try again.";
     case "indexer_unavailable":

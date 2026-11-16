@@ -251,6 +251,21 @@ export function createClaimRoutes(): Hono<AppEnv> {
           const sender = senders.get(row.sender);
           // A token leaf is in its token.
           const unit = unitOfDrop(row, unitOf(row.chainKey));
+          const state = claimState({
+            binding: binding?.state ?? null,
+            signatureSent: binding?.signatureSentAt != null,
+            status: onChain.status,
+            claimDeadline: onChain.claimDeadline,
+            nowSeconds,
+            handleModeOn: await modeOf(row.chainKey),
+            ...(binding?.state === "failed"
+              ? await v2Facts(row.chainKey, row.address, binding.validUntil ?? null)
+              : {}),
+          });
+          // A sending claim between two attempts of a new send says so.
+          const retrying =
+            state === "sending" &&
+            writeSides?.get(row.chainKey)?.isRetrying?.(row.address, row.index) === true;
           return {
             drop: isEvmAddressText(row.address) ? getAddress(row.address) : row.address,
             chainKey: row.chainKey,
@@ -272,17 +287,8 @@ export function createClaimRoutes(): Hono<AppEnv> {
             token: tokenInfoOf(row),
             index: row.index,
             claimDeadline: onChain.claimDeadline > 0n ? onChain.claimDeadline.toString() : null,
-            state: claimState({
-              binding: binding?.state ?? null,
-              signatureSent: binding?.signatureSentAt != null,
-              status: onChain.status,
-              claimDeadline: onChain.claimDeadline,
-              nowSeconds,
-              handleModeOn: await modeOf(row.chainKey),
-              ...(binding?.state === "failed"
-                ? await v2Facts(row.chainKey, row.address, binding.validUntil ?? null)
-                : {}),
-            }),
+            state,
+            ...(retrying ? { retrying: true } : {}),
             // The receiver's own choice. Never the binder signature, never the raw error.
             recipient: binding?.recipient ?? null,
             claimTxHash: binding?.claimTxHash ?? null,

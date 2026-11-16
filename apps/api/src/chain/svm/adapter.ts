@@ -530,6 +530,7 @@ export function createSvmAdapter(options: SvmAdapterOptions): ChainAdapter {
      */
     /** One version for the whole cluster: the program takes only one. */
     bindingVersionOf: () => Promise.resolve(options.bindingV2 === true ? 2 : 1),
+    isRetrying: (drop, index) => relayer.isRetrying(drop, index),
 
     /** The `Clock` sysvar, the chain's own time. */
     async chainTime() {

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 
-import { BETA_SECTIONS, InLink, TrustPage } from "@/components/site/TrustPage";
-import { TESTNET_ONLY } from "@/lib/chains";
+import { betaSections, InLink, TrustPage } from "@/components/site/TrustPage";
+import { dropCapWords } from "@/lib/beta";
+import { TESTNET_ONLY, liveMainnetKeys } from "@/lib/chains";
+import { readLiveChains } from "@/lib/live-chains";
 import { NAME_WARNING } from "@/lib/social";
 
 export const metadata: Metadata = {
@@ -12,7 +14,9 @@ export const metadata: Metadata = {
 };
 
 /** `/terms`. Short and plain. */
-export default function Page() {
+export default async function Page() {
+  // The caps of the live chains, from the api switch.
+  const capWords = dropCapWords(liveMainnetKeys(undefined, await readLiveChains()));
   return (
     <TrustPage
       title="terms"
@@ -29,7 +33,7 @@ export default function Page() {
                 ],
               },
             ]
-          : BETA_SECTIONS),
+          : betaSections(capWords)),
         {
           title: "on chain is final",
           lines: [

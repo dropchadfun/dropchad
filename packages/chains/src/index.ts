@@ -218,6 +218,10 @@ function parseChain(raw: unknown, position: number): Chain {
       deployBlock: nullableInt(contracts, "deployBlock", where),
       program: nullableString(contracts, "program", where),
       deploySlot: nullableInt(contracts, "deploySlot", where),
+      lookupTable:
+        contracts["lookupTable"] === undefined
+          ? null
+          : nullableString(contracts, "lookupTable", where),
       factoryV2: nullableString(contracts, "factoryV2", where),
       implementationV2: nullableString(contracts, "implementationV2", where),
       binderRegistry: nullableString(contracts, "binderRegistry", where),
@@ -251,6 +255,9 @@ function parseChain(raw: unknown, position: number): Chain {
   }
   if (chain.family !== "svm" && chain.contracts.program !== null) {
     throw new ChainRegistryError(`${where}: only an svm chain has a program`);
+  }
+  if (chain.family !== "svm" && (chain.contracts.lookupTable ?? null) !== null) {
+    throw new ChainRegistryError(`${where}: only an svm chain has a lookup table`);
   }
   if (chain.family === "svm" && chain.contracts.factory !== null) {
     throw new ChainRegistryError(`${where}: an svm chain has no factory`);

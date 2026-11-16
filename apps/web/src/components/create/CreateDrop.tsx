@@ -20,6 +20,7 @@ import {
   type AmountCheck,
 } from "@/components/create/amount-check";
 import { BetaNotice, BetaTick } from "@/components/create/BetaLines";
+import { PausedLines } from "@/components/create/PausedLines";
 import { devPreviewEnabled, samplePreview, submitAllowed } from "@/components/create/dev-preview";
 import { errorTone, explain } from "@/components/create/errors";
 import {
@@ -72,6 +73,7 @@ import { afterCreatePath } from "@/lib/drop-path";
 import { formatAmount, formatCount } from "@/lib/format";
 import { isClosedTestnet } from "@/lib/pause";
 import { cn } from "@/lib/utils";
+import { CREATE_WAIT_MS, createWaitLine } from "@/components/create/wait-line";
 
 /**
  * Make a drop, or a multisend. Three steps: one tap from the front page, nothing
@@ -106,10 +108,13 @@ import { cn } from "@/lib/utils";
 export function CreateDrop({
   pills,
   initialMode = "drop",
+  betaNotice,
 }: {
   pills: readonly ChainPill[];
   /** `?mode=multisend` from the front page link; `drop` otherwise. */
   initialMode?: CreateMode;
+  /** The beta notice for the live chains; absent, the notice with no api answer. */
+  betaNotice?: string;
 }) {
   const router = useRouter();
   const { profile } = useSession();
@@ -118,6 +123,8 @@ export function CreateDrop({
     initialForm(start, initialMode, !TESTNET_ONLY),
   );
   const [busy, setBusy] = useState(false);
+  /** How long the create has waited, `0` while it is short or not running. */
+  const [waitedMs, setWaitedMs] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState<CreatedDrop | null>(null);
   /**
@@ -391,6 +398,8 @@ export function CreateDrop({
     }
     setBusy(true);
     setError(null);
+    setWaitedMs(0);
+    const waiting = setTimeout(() => setWaitedMs(CREATE_WAIT_MS), CREATE_WAIT_MS);
     const sentTitle = titleForSubmit(form);
     const sentGif = gifForSubmit(form);
     const common = {
@@ -430,6 +439,8 @@ export function CreateDrop({
         explain(caught, { decimals, token: view.tokenChosen, coin, closedTestnet: testnetClosed }),
       );
     } finally {
+      clearTimeout(waiting);
+      setWaitedMs(0);
       setBusy(false);
     }
   };
@@ -483,6 +494,8 @@ export function CreateDrop({
             onChange={(key) => dispatch({ type: "chain", key })}
             allowAll={false}
           />
+          {/* A chain the api lists with new drops off. */}
+          <PausedLines pills={pills} />
           {view.createsOff ? null : (
             <>
               {view.tokenBox ? (
@@ -525,7 +538,7 @@ export function CreateDrop({
               amountCheck.code === "drop_too_big" ? (
                 <p className="type-small mt-2 text-chad-error">{amountCheck.message}</p>
               ) : null}
-              <BetaNotice show={!TESTNET_ONLY} />
+              <BetaNotice show={!TESTNET_ONLY} text={betaNotice} />
               {(drop ? handles.duplicates : parsed.duplicates) > 0 ? (
                 <p className="type-small mt-2 text-chad-text-dim">
                   {drop
@@ -739,6 +752,9 @@ export function CreateDrop({
                   : "send it"}
             </Primary>
           </div>
+          {busy && createWaitLine(waitedMs) !== null ? (
+            <p className="type-body mt-3 text-chad-text-dim">{createWaitLine(waitedMs)}</p>
+          ) : null}
         </section>
       ) : null}
 

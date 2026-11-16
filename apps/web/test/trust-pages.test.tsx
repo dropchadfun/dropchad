@@ -8,7 +8,7 @@ import { join } from "node:path";
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
@@ -16,6 +16,11 @@ import { ClaimView } from "@/components/drops/ClaimView";
 import { CLAIM_RISK_LINE, NO_SEED_LINE } from "@/components/drops/claim";
 import { Footer } from "@/components/site/Footer";
 import { CONTACT_EMAIL } from "@/lib/social";
+
+// no api in a test, so the live view is the one with no answer.
+vi.mock("@/lib/live-chains", () => ({
+  readLiveChains: () => Promise.resolve({ listed: new Set(), paused: new Set() }),
+}));
 
 const WEB = join(__dirname, "..");
 const PUBLIC_REPO = "https://github.com/dropchadfun/dropchad";
@@ -30,7 +35,7 @@ const NAME_WARNING =
 const literal = (line: string): string => line.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 interface PageModule {
-  default: () => ReactElement;
+  default: () => ReactElement | Promise<ReactElement>;
   metadata: Metadata;
 }
 
@@ -44,7 +49,13 @@ const modules: Record<PageName, PageModule> = {
   contact: await import("@/app/contact/page"),
 };
 
-const html = (name: PageName): string => renderToStaticMarkup(modules[name].default());
+/** `/about` and `/terms` are async since: each page is rendered once, here. */
+const rendered = Object.fromEntries(
+  await Promise.all(
+    PAGES.map(async (name) => [name, renderToStaticMarkup(await modules[name].default())]),
+  ),
+) as Record<PageName, string>;
+const html = (name: PageName): string => rendered[name];
 /** The visible words only, tags out and spaces folded, so a sentence split by a tag still reads. */
 const words = (name: PageName): string =>
   html(name)
@@ -65,8 +76,8 @@ describe("the four pages, what they all share", () => {
       const text = words(name)
         .replace(NAME_WARNING, "")
         // The `tokens` line names USDC, USDT and USDG by their tickers.
-        // A mainnet build shows the caps: SOL and USD1 keep their tickers too.
-        .replace(/Crypto World's Fair|\bDMs?\b|\b2FA\b|\bUSD[CTG1]\b|\bSOL\b/g, "")
+        // A mainnet build shows the caps: SOL, ETH and USD1 keep their tickers too.
+        .replace(/Crypto World's Fair|\bDMs?\b|\b2FA\b|\bUSD[CTG1]\b|\bSOL\b|\bETH\b/g, "")
         .replace(`built by ${BUILDER} .`, "");
       expect(text.replace(/\bX\b/g, "")).toBe(text.replace(/\bX\b/g, "").toLowerCase());
       const description = String(modules[name].metadata.description).replace(/\bX\b/g, "");

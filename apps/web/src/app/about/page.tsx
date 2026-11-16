@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 
-import { BETA_SECTIONS, OutLink, TrustPage } from "@/components/site/TrustPage";
-import { TESTNET_ONLY } from "@/lib/chains";
+import { betaSections, OutLink, TrustPage } from "@/components/site/TrustPage";
+import { dropCapWords } from "@/lib/beta";
+import { TESTNET_ONLY, liveMainnetKeys } from "@/lib/chains";
+import { readLiveChains } from "@/lib/live-chains";
 import { HACKATHON_URL } from "@/lib/hackathon";
 import { githubUrl } from "@/lib/social";
 
@@ -15,7 +17,9 @@ export const metadata: Metadata = {
 /**
  * `/about`. The only person's name on it is the builder's own line.
  */
-export default function Page() {
+export default async function Page() {
+  // The caps of the live chains, from the api switch.
+  const capWords = dropCapWords(liveMainnetKeys(undefined, await readLiveChains()));
   return (
     <TrustPage
       title="about dropchad"
@@ -44,7 +48,7 @@ export default function Page() {
                 ],
               },
             ]
-          : BETA_SECTIONS),
+          : betaSections(capWords)),
         {
           title: "no token",
           lines: [

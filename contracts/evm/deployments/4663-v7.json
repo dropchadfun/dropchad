@@ -1,0 +1,23 @@
+{
+  "allowedCreator": "0xb2FBA2B3c804dEd12Edc4b46473baf228cfF9769",
+  "allowedTokens": [
+    "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168"
+  ],
+  "binder": "0xF6585eB9972151483A0132d38a9fBF75723EBfbe",
+  "block": 114358527,
+  "chainId": 4663,
+  "defaultFeeBps": 100,
+  "deployer": "0xAE982ab083a77ee690aDe956264E3a89CC0Aeeb4",
+  "factory": "0x6988AC05CB7cc0e638331CEB9608a728ACf708Af",
+  "feeRecipient": "0xf7c7868c11E768c89B637835Af7738Eef90214FF",
+  "guardian": "0xcEeaB5341afd3078e5526fe31374e59312f61B25",
+  "implementation": "0xa4a5A7284a24eD227D548D54dd854db9D8a8950c",
+  "maxFeeAmount": 20000000000000000,
+  "minFeeAmount": 0,
+  "minFeePerReceiver": 10000000000000,
+  "registry": "0xEd6ff4b9c48C924b222D51208dFA6410dEb155C8",
+  "safe": "0xf7c7868c11E768c89B637835Af7738Eef90214FF",
+  "timelock": "0x8089bc02641DA493EB2e623D7Cde885C64a93427",
+  "timelockDelay": 172800,
+  "timestamp": 1794680694
+}

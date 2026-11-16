@@ -13,7 +13,13 @@
  * unclaimed money goes back by itself, and `cancelUnfunded` since, so money sent to
  * a drop that was never fully funded goes back too.
  */
-import { explorerTxUrl, hasHandleContracts, hasV6Contracts, type Chain } from "@dropchad/chains";
+import {
+  explorerTxUrl,
+  hasHandleContracts,
+  hasV6Contracts,
+  hasV7Contracts,
+  type Chain,
+} from "@dropchad/chains";
 import { normalizeReceivers, type Receiver } from "@dropchad/shared";
 import {
   formatEther,
@@ -184,7 +190,9 @@ export function createEvmAdapter(options: EvmAdapterOptions): ChainAdapter {
     },
     // False until the V2 set is recorded; from then the gateway is on
     // `DropFactoryV2` too, `evmFactoryFor`.
-    handleModeReady: () => Promise.resolve(hasHandleContracts(chain) || hasV6Contracts(chain)),
+    // V6 alone and V7 alone are ready too.
+    handleModeReady: () =>
+      Promise.resolve(hasHandleContracts(chain) || hasV6Contracts(chain) || hasV7Contracts(chain)),
 
     /**
      * Steps 3 to 5 of the create flow: the salt off chain, `saltUsed` on the factory, and the

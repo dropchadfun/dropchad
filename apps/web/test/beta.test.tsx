@@ -25,13 +25,17 @@ const CAPS_LINES = [
 ];
 
 interface PageModule {
-  default: () => ReactElement;
+  default: () => ReactElement | Promise<ReactElement>;
   metadata: Metadata;
 }
 
 /** The pages and the top bar lockup, loaded with `TESTNET_ONLY` set to `testnetOnly`. */
 async function load(testnetOnly: boolean) {
   vi.resetModules();
+  // no api in a test, so the live view is the one with no answer.
+  vi.doMock("@/lib/live-chains", () => ({
+    readLiveChains: () => Promise.resolve({ listed: new Set(), paused: new Set() }),
+  }));
   vi.doMock("@/lib/chains", async (importOriginal) => ({
     ...(await importOriginal<typeof Chains>()),
     TESTNET_ONLY: testnetOnly,
@@ -72,7 +76,7 @@ describe("testnet, isTestnetOnly() true", () => {
   for (const name of ["terms", "about"] as const) {
     it(`/${name} keeps testnet only, no beta or caps section`, async () => {
       const page = (await load(true))[name];
-      const markup = renderToStaticMarkup(page.default());
+      const markup = renderToStaticMarkup(await page.default());
       expect(titles(markup)).toContain("testnet only");
       expect(titles(markup)).not.toContain("beta");
       expect(titles(markup)).not.toContain("caps per drop");
@@ -110,7 +114,7 @@ describe("mainnet, isTestnetOnly() false", () => {
   for (const name of ["terms", "about"] as const) {
     it(`/${name}: beta and caps per drop in place of testnet only, the exact words`, async () => {
       const page = (await load(false))[name];
-      const markup = renderToStaticMarkup(page.default());
+      const markup = renderToStaticMarkup(await page.default());
       const list = titles(markup);
       expect(list).not.toContain("testnet only");
       expect(list).toContain("beta");

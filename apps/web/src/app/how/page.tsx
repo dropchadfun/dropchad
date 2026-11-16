@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import { HowPage } from "@/components/how/HowPage";
 import { ApiError, getChains, type ChainInfo } from "@/lib/api";
+import { liveMainnetKeys } from "@/lib/chains";
+import { readLiveChains } from "@/lib/live-chains";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "how it works" };
@@ -15,5 +17,7 @@ export default async function Page() {
     if (!(error instanceof ApiError || error instanceof TypeError)) throw error;
     chains = null;
   }
-  return <HowPage chains={chains} />;
+  // The chains `/how` names, from the api switch.
+  const liveKeys = liveMainnetKeys(undefined, await readLiveChains());
+  return <HowPage chains={chains} liveKeys={liveKeys} />;
 }

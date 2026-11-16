@@ -362,7 +362,7 @@ describe("schema matches the SQL", () => {
       title: "gm",
       memeImageUrl: "https://example.invalid/a.png",
       giphyId: "3og0IV5cAmtbkeKPBe",
-      giphyKind: "gif",
+      giphyKind: "gif" as const,
       state: "paying",
       paidCount: 2,
       failedIndexes: [7, 9],

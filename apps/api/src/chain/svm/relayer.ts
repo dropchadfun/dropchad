@@ -19,6 +19,9 @@
  *    layout, directly followed by one `claim_handle`, and the signed message must be the
  *    message for that very claim. An Ed25519 instruction anywhere else is refused, so the relayer
  *    cannot carry any other signature check.
+ *    **:** a token `claim_handle` may go as a v0 transaction with the one lookup table the
+ *    registry names, frozen and checked at start; `checkV0Message` proves before signing that
+ *    every instruction resolves to exactly the accounts it names, with no writable lookup.
  * 2. **The discriminator must be one of the six**, recomputed from the encoded bytes and matched
  *    against the IDL, never trusted from the caller. Every instruction in a transaction must be
  *    the kind the caller named, so a `claim` batch cannot smuggle a `close_drop`.
@@ -67,13 +70,23 @@ import {
 } from "./instructions.js";
 import type { Signer } from "./keypair.js";
 import { configPda, tokenAccountBytes } from "./pda.js";
-import { pubkeyEquals, pubkeyToBase58, type Pubkey } from "./pubkey.js";
-import type { Commitment, SvmRpc, TransactionMeta } from "./rpc.js";
+import { pubkeyEquals, pubkeyFromBase58, pubkeyToBase58, type Pubkey } from "./pubkey.js";
+import {
+  LOOKUP_TABLE_RECHECK_MS,
+  TOKEN_CLAIM_TABLE_ADDRESSES,
+  checkLookupTable,
+} from "./lookup-table.js";
+import { RpcError, type Commitment, type SvmRpc, type TransactionMeta } from "./rpc.js";
 import {
   compileMessage,
+  compileMessageV0,
   signTransaction,
+  signTransactionV0,
   TransactionTooLargeError,
   type Instruction,
+  type LookupTable,
+  type MessageV0,
+  type SignedTransaction,
 } from "./transaction.js";
 
 /** The seven instructions, and nothing else, ever. Adding one is a security change. */
@@ -177,6 +190,8 @@ export interface SvmRelayerOptions {
     readonly maxComputeUnits: number;
     /** Micro lamports per compute unit: zero on devnet. */
     readonly priorityFeeMicroLamports: bigint;
+    /** The cap on the price of any attempt. Unset, every attempt uses the base price. */
+    readonly priorityFeeMaxMicroLamports?: bigint;
   };
   /** Lamports the relayer pays in rent for a `create_drop`: the drop and the bitmap. */
   rentForCreate(): Promise<bigint>;
@@ -193,11 +208,25 @@ export interface SvmRelayerOptions {
   /** The server's unix time for that check. The wall clock by default. */
   readonly nowSeconds?: () => bigint;
   readonly pollMs?: number;
+  /** The registry's lookup table for a token `claim_handle`. Absent: legacy only. */
+  readonly lookupTable?: { readonly address: Pubkey };
+  /** The clock for the read again. `Date.now` by default. */
+  readonly nowMs?: () => number;
+  /** Where the table state goes: `lookup table on <address>` or `lookup table off: <why>`. */
+  readonly log?: (line: string) => void;
 }
+
+/** whether a token `claim_handle` goes v0 with the table, and why not. */
+export type LookupTableState =
+  { readonly on: true } | { readonly on: false; readonly reason: string };
 
 export interface SvmRelayer {
   readonly publicKey: Pubkey;
   readonly address: string;
+  /** True while this claim is in a new send, or waits to be sent again. */
+  isRetrying(drop: string, index: number): boolean;
+  /** The table state, read when unknown, or again after 10 minutes off. */
+  lookupTableState(): Promise<LookupTableState>;
   createDrop(args: {
     drop: Pubkey;
     bitmap: Pubkey;
@@ -230,8 +259,8 @@ export interface SvmRelayer {
     /** `ed25519InstructionData` from `packages/shared`, carrying the stored binding. */
     ed25519Data: Uint8Array;
     /**
-     * A token drop. Its claim carries no compute budget instruction: at depth 9 it only
-     * fits without one, so it runs on the default limit and pays no priority fee.
+     * A token drop. With the table its claim goes v0 with both compute budget
+     * instructions; without it, legacy with none: the default limit and no priority fee.
      */
     token?: DropToken;
   }): Promise<SvmRelayerResult>;
@@ -261,6 +290,9 @@ const defaultSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(r
  * `claim_handle` sends no compute budget instruction, so this is its ceiling.
  */
 export const DEFAULT_INSTRUCTION_COMPUTE_UNITS = 200_000;
+
+/** At most this many sends of one transaction, a fixed number. */
+export const SEND_ATTEMPTS = 3;
 
 /** The one Ed25519 data layout: key at 16, signature at 48, the message at 112. */
 const ED25519_HEADER_BYTES = 16 + 32 + 64;
@@ -343,6 +375,81 @@ export function checkInstructionShape(
   return target;
 }
 
+/** The lookup table errors, as a simulation names them. */
+const LOOKUP_TABLE_ERRORS = new Set([
+  "AddressLookupTableNotFound",
+  "InvalidAddressLookupTableOwner",
+  "InvalidAddressLookupTableData",
+  "InvalidAddressLookupTableIndex",
+]);
+
+/**
+ * A compiled v0 message must use exactly one table, `table`, with read-only
+ * lookups only, and resolve to exactly the accounts the instructions name: every key, in order,
+ * with the signer and writable flags the legacy message would give it. Throws
+ * `RelayerRefusedError`.
+ */
+export function checkV0Message(
+  message: MessageV0,
+  instructions: readonly Instruction[],
+  table: LookupTable,
+): void {
+  const refuse = (why: string): never => {
+    throw new RelayerRefusedError(`refusing to send: v0 message ${why}`);
+  };
+  const [lookup, ...more] = message.lookups;
+  if (lookup === undefined || more.length > 0) return refuse("must use exactly one lookup table");
+  if (!pubkeyEquals(lookup.accountKey, table.address)) refuse("names another lookup table");
+  if (lookup.writableIndexes.length > 0) refuse("has a writable lookup");
+  const loaded = lookup.readonlyIndexes.map(
+    (i) => table.addresses[i] ?? refuse("bad lookup index"),
+  );
+  const keys = [...message.accountKeys, ...loaded];
+  if (new Set(keys.map(pubkeyToBase58)).size !== keys.length) refuse("has a key twice");
+
+  const h = message.header;
+  const statics = message.accountKeys.length;
+  const isSigner = (i: number) => i < h.numRequiredSignatures;
+  const isWritable = (i: number) =>
+    isSigner(i)
+      ? i < h.numRequiredSignatures - h.numReadonlySigned
+      : i < statics - h.numReadonlyUnsigned;
+
+  // What the legacy message would say of each key: the fee payer, then every meta, merged.
+  const want = new Map<string, { signer: boolean; writable: boolean }>();
+  const merge = (key: Pubkey, signer: boolean, writable: boolean) => {
+    const id = pubkeyToBase58(key);
+    const seen = want.get(id) ?? { signer: false, writable: false };
+    want.set(id, { signer: seen.signer || signer, writable: seen.writable || writable });
+  };
+  merge(message.accountKeys[0] ?? refuse("has no fee payer"), true, true);
+  for (const ix of instructions) {
+    for (const meta of ix.keys) merge(meta.pubkey, meta.isSigner, meta.isWritable);
+    merge(ix.programId, false, false);
+  }
+  if (want.size !== keys.length) refuse("names other keys than the instructions");
+  keys.forEach((key, i) => {
+    const flags = want.get(pubkeyToBase58(key)) ?? refuse("names a key the instructions do not");
+    if (flags.signer !== isSigner(i) || flags.writable !== isWritable(i)) {
+      refuse(`gives ${pubkeyToBase58(key)} the wrong signer or writable flag`);
+    }
+  });
+
+  if (message.instructions.length !== instructions.length) refuse("has other instructions");
+  message.instructions.forEach((compiled, n) => {
+    const ix = instructions[n] as Instruction;
+    if (compiled.programIdIndex >= statics) refuse("loads a program from the table");
+    if (!pubkeyEquals(keys[compiled.programIdIndex] as Pubkey, ix.programId)) {
+      refuse(`instruction ${String(n)} has another program`);
+    }
+    const resolved = compiled.accountIndexes.map((index) => keys[index]);
+    const same =
+      resolved.length === ix.keys.length &&
+      resolved.every((key, k) => key !== undefined && pubkeyEquals(key, ix.keys[k]!.pubkey));
+    if (!same) refuse(`instruction ${String(n)} resolves to other accounts`);
+  });
+}
+
 /**
  * The Ed25519 data must be the one fixed layout, and its message the binding message for this
  * claim: the tag, the drop, the index, the X id and the recipient the `claim_handle` names. The
@@ -397,7 +504,64 @@ export function createSvmRelayer(options: SvmRelayerOptions): SvmRelayer {
   const commitment = options.commitment ?? "confirmed";
   const sleep = options.sleep ?? defaultSleep;
   const pollMs = options.pollMs ?? 1_000;
+  /** The claim between two attempts. Sends are serial, so there is one at most. */
+  let retrying: { drop: string; leaf: number } | null = null;
   const config = configPda().address;
+
+  // ---, the lookup table --------------------------------------------------------------
+  const nowMs = options.nowMs ?? (() => Date.now());
+  const log = options.log ?? ((line: string) => console.log(line));
+  const clockSysvar = pubkeyFromBase58("SysvarC1ock11111111111111111111111111111111");
+  let tableState: LookupTableState | null = null;
+  let tableCheckedAt = 0;
+
+  function setTableState(state: LookupTableState, at: number) {
+    const before = tableState;
+    tableState = state;
+    tableCheckedAt = at;
+    const changed =
+      before === null ||
+      before.on !== state.on ||
+      (!before.on && !state.on && before.reason !== state.reason);
+    if (!changed || options.lookupTable === undefined) return;
+    log(
+      state.on
+        ? `lookup table on ${pubkeyToBase58(options.lookupTable.address)}`
+        : `lookup table off: ${state.reason}`,
+    );
+  }
+
+  async function lookupTableState(): Promise<LookupTableState> {
+    const wanted = options.lookupTable;
+    if (wanted === undefined) return { on: false, reason: "not set" };
+    const now = nowMs();
+    if (tableState !== null && (tableState.on || now - tableCheckedAt < LOOKUP_TABLE_RECHECK_MS)) {
+      return tableState;
+    }
+    let state: LookupTableState;
+    try {
+      const [account, clock] = await rpc.getMultipleAccounts(
+        [wanted.address, clockSysvar],
+        commitment,
+      );
+      if (clock === null || clock === undefined || clock.data.length < 8) {
+        throw new Error("no clock");
+      }
+      const slot = new DataView(clock.data.buffer, clock.data.byteOffset, 8).getBigUint64(0, true);
+      const checked = checkLookupTable(account ?? null, slot);
+      state = checked.ok ? { on: true } : { on: false, reason: checked.reason };
+    } catch {
+      state = { on: false, reason: "read failed" };
+    }
+    setTableState(state, now);
+    return state;
+  }
+
+  /** The table for this attempt, or `null` for the legacy transaction. */
+  function tableFor(useTable: boolean): LookupTable | null {
+    if (!useTable || options.lookupTable === undefined || tableState?.on !== true) return null;
+    return { address: options.lookupTable.address, addresses: TOKEN_CLAIM_TABLE_ADDRESSES };
+  }
 
   let queue: Promise<unknown> = Promise.resolve();
   function serial<T>(task: () => Promise<T>): Promise<T> {
@@ -457,23 +621,105 @@ export function createSvmRelayer(options: SvmRelayerOptions): SvmRelayer {
      * runtime default is the limit and there is no priority fee.
      */
     computeBudget = true,
+    /** The leaf of a `claim_handle`, so a claim between two attempts can say so. */
+    leaf?: number,
   ): Promise<SvmRelayerResult> {
     await guard(kind, instructions, drop);
+    // only a token `claim_handle`, the one send that carries no compute budget otherwise.
+    const useTable = kind === "claim_handle" && !computeBudget && options.lookupTable !== undefined;
+    if (useTable) await lookupTableState();
 
     return serial(async () => {
+      const maxPrice = caps.priorityFeeMaxMicroLamports ?? caps.priorityFeeMicroLamports;
+      try {
+        for (let attempt = 1; ; attempt += 1) {
+          // The base price, doubled each attempt, never above the cap.
+          let price = caps.priorityFeeMicroLamports;
+          for (let i = 1; i < attempt; i += 1) price *= 2n;
+          if (price > maxPrice) price = maxPrice;
+          if (attempt > 1 && drop !== null && leaf !== undefined) {
+            retrying = { drop: pubkeyToBase58(drop), leaf };
+          }
+          try {
+            const table = tableFor(useTable);
+            return await sendOnce(
+              kind,
+              instructions,
+              drop,
+              extraRent,
+              table === null ? computeBudget : true,
+              price,
+              table,
+            );
+          } catch (error) {
+            // Only an expiry is sent again, and only while attempts are left.
+            if (!(error instanceof TransactionExpiredError) || attempt >= SEND_ATTEMPTS)
+              throw error;
+          }
+        }
+      } finally {
+        retrying = null;
+      }
+    });
+  }
+
+  /** One attempt: a new blockhash, a new simulation, the budget, the send and the wait. */
+  async function sendOnce(
+    kind: SvmRelayerKind,
+    instructions: readonly Instruction[],
+    drop: Pubkey | null,
+    extraRent: bigint,
+    computeBudget: boolean,
+    price: bigint,
+    /** The table for a v0 token `claim_handle`, `null` for the legacy transaction. */
+    table: LookupTable | null = null,
+  ): Promise<SvmRelayerResult> {
+    /** Compile, guard a v0 message, sign. */
+    const build = async (
+      recentBlockhash: Uint8Array,
+      all: readonly Instruction[],
+    ): Promise<SignedTransaction> => {
+      if (table === null) {
+        return signTransaction(
+          compileMessage({ feePayer: signer.publicKey, recentBlockhash, instructions: all }),
+          [signer],
+        );
+      }
+      const message = compileMessageV0({
+        feePayer: signer.publicKey,
+        recentBlockhash,
+        instructions: all,
+        table,
+      });
+      checkV0Message(message, all, table);
+      return signTransactionV0(message, [signer]);
+    };
+    /** The table off, and this same attempt again as legacy with no budget. */
+    const fallBack = (reason: string) => {
+      setTableState({ on: false, reason }, nowMs());
+      return sendOnce(kind, instructions, drop, extraRent, false, price, null);
+    };
+    {
       // --- guard 4a: simulate. A transaction that would fail is never signed for real. ---------
       const blockhash = await rpc.getLatestBlockhash(commitment);
-      const draft = await signTransaction(
-        compileMessage({
-          feePayer: signer.publicKey,
-          recentBlockhash: blockhash.blockhash,
-          instructions: computeBudget
-            ? [setComputeUnitLimit(caps.maxComputeUnits), ...instructions]
-            : instructions,
-        }),
-        [signer],
+      const draft = await build(
+        blockhash.blockhash,
+        computeBudget ? [setComputeUnitLimit(caps.maxComputeUnits), ...instructions] : instructions,
       );
-      const simulation = await rpc.simulateTransaction(draft.bytes, commitment);
+      let simulation;
+      try {
+        simulation = await rpc.simulateTransaction(draft.bytes, commitment);
+      } catch (error) {
+        if (table !== null && error instanceof RpcError) return fallBack("simulation rpc error");
+        throw error;
+      }
+      if (
+        table !== null &&
+        typeof simulation.err === "string" &&
+        LOOKUP_TABLE_ERRORS.has(simulation.err)
+      ) {
+        return fallBack(simulation.err);
+      }
       if (simulation.err !== null) {
         throw new SimulationFailedError(kind, programErrorName(simulation.err), simulation.logs);
       }
@@ -490,30 +736,21 @@ export function createSvmRelayer(options: SvmRelayerOptions): SvmRelayer {
         : DEFAULT_INSTRUCTION_COMPUTE_UNITS;
 
       // --- guard 4c: charge the worst case to the day's budget before sending -----------------
-      const priority = computeBudget
-        ? (BigInt(unitLimit) * caps.priorityFeeMicroLamports + 999_999n) / 1_000_000n
-        : 0n;
+      const priority = computeBudget ? (BigInt(unitLimit) * price + 999_999n) / 1_000_000n : 0n;
       const rent = kind === "create_drop" ? (await options.rentForCreate()) + extraRent : 0n;
       const reserved = LAMPORTS_PER_SIGNATURE + priority + rent;
       await budget.reserve(reserved);
 
       const budgetIxs = !computeBudget
         ? []
-        : caps.priorityFeeMicroLamports > 0n
-          ? [setComputeUnitLimit(unitLimit), setComputeUnitPrice(caps.priorityFeeMicroLamports)]
+        : price > 0n
+          ? [setComputeUnitLimit(unitLimit), setComputeUnitPrice(price)]
           : [setComputeUnitLimit(unitLimit)];
 
       let tx;
       let signature: string;
       try {
-        tx = await signTransaction(
-          compileMessage({
-            feePayer: signer.publicKey,
-            recentBlockhash: blockhash.blockhash,
-            instructions: [...budgetIxs, ...instructions],
-          }),
-          [signer],
-        );
+        tx = await build(blockhash.blockhash, [...budgetIxs, ...instructions]);
         signature = await rpc.sendTransaction(tx.bytes, commitment);
       } catch (error) {
         await budget.settle(reserved, 0n);
@@ -536,23 +773,36 @@ export function createSvmRelayer(options: SvmRelayerOptions): SvmRelayer {
       });
 
       // --- confirm: poll until confirmed, or until the blockhash can no longer be included -----
-      let meta: TransactionMeta;
-      for (;;) {
+      const landed = async (): Promise<TransactionMeta | null> => {
         const [status] = await rpc.getSignatureStatuses([signature]);
         const level = status?.confirmationStatus ?? null;
         const reached =
           level === "finalized" ||
           (level === "confirmed" && commitment !== "finalized") ||
           (level === "processed" && commitment === "processed");
-        if (status !== null && status !== undefined && (reached || status.err !== null)) {
-          const fetched = await rpc.getTransaction(signature, commitment);
-          if (fetched !== null) {
-            meta = fetched;
-            break;
-          }
+        if (status === null || status === undefined || !(reached || status.err !== null)) {
+          return null;
+        }
+        return rpc.getTransaction(signature, commitment);
+      };
+      let meta: TransactionMeta;
+      for (;;) {
+        const seen = await landed();
+        if (seen !== null) {
+          meta = seen;
+          break;
         }
         const height = await rpc.getBlockHeight(commitment);
         if (height > blockhash.lastValidBlockHeight) {
+          // Past its expiry at `finalized` it can never land; then one last read.
+          while ((await rpc.getBlockHeight("finalized")) <= blockhash.lastValidBlockHeight) {
+            await sleep(pollMs);
+          }
+          const late = await landed();
+          if (late !== null) {
+            meta = late;
+            break;
+          }
           await budget.settle(reserved, 0n);
           const message = `expired before confirmation`;
           await options.recorder?.onFailed({ signature, error: message });
@@ -580,7 +830,7 @@ export function createSvmRelayer(options: SvmRelayerOptions): SvmRelayer {
       }
       await options.recorder?.onConfirmed({ signature, result });
       return result;
-    });
+    }
   }
 
   const me = signer.publicKey;
@@ -588,6 +838,8 @@ export function createSvmRelayer(options: SvmRelayerOptions): SvmRelayer {
   return {
     publicKey: me,
     address: pubkeyToBase58(me),
+    isRetrying: (drop, index) => retrying?.drop === drop && retrying.leaf === index,
+    lookupTableState,
 
     createDrop: async ({ drop, bitmap, params, token }) => {
       const vaultRent =
@@ -661,6 +913,7 @@ export function createSvmRelayer(options: SvmRelayerOptions): SvmRelayer {
         drop,
         0n,
         token === undefined,
+        index,
       ),
 
     refund: ({ drop, refundRecipient, token }) =>

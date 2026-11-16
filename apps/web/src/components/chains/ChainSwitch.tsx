@@ -53,7 +53,11 @@ export function ChainSwitch({
               role="radio"
               aria-checked={active}
               aria-disabled={!pill.selectable}
-              aria-label={pill.selectable ? pill.name : `${pill.name}, soon`}
+              aria-label={
+                pill.selectable
+                  ? pill.name
+                  : `${pill.name}, ${pill.paused === true ? "paused" : "soon"}`
+              }
               onClick={() => {
                 if (!pill.selectable) return;
                 onChange(active && allowAll ? "all" : pill.key);
@@ -82,7 +86,7 @@ export function ChainSwitch({
                 />
               </span>
             </button>
-            {pill.selectable ? null : (
+            {pill.selectable || pill.paused === true ? null : (
               <span
                 className="type-label pointer-events-none absolute top-[35px] left-1/2 -translate-x-1/2 leading-none normal-case"
                 aria-hidden="true"

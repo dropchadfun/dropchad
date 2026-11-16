@@ -320,3 +320,22 @@ describe("some drops could not load", () => {
     expect(render({ claims: [] })).not.toContain(NOTE);
   });
 });
+
+describe("a busy network", () => {
+  const sending = (patch: Partial<ClaimItem>) =>
+    render({
+      claims: [item({ state: "sending", recipient: WALLET, ...patch })],
+      selected: EVM_DROP,
+    });
+
+  it("a sending claim the server retries says so, calmly", () => {
+    const html = sending({ retrying: true });
+    expect(html).toContain("the network is busy. we are trying again. your coins are safe.");
+  });
+
+  it("a plain sending claim keeps the plain line", () => {
+    const html = sending({});
+    expect(html).not.toContain("the network is busy");
+    expect(html).toContain("on its way to 0x1111…0001");
+  });
+});

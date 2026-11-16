@@ -3,9 +3,10 @@
 Send crypto to anyone on X, just by their username. They sign in with X to claim, with no
 wallet connect. Every drop lives on chain on its own, so anyone can check who really paid.
 
-**Status.** Solana mainnet, in beta: program `EQatKw7fYigPCJXTc5pYsQQCDJn5XNdqg7AtZJX8n5Ft`,
-admin and upgrade authority a 2 of 3 Squads multisig. Robinhood Chain is testnet only for now,
-with test coins that have no value. dropchad has no token.
+**Status.** Live on Solana mainnet and Robinhood Chain mainnet, in beta. On Solana the program
+`EQatKw7fYigPCJXTc5pYsQQCDJn5XNdqg7AtZJX8n5Ft` has a 2 of 3 Squads multisig as admin and upgrade
+authority. On Robinhood Chain the contracts are owned by a 48 hour timelock that only a 2 of 3
+Safe can use. dropchad has no token.
 
 **Live:** [dropchad.com](https://dropchad.com) · X [@dropchadfun](https://x.com/dropchadfun) ·
 [Telegram](https://t.me/dropchad)
@@ -26,12 +27,26 @@ The money can only go to the people in the tree, or back to the sender. The prog
 instruction that lets the admin take money out of a drop. The program can be changed only by an
 upgrade, and an upgrade needs 2 of the 3 multisig signers.
 
+On Robinhood Chain a drop contract has no admin function. The factory and the binder registry
+change only through the 48 hour timelock. A guardian key can only stop new drops (`pause`) or
+switch off the binder (`revoke`); it can never move money.
+
 ## Live contracts
 
 - **Solana mainnet:** program
   [`EQat…n5Ft`](https://explorer.solana.com/address/EQatKw7fYigPCJXTc5pYsQQCDJn5XNdqg7AtZJX8n5Ft),
   deployed at slot 468,986,468. See "Verify the Solana program" below.
 - **Solana devnet:** the same program id, for tests.
+- **Robinhood Chain mainnet (4663):** deployed with `contracts/evm/script/DeployV7.s.sol`, source
+  verified on Sourcify. The deploy record is `contracts/evm/deployments/4663-v7.json`.
+  - `DropFactoryV7`
+    [`0x6988AC05CB7cc0e638331CEB9608a728ACf708Af`](https://robinhoodchain.blockscout.com/address/0x6988AC05CB7cc0e638331CEB9608a728ACf708Af)
+  - `DropV7`, the drop code each drop clones
+    [`0xa4a5A7284a24eD227D548D54dd854db9D8a8950c`](https://robinhoodchain.blockscout.com/address/0xa4a5A7284a24eD227D548D54dd854db9D8a8950c)
+  - `BinderRegistryV2`
+    [`0xEd6ff4b9c48C924b222D51208dFA6410dEb155C8`](https://robinhoodchain.blockscout.com/address/0xEd6ff4b9c48C924b222D51208dFA6410dEb155C8)
+  - `TimelockController`, 48 hours, owner of the factory and the registry
+    [`0x8089bc02641DA493EB2e623D7Cde885C64a93427`](https://robinhoodchain.blockscout.com/address/0x8089bc02641DA493EB2e623D7Cde885C64a93427)
 - **Robinhood Chain testnet (46630):** the EVM drop and factory contracts, test coins only. Their
   addresses are in `packages/chains/src/chains.json`.
 
@@ -81,7 +96,7 @@ key can upgrade the program or change its settings.
 contracts/evm      Solidity, Foundry: the drop and factory contracts
 contracts/solana   Rust, Anchor: the Solana program
 apps/api           Node api, relayer and worker
-apps/indexer       Ponder indexer for the EVM chain
+apps/indexer       Ponder indexer for the EVM chains
 apps/web           Next.js site
 packages/shared    merkle tree, ABIs, IDL, types
 packages/chains    chain list and deployed addresses

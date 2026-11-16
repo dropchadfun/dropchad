@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 
 import { CreateDrop } from "@/components/create/CreateDrop";
 import { modeFromSearch } from "@/components/create/form";
-import { chainPills } from "@/lib/chains";
+import { betaNotice } from "@/lib/beta";
+import { chainPills, liveMainnetKeys } from "@/lib/chains";
+import { readLiveChains } from "@/lib/live-chains";
 
 export const metadata: Metadata = { title: "make a drop" };
 
@@ -14,5 +16,13 @@ type SearchParams = Promise<{ mode?: string | string[] }>;
  */
 export default async function Page({ searchParams }: { searchParams: SearchParams }) {
   const { mode } = await searchParams;
-  return <CreateDrop pills={chainPills()} initialMode={modeFromSearch(mode)} />;
+  // The pills and the beta notice of the live chains, from the api switch.
+  const view = await readLiveChains();
+  return (
+    <CreateDrop
+      pills={chainPills({ view, forCreate: true })}
+      initialMode={modeFromSearch(mode)}
+      betaNotice={betaNotice(liveMainnetKeys(undefined, view))}
+    />
+  );
 }

@@ -45,7 +45,9 @@ import type {
 const SRC = join(__dirname, "..", "src");
 const css = readFileSync(join(SRC, "app", "globals.css"), "utf8");
 
-const NOW = Date.UTC(2026, 9, 24, 12, 0, 0);
+// The rendered block reads the real clock, so every fixture time is relative to now, never a
+// fixed date: a fixed date makes each "ago" text grow with the calendar.
+const NOW = Math.floor(Date.now() / 1000) * 1000;
 const NOW_S = NOW / 1000;
 
 const person = (handle: string, tags: Profile["tags"] = []): Profile => ({

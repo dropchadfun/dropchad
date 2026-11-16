@@ -623,3 +623,31 @@ describe("GET /api/claims on Solana", () => {
     expect(stateOf((await claims(h, cookie)).body.claims, address)).toBe("paused");
   });
 });
+
+describe("GET /api/claims, a claim between two attempts", () => {
+  it("a sending claim the chain retries carries retrying: true, every other item has none", async () => {
+    const chain = createFakeChain();
+    const retrying = (drop: string, index: number) =>
+      drop.toLowerCase() === SENDING.toLowerCase() && index === 0;
+    const { h, cookie } = await world({
+      chain,
+      adapters: [{ ...readyEvm(chain), isRetrying: retrying }],
+    });
+    for (const address of [CLAIMABLE, SENDING, SUBMITTED]) {
+      await handleDrop(h, { address });
+      onChain(chain, address, 1, OPEN);
+    }
+    await binding(h, SENDING, "bound");
+    await binding(h, SUBMITTED, "submitted");
+
+    const { body } = await claims(h, cookie);
+    const of = (address: string) =>
+      body.claims.find((c) => c.drop.toLowerCase() === address.toLowerCase()) as
+        (Claim & { retrying?: boolean }) | undefined;
+    expect(of(SENDING)?.state).toBe("sending");
+    expect(of(SENDING)?.retrying).toBe(true);
+    expect(of(SUBMITTED)?.state).toBe("sending");
+    expect(of(SUBMITTED)).not.toHaveProperty("retrying");
+    expect(of(CLAIMABLE)).not.toHaveProperty("retrying");
+  });
+});

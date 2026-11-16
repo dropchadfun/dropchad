@@ -4,6 +4,7 @@ import { pageFromParam, rangeFromParam, tabFromParam } from "@/components/boards
 import { BoardsPage } from "@/components/boards/BoardsPage";
 import { ApiError, getBoard, type Board } from "@/lib/api";
 import { chainPills } from "@/lib/chains";
+import { readLiveChains } from "@/lib/live-chains";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "top chads" };
@@ -21,7 +22,8 @@ export default async function Page({
   const range = rangeFromParam(params.range);
   const type = tabFromParam(params.board);
   const page = pageFromParam(params.page);
-  const pills = chainPills();
+  // The pills of the live chains, from the api switch.
+  const pills = chainPills({ view: await readLiveChains() });
   const chain =
     params.chain !== undefined && pills.some((pill) => pill.selectable && pill.key === params.chain)
       ? params.chain

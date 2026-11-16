@@ -53,7 +53,7 @@ describe("the cap list, one per chain", () => {
   it("the DROP_CAPS words are built from it and stay the same", async () => {
     const { DROP_CAPS } = await import("@/lib/beta");
     expect(DROP_CAPS).toBe(
-      "2 SOL, 200 USDC, 200 USDT or 200 USD1 on solana", // the live chains, Solana alone
+      "2 SOL, 200 USDC, 200 USDT or 200 USD1 on solana", // with no api answer, Solana alone
     );
     expect(read("lib/beta.ts")).toMatch(/DROP_CAPS\s*=[^;]*DROP_CAP_LINES/);
   });
@@ -77,7 +77,7 @@ describe("the cap list, one per chain", () => {
 
 describe("the live mainnet chains, the same test as isTestnetOnly()", () => {
   it("a mainnet chain with its contracts or program recorded, nothing else", async () => {
-    const { liveMainnetKeys } = await import("@/lib/chains");
+    const { API_LISTED_CHAINS, liveMainnetKeys } = await import("@/lib/chains");
     const expected = chains
       .filter(
         (chain) =>
@@ -87,7 +87,9 @@ describe("the live mainnet chains, the same test as isTestnetOnly()", () => {
             hasV7Contracts(chain) ||
             isProgramDeployed(chain)),
       )
-      .map((chain) => chain.key);
+      .map((chain) => chain.key)
+      // with no api answer, the chains behind the api switch are not live.
+      .filter((key) => !API_LISTED_CHAINS.includes(key));
     expect(liveMainnetKeys()).toEqual(expected);
     expect(liveMainnetKeys().length === 0).toBe(isTestnetOnly());
   });
@@ -215,7 +217,7 @@ describe("the card", () => {
 
   it("the server HTML never carries it", async () => {
     const { BetaCard } = await import("@/components/site/BetaCard");
-    expect(renderToStaticMarkup(<BetaCard />)).toBe("");
+    expect(renderToStaticMarkup(<BetaCard caps={["2 SOL"]} />)).toBe("");
   });
 
   it("Escape and an outside click close it through the shared dismiss hook, every close remembered", () => {
@@ -223,11 +225,13 @@ describe("the card", () => {
     expect(src).toContain('from "@/lib/dismiss"');
     expect(src).toContain("useDismiss(");
     expect(src).toContain("rememberBetaCard(");
-    expect(src).toContain("liveMainnetKeys(");
+    // The lines come from the layout, never a build time copy.
+    expect(src).not.toContain("liveMainnetKeys(");
+    expect(src).toContain("caps={caps}");
   });
 
   it("on every page: the root layout renders it", () => {
-    expect(read("app/layout.tsx")).toContain("<BetaCard />");
+    expect(read("app/layout.tsx")).toContain("<BetaCard caps={betaCaps} />");
   });
 
   it("not in the share card", () => {

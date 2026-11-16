@@ -11,8 +11,9 @@
  *   ixs         compact array of { program index u8, compact account indexes, compact data }
  *
  * "Compact" is the shortvec encoding: little endian base 128 with a continuation bit, at most
- * three bytes. Legacy only, no address lookup tables. The whole
- * transaction must fit in 1,232 bytes, which is the bound the fit table in 6.5 comes from.
+ * three bytes. Legacy, and one v0 form: a token `claim_handle` with
+ * the one fixed lookup table, read-only lookups only. The whole transaction must fit in 1,232
+ * bytes, which is the bound the fit table in 6.5 comes from.
  *
  * Written out instead of imported for the same reason as `pda.ts`: it is small, it is the thing
  * the relayer's guards inspect, and pinning it in a test is cheaper than trusting a client
@@ -196,7 +197,14 @@ export async function signTransaction(
   message: Message,
   signers: readonly Signer[],
 ): Promise<SignedTransaction> {
-  const messageBytes = serializeMessage(message);
+  return signMessageBytes(message, serializeMessage(message), signers);
+}
+
+async function signMessageBytes<M extends Message>(
+  message: M,
+  messageBytes: Uint8Array,
+  signers: readonly Signer[],
+): Promise<SignedTransaction & { readonly message: M }> {
   const required = message.accountKeys.slice(0, message.header.numRequiredSignatures);
   const ordered = required.map((key) => {
     const signer = signers.find((s) => pubkeyEquals(s.publicKey, key));
@@ -239,4 +247,123 @@ export function verifySignature(tx: SignedTransaction, signerIndex = 0): boolean
   const signature = tx.signatures[signerIndex];
   if (key === undefined || signature === undefined) return false;
   return ed25519.verify(signature, tx.messageBytes, key);
+}
+
+// ---------------------------------------------------------------------------
+// v0
+// ---------------------------------------------------------------------------
+
+/** A lookup table as the relayer knows it: its address and its checked address list. */
+export interface LookupTable {
+  readonly address: Pubkey;
+  readonly addresses: readonly Pubkey[];
+}
+
+export interface MessageLookup {
+  readonly accountKey: Pubkey;
+  readonly writableIndexes: readonly number[];
+  readonly readonlyIndexes: readonly number[];
+}
+
+/** A v0 message. `accountKeys` are the static keys only; the lookups follow them. */
+export interface MessageV0 extends Message {
+  readonly lookups: readonly MessageLookup[];
+}
+
+/**
+ * Compile instructions into a v0 message with one table. A key moves into the table only when
+ * the table holds it and it is not a signer, not writable and not an invoked program; those stay
+ * static. The moved keys are read-only lookups in table order, after the static keys.
+ */
+export function compileMessageV0(args: {
+  readonly feePayer: Pubkey;
+  readonly recentBlockhash: Uint8Array;
+  readonly instructions: readonly Instruction[];
+  readonly table: LookupTable;
+}): MessageV0 {
+  const legacy = compileMessage(args);
+  const flags = (index: number) => {
+    const h = legacy.header;
+    const n = legacy.accountKeys.length;
+    const signer = index < h.numRequiredSignatures;
+    const writable = signer
+      ? index < h.numRequiredSignatures - h.numReadonlySigned
+      : index < n - h.numReadonlyUnsigned;
+    return { signer, writable };
+  };
+  const invoked = new Set(legacy.instructions.map((ix) => ix.programIdIndex));
+  const moved: { key: Pubkey; tableIndex: number }[] = [];
+  const staticKeys: Pubkey[] = [];
+  let readonlyUnsigned = 0;
+  legacy.accountKeys.forEach((key, index) => {
+    const { signer, writable } = flags(index);
+    const tableIndex = args.table.addresses.findIndex((a) => pubkeyEquals(a, key));
+    if (!signer && !writable && !invoked.has(index) && tableIndex >= 0) {
+      moved.push({ key, tableIndex });
+      return;
+    }
+    staticKeys.push(key);
+    if (!signer && !writable) readonlyUnsigned += 1;
+  });
+  moved.sort((a, b) => a.tableIndex - b.tableIndex);
+  const all = [...staticKeys, ...moved.map((m) => m.key)];
+  const indexOf = (key: Pubkey): number => {
+    const index = all.findIndex((k) => pubkeyEquals(k, key));
+    if (index < 0) throw new Error(`key not in message: ${pubkeyToBase58(key)}`);
+    return index;
+  };
+  const keyAt = (index: number) => legacy.accountKeys[index] as Pubkey;
+  return {
+    header: { ...legacy.header, numReadonlyUnsigned: readonlyUnsigned },
+    accountKeys: staticKeys,
+    recentBlockhash: legacy.recentBlockhash,
+    instructions: legacy.instructions.map((ix) => ({
+      programIdIndex: indexOf(keyAt(ix.programIdIndex)),
+      accountIndexes: ix.accountIndexes.map((i) => indexOf(keyAt(i))),
+      data: ix.data,
+    })),
+    lookups:
+      moved.length === 0
+        ? []
+        : [
+            {
+              accountKey: args.table.address,
+              writableIndexes: [],
+              readonlyIndexes: moved.map((m) => m.tableIndex),
+            },
+          ],
+  };
+}
+
+/** The version byte `0x80`, the legacy layout, then the lookups. */
+export function serializeMessageV0(message: MessageV0): Uint8Array {
+  const parts: Uint8Array[] = [new Uint8Array([0x80]), serializeMessage(message)];
+  parts.push(encodeShortVec(message.lookups.length));
+  for (const lookup of message.lookups) {
+    parts.push(
+      lookup.accountKey,
+      encodeShortVec(lookup.writableIndexes.length),
+      new Uint8Array(lookup.writableIndexes),
+      encodeShortVec(lookup.readonlyIndexes.length),
+      new Uint8Array(lookup.readonlyIndexes),
+    );
+  }
+  return concat(parts);
+}
+
+export async function signTransactionV0(
+  message: MessageV0,
+  signers: readonly Signer[],
+): Promise<SignedTransaction & { readonly message: MessageV0 }> {
+  return signMessageBytes(message, serializeMessageV0(message), signers);
+}
+
+/** The serialized size of a v0 transaction with one signer and the given table. */
+export function transactionSizeV0(args: {
+  readonly feePayer: Pubkey;
+  readonly instructions: readonly Instruction[];
+  readonly table: LookupTable;
+}): number {
+  const message = compileMessageV0({ ...args, recentBlockhash: new Uint8Array(32) });
+  return 1 + 64 * message.header.numRequiredSignatures + serializeMessageV0(message).length;
 }

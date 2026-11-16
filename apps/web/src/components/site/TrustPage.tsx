@@ -13,29 +13,34 @@ export interface TrustSection {
 const LINK = "text-chad-accent hover:text-chad-accent-hover hover:underline";
 
 /**
- * Mainnet only: in place of `testnet only` on
- * `/terms` and `/about`, the same words on both. The words since; the
- * caps from `lib/beta.ts`, shared with `/create`.
+ * Mainnet only: in place of `testnet only` on `/terms` and `/about`,
+ * the same words on both. The words since; `capWords` are the caps
+ * of the live chains, `dropCapWords` in `lib/beta.ts`, shared with `/create`.
  */
-export const BETA_SECTIONS: readonly TrustSection[] = [
-  {
-    title: "beta",
-    lines: [
-      "dropchad is in beta. the code is new and it can have bugs.",
-      "each drop has a limit, so less money is at risk while the code is new.",
-      "you use dropchad at your own risk.",
-      "drops use real coins. only drop what you are ok to lose.",
-    ],
-  },
-  {
-    title: "caps per drop",
-    lines: [
-      `in the beta one drop can hold at most ${DROP_CAPS}.`,
-      "other tokens have no value cap.",
-      "a drop over the cap is refused when you make it.",
-    ],
-  },
-];
+export function betaSections(capWords: string): readonly TrustSection[] {
+  return [
+    {
+      title: "beta",
+      lines: [
+        "dropchad is in beta. the code is new and it can have bugs.",
+        "each drop has a limit, so less money is at risk while the code is new.",
+        "you use dropchad at your own risk.",
+        "drops use real coins. only drop what you are ok to lose.",
+      ],
+    },
+    {
+      title: "caps per drop",
+      lines: [
+        `in the beta one drop can hold at most ${capWords}.`,
+        "other tokens have no value cap.",
+        "a drop over the cap is refused when you make it.",
+      ],
+    },
+  ];
+}
+
+/** The sections with no api answer. */
+export const BETA_SECTIONS: readonly TrustSection[] = betaSections(DROP_CAPS);
 
 /**
  * The trust pages, `/about`, `/terms`, `/privacy`, `/contact`

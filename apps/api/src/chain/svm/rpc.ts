@@ -306,6 +306,10 @@ export function createSvmRpc(options: SvmRpcOptions): SvmRpc {
       const logs = meta["logMessages"];
       const toBigints = (list: unknown): bigint[] =>
         Array.isArray(list) ? list.map((n) => BigInt(String(n))) : [];
+      // A v0 transaction's loaded keys follow the static ones, writable first,
+      // the order its balances use.
+      const loaded = asRecord(meta["loadedAddresses"]);
+      const strings = (list: unknown): unknown[] => (Array.isArray(list) ? list : []);
       return {
         slot: Number(record["slot"]),
         blockTime:
@@ -321,12 +325,14 @@ export function createSvmRpc(options: SvmRpcOptions): SvmRpc {
           meta["computeUnitsConsumed"] === undefined ? null : Number(meta["computeUnitsConsumed"]),
         preBalances: toBigints(meta["preBalances"]),
         postBalances: toBigints(meta["postBalances"]),
-        accountKeys: Array.isArray(keys)
-          ? keys
-              .map((k) => (typeof k === "string" ? k : asRecord(k)["pubkey"]))
-              .filter((k): k is string => typeof k === "string")
-              .map(pubkeyFromBase58)
-          : [],
+        accountKeys: [
+          ...strings(keys),
+          ...strings(loaded["writable"]),
+          ...strings(loaded["readonly"]),
+        ]
+          .map((k) => (typeof k === "string" ? k : asRecord(k)["pubkey"]))
+          .filter((k): k is string => typeof k === "string")
+          .map(pubkeyFromBase58),
       };
     },
   };

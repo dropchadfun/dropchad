@@ -300,6 +300,11 @@ export interface ChainAdapter {
    */
   bindingVersionOf?: (drop: string) => Promise<1 | 2>;
   /**
+   * Solana: true while the claim of this leaf is in a new send after an expiry, or waits
+   * to be sent again. Absent: never.
+   */
+  isRetrying?: (drop: string, index: number) => boolean;
+  /**
    * The chain's own time in unix seconds, never the server clock: the latest
    * block's `timestamp` on the EVM, the `Clock` sysvar on Solana.
    */

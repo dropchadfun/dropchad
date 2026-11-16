@@ -1,7 +1,8 @@
 /**
  * The beta cap words of the live mainnet chains only: on `/create`,
  * `/terms` and `/about` the caps name only the chains the beta card counts as live, Solana first.
- * Solana alone for now; a chain's caps show by themselves once it is live.
+ * With no api answer Solana alone: Robinhood is recorded but behind the api switch,
+ * `test/live-switch.test.tsx`.
  */
 import { describe, expect, it } from "vitest";
 
@@ -26,7 +27,7 @@ describe("the cap words per live chains", () => {
   });
 });
 
-describe("this build, Solana live", () => {
+describe("this build with no api answer, Solana alone", () => {
   it("the live chains are Solana alone", () => {
     expect(liveMainnetKeys()).toEqual(["solana"]);
   });

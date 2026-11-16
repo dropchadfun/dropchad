@@ -5,7 +5,7 @@
 import { getChain } from "@dropchad/chains";
 import { ed25519 } from "@noble/curves/ed25519";
 import { hexToBytes, type Hex } from "viem";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { adaptersFrom, type ChainAdapter } from "../src/chain/adapter.js";
 import { CSRF_HEADER } from "../src/auth/session.js";
@@ -17,7 +17,11 @@ import { dropPda } from "../src/chain/svm/pda.js";
 import { pubkeyToBase58 } from "../src/chain/svm/pubkey.js";
 import { creatorCommitment } from "../src/chain/predict.js";
 import { createSvmRelayer } from "../src/chain/svm/relayer.js";
-import { buildSolanaWriteSide, createDropRent } from "../src/chain/svm/write-side.js";
+import {
+  buildSolanaWriteSide,
+  createDropRent,
+  lookupTableOption,
+} from "../src/chain/svm/write-side.js";
 import { openAndMigrate } from "../src/db/client.js";
 import { createFakeChain, evmAdapterFor } from "./fake-chain.js";
 import { FakeSvm, createFakeSvmRpc, rentFor } from "./fake-svm.js";
@@ -329,6 +333,62 @@ describe("buildSolanaWriteSide", () => {
       expect(on.adapter.relayerAddress).toBe(pubkeyToBase58(pub));
     }
     await handle.close();
+  });
+});
+
+describe("the lookup table wiring", () => {
+  const seed = ed25519.utils.randomPrivateKey();
+  const pub = ed25519.getPublicKey(seed);
+  const secret = JSON.stringify([...seed, ...pub]);
+
+  it("no address in the registry: no relayer option; solana passes its frozen table", () => {
+    expect(lookupTableOption(getChain("solana-devnet"))).toBeUndefined();
+    const solana = lookupTableOption(getChain("solana"));
+    expect(solana === undefined ? null : pubkeyToBase58(solana.address)).toBe(
+      "7W9coGsnBN7fNQaUmxmPDt7kBeRtAGhPsL1s5L7R6GQX",
+    );
+  });
+
+  it("an address in the registry becomes the relayer option", () => {
+    const chain = getChain("solana");
+    const address = "49KhWdeuCRiS4icxMQcoDFne7f7eBHiNwKec6mMCHdDj";
+    const option = lookupTableOption({
+      ...chain,
+      contracts: { ...chain.contracts, lookupTable: address },
+    });
+    expect(option === undefined ? null : pubkeyToBase58(option.address)).toBe(address);
+  });
+
+  it("no address: the start log says off, not set, and no table is read, as today", async () => {
+    const handle = await openAndMigrate("memory://");
+    const config = loadConfig({
+      ...TEST_ENV,
+      SOLANA_RELAYER_SECRET: secret,
+      SOLANA_DEVNET_RPC_URL: "http://fake.invalid",
+      SOLANA_RELAYER_ADDRESS: pubkeyToBase58(pub),
+    });
+    const readyRpc = createFakeSvmRpc(new FakeSvm({ relayer: pub }));
+    const methods: string[] = [];
+    const lines: string[] = [];
+    const spy = vi.spyOn(console, "log").mockImplementation((line: unknown) => {
+      lines.push(String(line));
+    });
+    try {
+      const on = await buildSolanaWriteSide(config, handle.db, (_url, init) => {
+        const body = JSON.parse(typeof init?.body === "string" ? init.body : "{}") as {
+          method: string;
+        };
+        methods.push(body.method);
+        return fakeFetch(readyRpc, init);
+      });
+      expect(on.kind).toBe("on");
+    } finally {
+      spy.mockRestore();
+      await handle.close();
+    }
+    expect(lines).toContain("lookup table off: not set");
+    expect(lines.some((line) => line.startsWith("lookup table on"))).toBe(false);
+    expect(methods.every((method) => method === "getAccountInfo")).toBe(true);
   });
 });
 

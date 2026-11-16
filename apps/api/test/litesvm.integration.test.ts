@@ -31,7 +31,7 @@ import {
 } from "../src/chain/svm/admin.js";
 import { randomSigner, type Signer } from "../src/chain/svm/keypair.js";
 import { kmsSolanaSigner } from "../src/chain/svm/kms-signer.js";
-import { configPda } from "../src/chain/svm/pda.js";
+import { TOKEN_PROGRAM_ID, associatedTokenAddress, configPda } from "../src/chain/svm/pda.js";
 import {
   DROPCHAD_PROGRAM_ID,
   pubkeyFromBase58,
@@ -44,7 +44,16 @@ import { compileMessage, signTransaction } from "../src/chain/svm/transaction.js
 import { unblindedCommitment } from "../src/chain/predict.js";
 import { nativeDropFee } from "../src/drops/native-fee.js";
 import { createFakeKms } from "./fake-kms.js";
-import { decodeTransaction, encodeConfigAccount, rentFor } from "./fake-svm.js";
+import {
+  FAKE_ALT_PROGRAM,
+  decodeTransaction,
+  encodeConfigAccount,
+  encodeLookupTable,
+  encodeTokenAccount,
+  rentFor,
+} from "./fake-svm.js";
+import { classicMintData } from "./token-fixtures.js";
+import { TOKEN_CLAIM_TABLE_ADDRESSES } from "../src/chain/svm/lookup-table.js";
 import { liveDevnetConfig, withOurKeys } from "./live-config.js";
 
 const PROGRAM_SO = resolve(
@@ -89,6 +98,7 @@ interface LiteSvmLike {
     meta(): { logs(): string[]; computeUnitsConsumed(): bigint };
   };
   setClock(clock: unknown): void;
+  warpToSlot(slot: bigint): void;
   getClock(): {
     unixTimestamp: bigint;
     slot: bigint;
@@ -412,11 +422,15 @@ describe.skipIf(!available)(
         caps: { maxComputeUnits: 400_000, priorityFeeMicroLamports: 0n },
         rentForCreate: () => Promise.resolve(rentFor(424) + rentFor(1291)),
         sleep: () => Promise.resolve(),
+        // The program takes binding v2 only; its time is the LiteSVM clock.
+        bindingV2: true,
+        nowSeconds: () => svm.getClock().unixTimestamp,
       });
       const adapter = createSvmAdapter({
         rpc,
         relayer,
         chain: getChain("solana-devnet") as Parameters<typeof createSvmAdapter>[0]["chain"],
+        bindingV2: true,
       });
 
       const LEAF = 10_000_000n;
@@ -446,12 +460,14 @@ describe.skipIf(!available)(
       await adapter.activate(created.drop);
 
       const entry = tree.entries[0] as (typeof tree.entries)[number];
-      const signature = await binder.sign({
+      const validUntil = svm.getClock().unixTimestamp + 600n;
+      const signature = await binder.signV2({
         drop: created.drop,
         chainId: 103,
         index: entry.index,
         xId,
         recipient: wallet,
+        validUntil,
       });
       const paid = await adapter.claimHandle(created.drop, {
         index: entry.index,
@@ -460,10 +476,159 @@ describe.skipIf(!available)(
         recipient: wallet,
         proof: entry.proof,
         signature: toHex(signature),
+        validUntil,
       });
       expect(paid.paid?.amount).toBe(LEAF);
       expect(svm.getBalance(wallet)).toBe(LEAF);
       expect(kms.calls.filter((call) => call.keyId === "binder")).toHaveLength(1);
+    });
+
+    // A token claim_handle as a v0 transaction with the frozen table, both
+    // compute budget instructions and a price, on the real program and the real token programs.
+    it("a v0 token claim_handle with the lookup table and a price lands on the real program", async () => {
+      if (lite === null) return;
+      const svm = new lite.LiteSVM();
+      svm.addProgramFromFile(pubkeyToBase58(DROPCHAD_PROGRAM_ID), PROGRAM_SO);
+      const signer = randomSigner();
+      const binderSigner = randomSigner();
+      const binder = svmBinderFromSigner(binderSigner);
+      const relayerAddress = pubkeyToBase58(signer.publicKey);
+      svm.airdrop(relayerAddress, 10_000_000_000n);
+
+      const config = configPda();
+      svm.setAccount({
+        address: pubkeyToBase58(config.address),
+        data: encodeConfigAccount(
+          {
+            admin: signer.publicKey,
+            relayer: signer.publicKey,
+            feeWallet: signer.publicKey,
+            defaultFeeBps: 0,
+            paused: false,
+            chainId: 103n,
+            handle: { binder: binderSigner.publicKey, binderRevoked: false, minFeeLamports: 0n },
+          },
+          config.bump,
+        ),
+        executable: false,
+        lamports: rentFor(CONFIG_ACCOUNT_BYTES_HANDLE),
+        programAddress: pubkeyToBase58(DROPCHAD_PROGRAM_ID),
+      });
+      const mint = new Uint8Array(32).fill(0x5c);
+      const mintData = classicMintData({ decimals: 6 });
+      svm.setAccount({
+        address: pubkeyToBase58(mint),
+        data: mintData,
+        executable: false,
+        lamports: rentFor(mintData.length),
+        programAddress: pubkeyToBase58(TOKEN_PROGRAM_ID),
+      });
+      const table = new Uint8Array(32).fill(0x7a);
+      const tableData = encodeLookupTable({
+        addresses: TOKEN_CLAIM_TABLE_ADDRESSES,
+        lastExtendedSlot: 1n,
+      });
+      svm.setAccount({
+        address: pubkeyToBase58(table),
+        data: tableData,
+        executable: false,
+        lamports: rentFor(tableData.length),
+        programAddress: FAKE_ALT_PROGRAM,
+      });
+      svm.warpToSlot(100n);
+
+      const rpc = rpcOver(svm, signer.publicKey);
+      const relayer = createSvmRelayer({
+        rpc,
+        signer,
+        isKnownDrop: () => Promise.resolve(true),
+        budget: { reserve: () => Promise.resolve(), settle: () => Promise.resolve() },
+        caps: { maxComputeUnits: 400_000, priorityFeeMicroLamports: 200_000n },
+        rentForCreate: () => Promise.resolve(rentFor(424) + rentFor(1291)),
+        sleep: () => Promise.resolve(),
+        lookupTable: { address: table },
+        // The program takes binding v2 only; its time is the LiteSVM clock.
+        bindingV2: true,
+        nowSeconds: () => svm.getClock().unixTimestamp,
+      });
+      expect(await relayer.lookupTableState()).toEqual({ on: true });
+      const adapter = createSvmAdapter({
+        rpc,
+        relayer,
+        chain: getChain("solana-devnet") as Parameters<typeof createSvmAdapter>[0]["chain"],
+        bindingV2: true,
+      });
+
+      const TOKENS = 1_000_000n;
+      const SOL_FEE = 100_000_000n;
+      const xId = 44196397n;
+      const wallet = new Uint8Array(32).fill(0xb2);
+      const commitment = unblindedCommitment(7654321n, 3n);
+      const predicted = await adapter.predictDrop(commitment, 3n);
+      const tree = buildHandleDropTree({
+        family: "svm",
+        drop: predicted.address,
+        chainId: 103,
+        receivers: [{ xId, amount: TOKENS }],
+      });
+      const created = await adapter.createDrop({
+        merkleRoot: tree.root,
+        manifestHash: `0x${"33".repeat(32)}`,
+        totalEntitlements: tree.totalEntitlements,
+        leafCount: tree.leafCount,
+        refundRecipient: relayerAddress,
+        creatorCommitment: commitment,
+        nonce: 3n,
+        fundingPeriod: 3_600,
+        claimPeriod: 86_400,
+        token: {
+          mint: pubkeyToBase58(mint),
+          tokenProgram: pubkeyToBase58(TOKEN_PROGRAM_ID),
+          solFeeLamports: SOL_FEE,
+        },
+      });
+      const vault = pubkeyToBase58(
+        associatedTokenAddress(pubkeyFromBase58(created.drop), mint, TOKEN_PROGRAM_ID),
+      );
+      const vaultData = encodeTokenAccount(
+        mint,
+        pubkeyFromBase58(created.drop),
+        TOKENS,
+        TOKEN_PROGRAM_ID,
+      );
+      svm.setAccount({
+        address: vault,
+        data: vaultData,
+        executable: false,
+        lamports: rentFor(vaultData.length),
+        programAddress: pubkeyToBase58(TOKEN_PROGRAM_ID),
+      });
+      svm.airdrop(created.drop, SOL_FEE + 100_000_000n);
+      await adapter.activate(created.drop);
+
+      const entry = tree.entries[0] as (typeof tree.entries)[number];
+      const validUntil = svm.getClock().unixTimestamp + 600n;
+      const signature = await binder.signV2({
+        drop: created.drop,
+        chainId: 103,
+        index: entry.index,
+        xId,
+        recipient: pubkeyToBase58(wallet),
+        validUntil,
+      });
+      const before = svm.getBalance(relayerAddress) ?? 0n;
+      const paid = await adapter.claimHandle(created.drop, {
+        index: entry.index,
+        xId,
+        amount: TOKENS,
+        recipient: pubkeyToBase58(wallet),
+        proof: entry.proof,
+        signature: toHex(signature),
+        validUntil,
+      });
+      expect(paid.paid?.amount).toBe(TOKENS);
+      // The relayer paid more than the two signatures: the priority fee came with it.
+      expect(before - (svm.getBalance(relayerAddress) ?? 0n)).toBeGreaterThan(10_000n);
     });
 
     // The upgraded program on a copy of the live

@@ -27,7 +27,7 @@ import { BITMAP_ACCOUNT_BYTES, DROP_ACCOUNT_BYTES_HANDLE } from "./accounts.js";
 import { createSvmAdapter } from "./adapter.js";
 import { checkSolanaConfig, type SolanaConfigCheck } from "./config-gate.js";
 import { signerFromSecret, type Signer } from "./keypair.js";
-import { pubkeyToBase58 } from "./pubkey.js";
+import { pubkeyFromBase58, pubkeyToBase58, type Pubkey } from "./pubkey.js";
 import { createSvmRelayer, type SvmRelayerRecorder } from "./relayer.js";
 import { createSvmRpc, type SvmRpc } from "./rpc.js";
 
@@ -117,6 +117,15 @@ export type SolanaWriteSideResult =
     };
 
 /**
+ * The registry's lookup table for a token `claim_handle`, as the relayer
+ * option. No address: `undefined`, and the relayer sends as before.
+ */
+export function lookupTableOption(chain: Chain): { readonly address: Pubkey } | undefined {
+  const address = chain.contracts.lookupTable ?? null;
+  return address === null ? undefined : { address: pubkeyFromBase58(address) };
+}
+
+/**
  * The rent `create_drop` pays for the drop and the bitmap: a 424 byte drop since handle
  * mode. Read from the cluster, never hard coded.
  */
@@ -182,6 +191,7 @@ export async function buildSolanaWriteSide(
   if (check.kind === "missing") return { kind: "config_missing", chain, rpc, hint: check.hint };
 
   let rent: bigint | null = null;
+  const lookupTable = lookupTableOption(chain);
   const relayer = createSvmRelayer({
     rpc,
     signer,
@@ -203,6 +213,7 @@ export async function buildSolanaWriteSide(
     caps: {
       maxComputeUnits: config.SOLANA_MAX_COMPUTE_UNITS,
       priorityFeeMicroLamports: config.solanaPriorityFeeMicroLamports,
+      priorityFeeMaxMicroLamports: config.solanaPriorityFeeMaxMicroLamports,
     },
     // The drop and the bitmap. Read once from the cluster, never hard coded.
     rentForCreate: async () => {
@@ -212,7 +223,16 @@ export async function buildSolanaWriteSide(
     recorder: createSvmDbRecorder(db, chain),
     // Follows the program, switched on with a restart after its upgrade.
     bindingV2: config.SOLANA_BINDING_V2 === "on",
+    ...(lookupTable === undefined ? {} : { lookupTable }),
   });
+
+  // The start check. With an address the relayer reads the table and logs
+  // `lookup table on <address>` or `lookup table off: <reason>`; without one nothing is read.
+  if (lookupTable === undefined) {
+    console.log("lookup table off: not set");
+  } else {
+    await relayer.lookupTableState();
+  }
 
   return {
     kind: "on",

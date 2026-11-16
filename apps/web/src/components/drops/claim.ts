@@ -41,6 +41,8 @@ export interface ClaimItem {
   /** The token of a token drop, `null` on a SOL or ETH drop; absent from an api before 4f. */
   readonly token?: TokenInfo | null;
   readonly index: number;
+  /** A sending claim the api sends again after an expiry; absent otherwise. */
+  readonly retrying?: boolean;
   /** Unix seconds, `null` before activation. */
   readonly claimDeadline: string | null;
   readonly state:
@@ -202,6 +204,9 @@ export function claimAgainRecipient(item: ClaimItem): string {
 
 /** The line while the claim is on its way; the wallet address follows it. */
 export const SENDING_PREFIX = "on its way to ";
+
+/** A sending claim the api sends again after an expiry. */
+export const RETRYING_LINE = "the network is busy. we are trying again. your coins are safe.";
 
 export function sendingLine(item: ClaimItem): string {
   return `${SENDING_PREFIX}${shortAddress(item.recipient ?? "")}`;

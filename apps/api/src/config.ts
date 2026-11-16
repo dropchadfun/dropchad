@@ -419,6 +419,15 @@ const schema = z.object({
     .regex(/^[0-9]+$/, "must be a whole number of micro lamports, as digits")
     .default("0"),
 
+  /**
+   * The highest price a new send after an expiry may carry: each attempt
+   * doubles the price, never above this. Never below the base price.
+   */
+  SOLANA_PRIORITY_FEE_MAX_MICROLAMPORTS: z
+    .string()
+    .regex(/^[0-9]+$/, "must be a whole number of micro lamports, as digits")
+    .default("1000000"),
+
   /** Hard ceiling on the gas limit of one `createDrop`. A bigger estimate is refused, not sent. */
   RELAYER_MAX_GAS_PER_CREATE: z.coerce.number().int().positive().default(2_000_000),
 
@@ -476,6 +485,8 @@ export type Config = Readonly<z.infer<typeof schema>> & {
   readonly solanaRpcUrls: readonly string[] | null;
   readonly solanaRelayerDailyBudgetLamports: bigint;
   readonly solanaPriorityFeeMicroLamports: bigint;
+  /** The cap on the price of any attempt. */
+  readonly solanaPriorityFeeMaxMicroLamports: bigint;
 };
 
 /**
@@ -592,6 +603,15 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
 
   const config = parsed.data;
   checkKeySources(config);
+  if (
+    BigInt(config.SOLANA_PRIORITY_FEE_MAX_MICROLAMPORTS) <
+    BigInt(config.SOLANA_PRIORITY_FEE_MICROLAMPORTS)
+  ) {
+    throw new Error(
+      "SOLANA_PRIORITY_FEE_MAX_MICROLAMPORTS is below SOLANA_PRIORITY_FEE_MICROLAMPORTS. " +
+        "The cap is never below the base price.",
+    );
+  }
   return {
     ...config,
     xCallbackUrl: new URL("/api/auth/x/callback", config.API_URL).toString(),
@@ -600,6 +620,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     solanaRpcUrls: resolveSolanaRpcUrls(config.SOLANA_CHAIN_KEY, env),
     solanaRelayerDailyBudgetLamports: BigInt(config.SOLANA_RELAYER_DAILY_BUDGET_LAMPORTS),
     solanaPriorityFeeMicroLamports: BigInt(config.SOLANA_PRIORITY_FEE_MICROLAMPORTS),
+    solanaPriorityFeeMaxMicroLamports: BigInt(config.SOLANA_PRIORITY_FEE_MAX_MICROLAMPORTS),
   };
 }
 
@@ -643,6 +664,7 @@ export function redactedConfig(config: Config): Record<string, string | number> 
     SOLANA_RELAYER_DAILY_BUDGET_LAMPORTS: config.SOLANA_RELAYER_DAILY_BUDGET_LAMPORTS,
     SOLANA_MAX_COMPUTE_UNITS: config.SOLANA_MAX_COMPUTE_UNITS,
     SOLANA_PRIORITY_FEE_MICROLAMPORTS: config.SOLANA_PRIORITY_FEE_MICROLAMPORTS,
+    SOLANA_PRIORITY_FEE_MAX_MICROLAMPORTS: config.SOLANA_PRIORITY_FEE_MAX_MICROLAMPORTS,
     RELAYER_MAX_GAS_PER_CREATE: config.RELAYER_MAX_GAS_PER_CREATE,
     RELAYER_MAX_GAS_PER_CLAIM_BATCH: config.RELAYER_MAX_GAS_PER_CLAIM_BATCH,
     RELAYER_MAX_GAS_PER_CLAIM_HANDLE: config.RELAYER_MAX_GAS_PER_CLAIM_HANDLE,

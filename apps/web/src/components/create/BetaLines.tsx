@@ -1,9 +1,18 @@
 import { BETA_NOTICE, BETA_TICK } from "@/lib/beta";
 
-/** The beta notice on step 1. Nothing on testnet. */
-export function BetaNotice({ show }: { show: boolean }) {
+/**
+ * The beta notice on step 1. Nothing on testnet. `text` is the
+ * notice of the live chains; absent, the notice with no api answer.
+ */
+export function BetaNotice({
+  show,
+  text = BETA_NOTICE,
+}: {
+  show: boolean;
+  text?: string | undefined;
+}) {
   if (!show) return null;
-  return <p className="type-small mt-2 text-chad-text-dim">{BETA_NOTICE}</p>;
+  return <p className="type-small mt-2 text-chad-text-dim">{text}</p>;
 }
 
 /**

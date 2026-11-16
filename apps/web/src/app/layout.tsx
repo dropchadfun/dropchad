@@ -11,7 +11,9 @@ import { BetaCard } from "@/components/site/BetaCard";
 import { WelcomePopup } from "@/components/site/WelcomePopup";
 import { Header } from "@/components/site/Header";
 import { SessionProvider } from "@/components/site/SessionProvider";
-import { TESTNET_ONLY } from "@/lib/chains";
+import { betaCardCaps } from "@/lib/beta";
+import { TESTNET_ONLY, liveMainnetKeys } from "@/lib/chains";
+import { readLiveChains } from "@/lib/live-chains";
 import { ogImage } from "@/lib/og";
 import { CLOSED_TESTNET_TEXT, readPauseText } from "@/lib/pause";
 
@@ -61,6 +63,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   // read per request, 1.5 s at most; a failed or slow read is no banner.
   const pauseText = await readPauseText();
+  // The beta card lines of the live chains, from the api switch.
+  const betaCaps = betaCardCaps(liveMainnetKeys(undefined, await readLiveChains()));
   return (
     <html lang="en" className={`${inter.variable} ${grotesk.variable} h-full`}>
       <body className="flex min-h-full flex-col">
@@ -78,7 +82,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               the testnet is closed. */}
           <WelcomePopup testnetClosed={pauseText === CLOSED_TESTNET_TEXT} />
           {/* The beta card: drawn in the browser only, mainnet only. */}
-          <BetaCard />
+          <BetaCard caps={betaCaps} />
         </SessionProvider>
       </body>
     </html>

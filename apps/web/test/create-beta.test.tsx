@@ -66,7 +66,7 @@ function step2(mode: CreateMode, beta: boolean, ...more: FormAction[]): FormStat
 describe("the words", () => {
   it("the caps, written once", () => {
     expect(DROP_CAPS).toBe(
-      "2 SOL, 200 USDC, 200 USDT or 200 USD1 on solana", // the live chains, Solana alone
+      "2 SOL, 200 USDC, 200 USDT or 200 USD1 on solana", // with no api answer, Solana alone
     );
   });
 
@@ -174,7 +174,7 @@ describe("the create page", () => {
     const capLine = step1.search(
       /amountCheck\.code === "drop_too_big"[\s\S]{0,200}<p className="type-small mt-2 text-chad-error">/,
     );
-    const notice = step1.indexOf("<BetaNotice show={!TESTNET_ONLY} />");
+    const notice = step1.indexOf("<BetaNotice show={!TESTNET_ONLY} text={betaNotice} />");
     expect(total).toBeGreaterThan(-1);
     expect(capLine).toBeGreaterThan(total);
     expect(notice).toBeGreaterThan(capLine);

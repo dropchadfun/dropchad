@@ -117,3 +117,33 @@ describe("the fee numbers", () => {
     expect(example).toMatch(/^MIN_RECEIVER_USD_TESTNET=1$/m);
   });
 });
+
+describe("the Solana fee steps", () => {
+  it("the cap defaults to 1,000,000 micro lamports", () => {
+    expect(loadConfig(base).solanaPriorityFeeMaxMicroLamports).toBe(1_000_000n);
+  });
+
+  it("refuses a cap below the base price", () => {
+    expect(() =>
+      loadConfig({
+        ...base,
+        SOLANA_PRIORITY_FEE_MICROLAMPORTS: "200000",
+        SOLANA_PRIORITY_FEE_MAX_MICROLAMPORTS: "100000",
+      }),
+    ).toThrow(/SOLANA_PRIORITY_FEE_MAX_MICROLAMPORTS/);
+  });
+
+  it("takes a cap equal to the base price", () => {
+    const config = loadConfig({
+      ...base,
+      SOLANA_PRIORITY_FEE_MICROLAMPORTS: "200000",
+      SOLANA_PRIORITY_FEE_MAX_MICROLAMPORTS: "200000",
+    });
+    expect(config.solanaPriorityFeeMaxMicroLamports).toBe(200_000n);
+  });
+
+  it(".env.example names the cap", () => {
+    const example = readFileSync(join(__dirname, "..", ".env.example"), "utf8");
+    expect(example).toMatch(/^SOLANA_PRIORITY_FEE_MAX_MICROLAMPORTS=1000000$/m);
+  });
+});

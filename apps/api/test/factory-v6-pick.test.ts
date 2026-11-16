@@ -52,7 +52,18 @@ const TESTNET: DeployedChain = {
 };
 /** Robinhood testnet with V6 recorded on top of its V5: the testnet shape. */
 const ON_TOP: ServedEvmChain = { ...TESTNET, contracts: { ...TESTNET.contracts, ...v6 } };
-const MAINNET = getChain("robinhood");
+/** Robinhood mainnet without the V7 record it carries since. */
+const RECORDED = getChain("robinhood");
+const MAINNET: Chain = {
+  ...RECORDED,
+  contracts: {
+    ...RECORDED.contracts,
+    factoryV7: null,
+    implementationV7: null,
+    binderRegistryV2: null,
+    deployBlockV7: null,
+  },
+};
 /** Robinhood mainnet with the V6 set alone, every V1 to V5 field null: the mainnet shape. */
 const ALONE_RAW: Chain = { ...MAINNET, contracts: { ...MAINNET.contracts, ...v6 } };
 const ALONE: ServedEvmChain = (() => {
@@ -69,7 +80,7 @@ describe("isServedEvmChain, a V6 only chain", () => {
     expect(isServedEvmChain(ALONE_RAW)).toBe(true);
   });
 
-  it("mainnet as recorded today, nothing deployed: not served", () => {
+  it("mainnet without the V7 record, nothing deployed: not served", () => {
     expect(isServedEvmChain(MAINNET)).toBe(false);
   });
 

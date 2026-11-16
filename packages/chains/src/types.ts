@@ -36,6 +36,11 @@ export interface ChainContracts {
   readonly program: string | null;
   /** The slot the program was deployed in, from the deploy transaction. Solana only. */
   readonly deploySlot: number | null;
+  /**
+   * The frozen address lookup table of a token `claim_handle`. Solana only, optional; null or
+   * absent means the legacy transaction.
+   */
+  readonly lookupTable?: string | null;
   // Handle mode. EVM only. All four set, or all four null.
   // The V1 fields above keep their meaning: old drops are still read from the V1 factory.
   /** `DropFactoryV2`, the factory new drops are created on once handle mode ships. */

@@ -50,17 +50,54 @@ export interface ChainPill {
   readonly chainKey: string | null;
   /** The quick token chips of the deployed chain behind the pill. Empty when none. */
   readonly quickTokens: readonly QuickToken[];
+  /**
+   * On `/create`, a chain on `API_LISTED_CHAINS` that the api lists with new
+   * drops off. Not selectable, and no `soon` label. False or absent everywhere else.
+   */
+  readonly paused?: boolean;
+}
+
+/**
+ * The api switch: the mainnet chains that are live on the site only while
+ * `GET /api/chains` lists them. Every other mainnet chain is live from the registry alone.
+ */
+export const API_LISTED_CHAINS: readonly string[] = ["robinhood"];
+
+/** What the last good `GET /api/chains` answer says about the chains on `API_LISTED_CHAINS`. */
+export interface LiveView {
+  /** Listed by the api: their write side runs there. */
+  readonly listed: ReadonlySet<string>;
+  /** Listed with `createsOn` false. */
+  readonly paused: ReadonlySet<string>;
+}
+
+/** No good answer yet: every chain on `API_LISTED_CHAINS` is hidden. */
+export const NO_API_VIEW: LiveView = { listed: new Set(), paused: new Set() };
+
+/** A chain the api switch lets through: not on the list, or listed. */
+function openedBy(chain: Chain, view: LiveView): boolean {
+  return !API_LISTED_CHAINS.includes(chain.key) || view.listed.has(chain.key);
 }
 
 /** on a mainnet site a pill counts only its own mainnet chain, never a testnet. */
 const MAINNET_SITE = !isTestnetOnly();
 
-function deployedFor(chain: Chain, mainnetSite: boolean): Chain[] {
+/**
+ * The one test of a deployed chain on the web
+ * V1, V6 or V7 recorded, or a program. The pills and `liveMainnetKeys()` both read it.
+ */
+export function isLiveDeployed(chain: Chain): boolean {
+  return (
+    isDeployed(chain) || hasV6Contracts(chain) || hasV7Contracts(chain) || isProgramDeployed(chain)
+  );
+}
+
+function deployedFor(chain: Chain, mainnetSite: boolean, view: LiveView): Chain[] {
   return chains.filter(
     (candidate) =>
-      (isDeployed(candidate) || isProgramDeployed(candidate)) &&
+      isLiveDeployed(candidate) &&
       (mainnetSite
-        ? candidate.key === chain.key
+        ? candidate.key === chain.key && openedBy(candidate, view)
         : (candidate.key === chain.key && candidate.kind !== "mainnet") ||
           candidate.testnetOf === chain.key),
   );
@@ -111,16 +148,29 @@ const MARK_SCALE: Record<string, number> = { ton: 1.67 };
 
 /** Pills in display order, from the registry: solana, robinhood, bnb, base, ethereum, ton. */
 export function chainPills(
-  /** `testnetSite` reads the pills as on the testnet site; absent, the registry decides. */
-  options: { readonly testnetSite?: boolean } = {},
+  options: {
+    /** Reads the pills as on the testnet site; absent, the registry decides. */
+    readonly testnetSite?: boolean;
+    /** The live view from `lib/live-chains.ts`; absent, no answer. */
+    readonly view?: LiveView;
+    /** The `/create` pills: a paused chain on the list is not selectable there. */
+    readonly forCreate?: boolean;
+  } = {},
 ): ChainPill[] {
   const mainnetSite = options.testnetSite === true ? false : MAINNET_SITE;
+  const view = options.view ?? NO_API_VIEW;
   return chains
     .filter((chain) => chain.displayOrder !== null)
     .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
     .map((chain) => {
-      const deployed = deployedFor(chain, mainnetSite);
+      const deployed = deployedFor(chain, mainnetSite, view);
       const family = familyOfChain(chain);
+      const paused =
+        options.forCreate === true &&
+        mainnetSite &&
+        deployed.length > 0 &&
+        API_LISTED_CHAINS.includes(chain.key) &&
+        view.paused.has(chain.key);
       return {
         key: chain.key,
         name: chain.name,
@@ -128,12 +178,13 @@ export function chainPills(
         logo: `/chains/${chain.key}.svg`,
         tileColor: `var(--brand-${chain.key})`,
         markScale: MARK_SCALE[chain.key] ?? 1,
-        selectable: deployed.length > 0,
+        selectable: deployed.length > 0 && !paused,
         chainIds: deployed.map((entry) => entry.chainId).filter((id): id is number => id !== null),
         family,
         decimals: decimalsFor(family),
         chainKey: deployed[0]?.key ?? null,
         quickTokens: deployed[0]?.quickTokens ?? [],
+        paused,
       };
     });
 }
@@ -147,18 +198,15 @@ export const TESTNET_ONLY: boolean = isTestnetOnly();
 
 /**
  * The registry keys of the live mainnet chains: a `mainnet` chain
- * with its contracts or program recorded, the same test as `isTestnetOnly()`.
+ * with its contracts or program recorded, the same test as `isTestnetOnly()`, and for a chain on
+ * `API_LISTED_CHAINS` only while the view lists it. No view: no answer.
  */
-export function liveMainnetKeys(list: readonly Chain[] = chains): string[] {
+export function liveMainnetKeys(
+  list: readonly Chain[] = chains,
+  view: LiveView = NO_API_VIEW,
+): string[] {
   return list
-    .filter(
-      (chain) =>
-        chain.kind === "mainnet" &&
-        (isDeployed(chain) ||
-          hasV6Contracts(chain) ||
-          hasV7Contracts(chain) ||
-          isProgramDeployed(chain)),
-    )
+    .filter((chain) => chain.kind === "mainnet" && isLiveDeployed(chain) && openedBy(chain, view))
     .map((chain) => chain.key);
 }
 

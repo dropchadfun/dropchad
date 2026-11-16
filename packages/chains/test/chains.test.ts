@@ -26,6 +26,14 @@ import {
   rpcUrlsFor,
 } from "../src/index.js";
 
+/** The robinhood mainnet V7 record taken out again: the registry before. */
+const NO_V7_RECORD = {
+  factoryV7: null,
+  implementationV7: null,
+  binderRegistryV2: null,
+  deployBlockV7: null,
+} as const;
+
 describe("registry", () => {
   it("parses chains.json at import", () => {
     expect(registry.version).toBe(1);
@@ -326,6 +334,33 @@ describe("parseRegistry rejects broken documents", () => {
   it("rejects an svm chain with no leaf chain id", () => {
     const bad = { ...good, chains: [{ ...good.chains[0], family: "svm", chainId: null }] };
     expect(() => parseRegistry(bad)).toThrow(/needs the leaf chain id/);
+  });
+
+  it("the lookup table: the frozen mainnet table on solana, none on devnet", () => {
+    expect(getChain("solana").contracts.lookupTable).toBe(
+      "7W9coGsnBN7fNQaUmxmPDt7kBeRtAGhPsL1s5L7R6GQX",
+    );
+    expect(getChain("solana-devnet").contracts.lookupTable ?? null).toBeNull();
+  });
+
+  it("the lookup table is optional: absent reads as null, a string on an svm chain is kept", () => {
+    const base = good.chains[0] as (typeof good.chains)[number];
+    const svm = { ...base, family: "svm" };
+    expect(parseRegistry({ ...good, chains: [svm] }).chains[0]?.contracts.lookupTable).toBeNull();
+    const withTable = {
+      ...good,
+      chains: [{ ...svm, contracts: { ...base.contracts, lookupTable: "TaBLE1111" } }],
+    };
+    expect(parseRegistry(withTable).chains[0]?.contracts.lookupTable).toBe("TaBLE1111");
+  });
+
+  it("rejects a lookup table on an evm chain", () => {
+    const base = good.chains[0] as (typeof good.chains)[number];
+    const bad = {
+      ...good,
+      chains: [{ ...base, contracts: { ...base.contracts, lookupTable: "TaBLE1111" } }],
+    };
+    expect(() => parseRegistry(bad)).toThrow(/lookup table/);
   });
 
   it("rejects a program on an evm chain and a factory on an svm chain", () => {
@@ -886,7 +921,8 @@ describe("the V6 set, recorded on robinhood testnet only", () => {
     for (const chain of chains.filter((c) => c.key !== "robinhood-testnet")) {
       expect(chain.contracts.factoryV6, chain.key).toBeNull();
       expect(chain.contracts.implementationV6, chain.key).toBeNull();
-      expect(chain.contracts.binderRegistryV2, chain.key).toBeNull();
+      // robinhood carries binderRegistryV2 for its V7 set alone since.
+      if (chain.key !== "robinhood") expect(chain.contracts.binderRegistryV2, chain.key).toBeNull();
       expect(chain.contracts.deployBlockV6, chain.key).toBeNull();
       expect(hasV6Contracts(chain), chain.key).toBe(false);
     }
@@ -898,7 +934,10 @@ describe("isTestnetOnly", () => {
     expect(isTestnetOnly()).toBe(false);
   });
 
-  /** The registry as it was before the switch: solana mainnet coming soon, no slot. */
+  /**
+   * The registry as it was before the switch: solana mainnet coming soon, no slot, and robinhood
+   * mainnet without its V7 record.
+   */
   const beforeSwitch = chains.map((chain) =>
     chain.key === "solana"
       ? {
@@ -906,7 +945,9 @@ describe("isTestnetOnly", () => {
           status: "coming_soon" as const,
           contracts: { ...chain.contracts, deploySlot: null },
         }
-      : chain,
+      : chain.key === "robinhood"
+        ? { ...chain, contracts: { ...chain.contracts, ...NO_V7_RECORD } }
+        : chain,
   );
 
   it("flips the day a mainnet gets a deployed factory, and stays true for an active mainnet without one", () => {
@@ -1124,7 +1165,9 @@ describe("the V7 set", () => {
   });
 
   it("every other chain carries the three V7 fields as null, so hasV7Contracts is false", () => {
-    for (const chain of chains.filter((c) => c.key !== "robinhood-testnet")) {
+    // robinhood carries V7 alone since, robinhood-mainnet-record.test.ts.
+    const others = chains.filter((c) => c.key !== "robinhood-testnet" && c.key !== "robinhood");
+    for (const chain of others) {
       expect(chain.contracts.factoryV7, chain.key).toBeNull();
       expect(chain.contracts.implementationV7, chain.key).toBeNull();
       expect(chain.contracts.deployBlockV7, chain.key).toBeNull();
@@ -1152,7 +1195,9 @@ describe("the V7 set", () => {
             status: "coming_soon" as const,
             contracts: { ...chain.contracts, deploySlot: null },
           }
-        : chain,
+        : chain.key === "robinhood"
+          ? { ...chain, contracts: { ...chain.contracts, ...NO_V7_RECORD } }
+          : chain,
     );
     const withTestnet = beforeSwitch.map((chain) =>
       chain.key === "robinhood-testnet"

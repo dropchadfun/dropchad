@@ -87,7 +87,11 @@ function anvilV6Chain(factory: Address, implementation: Address, registry: Addre
     fallbackRpcEnv: null,
     finalityDepth: null,
     contracts: {
+      // Robinhood mainnet without its V7 record: every older field null, so V6 is picked.
       ...getChain("robinhood").contracts,
+      factoryV7: null,
+      implementationV7: null,
+      deployBlockV7: null,
       factoryV6: factory,
       implementationV6: implementation,
       binderRegistryV2: registry,

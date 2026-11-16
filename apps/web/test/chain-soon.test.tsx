@@ -18,7 +18,7 @@ const soonLabels = (html: string) => html.match(/>soon<\/span>/g) ?? [];
 
 describe("the soon label", () => {
   it("the registry has grey chains and live chains to test with", () => {
-    // on a mainnet site Robinhood is shown but cannot be chosen while it runs on testnet.
+    // with no api answer Robinhood is shown but cannot be chosen.
     expect(grey.map((pill) => pill.key)).toEqual(["robinhood", "bnb", "base", "ethereum", "ton"]);
     expect(live.length).toBeGreaterThan(0);
   });

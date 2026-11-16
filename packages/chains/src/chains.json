@@ -39,11 +39,11 @@
         "deployBlockV5": null,
         "factoryV6": null,
         "implementationV6": null,
-        "binderRegistryV2": null,
+        "binderRegistryV2": "0xEd6ff4b9c48C924b222D51208dFA6410dEb155C8",
         "deployBlockV6": null,
-        "factoryV7": null,
-        "implementationV7": null,
-        "deployBlockV7": null
+        "factoryV7": "0x6988AC05CB7cc0e638331CEB9608a728ACf708Af",
+        "implementationV7": "0xa4a5A7284a24eD227D548D54dd854db9D8a8950c",
+        "deployBlockV7": 114358527
       },
       "launchpadFactories": [],
       "quickTokens": [
@@ -137,6 +137,7 @@
         "deployBlock": null,
         "program": "EQatKw7fYigPCJXTc5pYsQQCDJn5XNdqg7AtZJX8n5Ft",
         "deploySlot": 468986468,
+        "lookupTable": "7W9coGsnBN7fNQaUmxmPDt7kBeRtAGhPsL1s5L7R6GQX",
         "factoryV2": null,
         "implementationV2": null,
         "binderRegistry": null,

@@ -36,7 +36,9 @@ const ON_TOP = { ...TESTNET, contracts: { ...TESTNET.contracts, ...v6 } };
 /** Robinhood mainnet with the V6 set alone, every V1 to V5 field null: the mainnet shape. */
 const MAINNET = getChain("robinhood");
 const ALONE: IndexedChain = (() => {
-  const chain = { ...MAINNET, contracts: { ...MAINNET.contracts, ...v6 } };
+  // Without the V7 record mainnet carries since, so V6 is the only set.
+  const noV7 = { factoryV7: null, implementationV7: null, deployBlockV7: null };
+  const chain = { ...MAINNET, contracts: { ...MAINNET.contracts, ...v6, ...noV7 } };
   if (!isIndexable(chain)) throw new Error("the V6 only chain should be indexable");
   return chain;
 })();
